@@ -13,18 +13,21 @@ public class LoginServlet extends HttpServlet {
   
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    response.setContentType("text/html");
-    String testResponse;
-
     UserService userService = UserServiceFactory.getUserService();
     Boolean loginStatus = userService.isUserLoggedIn();
 
+    String json = "{";
+    json += "\"loginStatus\": \"" + loginStatus + "\", ";
+
     if (loginStatus) {
-      testResponse = "yes";
+      String logoutUrl = userService.createLogoutURL("/");
+      json += "\"logoutUrl\": \"" + logoutUrl + "\"}";
     } else {
-      testResponse = "no";
+      String loginUrl = userService.createLoginURL("/");
+      json += "\"loginUrl\": \"" + loginUrl + "\"}";
     }
 
-    response.getWriter().println(testResponse);
+    response.setContentType("application/json");
+    response.getWriter().println(json);
   }
 }

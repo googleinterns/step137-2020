@@ -2,20 +2,36 @@
  * Loads certain buttons in the navbar based on the user's login status.
  */
 function getLoginStatus() {
-  const loginButton = document.getElementById('login-button');
-  const logoutButton = document.getElementById('logout-button');
-  const personalProfileButton = document.getElementById('personal-profile-button');
-  const promise = fetch('/login').then(response => response.text()).then((message) => {
-    // If the user is logged in, hide the login button and display the logout and profile buttons.
-    if (message.localeCompare('yes') == 0) {
-      loginButton.style.display = 'none';
-      logoutButton.style.display = 'block';
-      personalProfileButton.style.display = 'block';
+  const userNavbarSection = document.getElementById('user-navbar-section');
+  userNavbarSection.innerHTML = '';
+
+  const promise = fetch('/login').then(response => response.json()).then((json) => {
+
+    // If the user is logged in, add a logout and profile button.
+    if (json['loginStatus'].localeCompare('true') == 0) {
+      const logoutButton = document.createElement('button');
+      logoutButton.innerText = 'Logout';
+      logoutButton.addEventListener('click', () => {
+        window.location.href = json['logoutUrl'];
+      });
+
+      const personalProfileButton = document.createElement('button');
+      personalProfileButton.innerText = 'My Profile';
+      personalProfileButton.addEventListener('click', () => {
+        window.location.href = 'profile.html';
+      });
+
+      userNavbarSection.appendChild(logoutButton);
+      userNavbarSection.appendChild(personalProfileButton);
+
+    // If the user is logged out, add a login button.
     } else {
-    // If the user is logged out, display the login button and hide the logout and profile buttons.
-      loginButton.style.display = 'block';
-      logoutButton.style.display = 'none';
-      personalProfileButton.style.display = 'none';
+      const loginButton = document.createElement('button');
+      loginButton.innerText = 'Login';
+      loginButton.addEventListener('click', () => {
+        window.location.href = json['loginUrl'];
+      });
+      userNavbarSection.appendChild(loginButton);
     }
   });
 }
