@@ -41,6 +41,7 @@ html, body {
   background-color: white;
   padding: 20px;
 }
+
 @media sceen and (max-width: 700px) {
   .row, .navbar {
     flex-direction: column;
