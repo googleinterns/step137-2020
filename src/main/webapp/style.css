@@ -1,6 +1,13 @@
 * {
   box-sizing: border-box;
 }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 .navbar {
   display: flex;
   background-color: #333;
@@ -14,6 +21,7 @@
 }
 
 .row {
+  height: 95%;
   display: flex;
   flex-wrap: wrap;
 }
@@ -24,12 +32,15 @@
   padding: 20px;
 }
 
-.map {
+#map {
+  height: 100%;
+}
+
+.main {
   flex: 70%;
   background-color: white;
   padding: 20px;
 }
-
 @media sceen and (max-width: 700px) {
   .row, .navbar {
     flex-direction: column;
