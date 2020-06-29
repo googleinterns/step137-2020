@@ -20,20 +20,15 @@ public class UserNameServlet extends HttpServlet {
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse respone) throws IOException {
       UserService userService = UserServiceFactory.getUserService();
+      DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
       String name = request.getParamter(Constants.USER_NAME_PARAM);
       String id = userService.getCurrentUser().getUserId();
 
-      DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+      Entity existingUserEntity = getUserEntity(id);
 
-      // Get the User entity with the same "id" property as the current user id.
-      Query query = new Query(Constants.USER_ENTITY_PARAM).
-          setFilter(new Query.FilterPredicate(Constants.USER_ID_PARAM, Query.FilterOperator.EQUAL, id));
-      PreparedQuery results = datastore.prepare(query);
-      Entity existingUserEntity = results.asSingleEntity();
-
-      // If the User entity does not already exist, create it and put it in datastore
-      // with its set "id" and "name" properties.
+      // If a User entity with the current user's id does not already exist, 
+      // create it and put it in datastore with its set "id" and "name" properties.
       if (existingUserEntity == null) {
         Entity newUserEntity = new Entity(Constants.USER_ENTITY_PARAM);
         newUserEntity.setProperty(Constants.USER_ID_PARAM, id);
@@ -47,5 +42,29 @@ public class UserNameServlet extends HttpServlet {
       }
     
       response.sendRedirect("/profile.html");
+    }
+
+    @Override
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+      UserService userService = UserServiceFactory.getUserService();
+
+      // Get the name property of the current User entity, or an empty string otherwise. 
+      String name = "";
+      Entity currentUserEntity = getUserEntity(userService.getCurrentUser().getUserId());
+      if (getUserEntity(currentUserEntity != null) {
+        name = (String) currentUserEntity.getProperty(Constants.USER_NAME_PARAM);
+      }
+
+      response.setContentType("text/html");
+      response.getWriter().println(name);
+    }
+
+    /** Returns the User entity with the specified "id" property, or null if one could not be found.*/
+    private Entity getUserEntity(String id) {
+      DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+      Query query = new Query(Constants.USER_ENTITY_PARAM)
+          .setFilter(new Query.FilterPredicate(Constants.USER_ID_PARAM, Query.FilterOperator.EQUAL, id));
+      PreparedQuery results = datastore.prepare(query);
+      return results.asSingleEntity();
     }
 }
