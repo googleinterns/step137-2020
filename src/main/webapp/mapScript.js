@@ -28,7 +28,8 @@ function initMap() {
 
 function handleLocationError(browserHasGeolocation, pos) {
   infoWindow.setContent(browserHasGeolocation ? 
-                        'Error: The Geolocation service failed.' :
-                        'Error: Your browser does not suppor geolocation.');
+    'Error: The Geolocation service failed.' :
+    'Error: Your browser does not suppor geolocation.'
+    );
   infoWindow.open(map);
 }
