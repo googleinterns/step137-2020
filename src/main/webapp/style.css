@@ -13,6 +13,10 @@ html, body {
   background-color: #333;
 }
 
+#attendees-wrap {
+  display: none;
+}
+
 .navbar a {
   color: white;
   padding: 14px 20px;
@@ -46,4 +50,27 @@ html, body {
   .row, .navbar {
     flex-direction: column;
   }
+}
+
+/* profile syling */
+.popup {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  padding-top: 15%;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+#user-info {
+  justify-content: center;
+}
+
+#bottom-wrapper {
+  display: flex;
+  justify-content: space-around;
 }
