@@ -1,5 +1,7 @@
 // Global Variables
-API_KEY = 'AIzaSyBf5E9ymEYBv6mAi78mFBOn8oUVvO8sph4';
+const API_KEY = 'AIzaSyBf5E9ymEYBv6mAi78mFBOn8oUVvO8sph4';
+var currentPlaceId;
+var currentLocationName;
 
 /** Initializes map and displays it. */
 function initMap() {
@@ -52,30 +54,44 @@ function fetchPlaceInformation( place_id ) {
   var fetchUrl = 'https://maps.googleapis.com/maps/';
   fetchUrl += 'api/place/details/json?place_id='+ place_id;
   fetchUrl += '&fields=name,rating,formatted_address,website,business_status';
-  fetchUrl += '&key='+API_KEY;
+  fetchUrl += '&key=' + API_KEY;
   fetch(proxyUrl + fetchUrl)
   .then(response => response.json())
   .then(result => { 
     console.log(result.result);
+    sessionStorage.setItem('locationName', result.result.name);
+    sessionStorage.setItem('locationId', place_id);
     sideBarElement = document.getElementById('side');
-    sideBarElement.innerHTML = '';
-    infoDivElement = document.createElement('div');
+    infoDivElement = document.getElementById('place-info');
+    infoDivElement.innerHTML = '';
     nameElement = document.createElement('p');
     ratingElement = document.createElement('p');
     addressElement = document.createElement('p');
     websiteElement = document.createElement('a');
+    createEventElement = document.createElement('a');
     businessStatusElement = document.createElement('p');    
     nameElement.innerText = 'Name: ' + result.result.name;
     ratingElement.innerText = 'Rating: ' + result.result.rating;
     addressElement.innerText = 'Address: ' + result.result.formatted_address;
+    websiteElement.innerText = result.result.website;
     websiteElement.href = result.result.website;
+    createEventElement.innerText = 'Create an Event';
+    createEventElement.href = 'CreateAnEvent.html';
     businessStatusElement.innerText = 'Business Status: ' + result.result.business_status;
     infoDivElement.appendChild(nameElement);
     infoDivElement.appendChild(ratingElement);
     infoDivElement.appendChild(addressElement);
     infoDivElement.appendChild(websiteElement);
     infoDivElement.appendChild(businessStatusElement);
+    infoDivElement.appendChild(createEventElement);
     sideBarElement.appendChild(infoDivElement);
     return sideBarElement;
   })
+}
+
+/** Makes place_id and location name of a place available */
+function getLocationInfo() {
+  locationInputElement = document.getElementById('location');
+  locationName = sessionStorage.getItem('locationName');
+  locationInputElement.value = locationName;
 }
