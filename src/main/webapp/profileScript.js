@@ -10,10 +10,10 @@ function loginStatusDisplay() {
 
   // Get the login status and display the corresponding elements.
   const promise = fetch('/login').then(response => response.json()).then((json) => {
-    // If the user is logged in, confirm that they have a name, then add the logout button 
-    // and profile page button to the navbar and the name to user info.
     if (json['loginStatus'].localeCompare('true') == 0) {
       confirmUserName();
+
+      // Add the logout and profile buttons to the navbar.
       const logoutButton = document.createElement('button');
       logoutButton.innerText = 'Logout';
       logoutButton.addEventListener('click', () => {
@@ -26,11 +26,14 @@ function loginStatusDisplay() {
       });
       userNavbarSection.appendChild(logoutButton);
       userNavbarSection.appendChild(personalProfileButton);
+
+      // Add the user's name to the profile info.
       const profileName = document.createElement('h1');
-      profileName.innerText = "PLACEHOLDER NAME";
+      profileName.innerText = json['name'];
       userInfo.appendChild(profileName);
-    // If the user is logged out, add the login button to the navbar.
     } else {
+     
+      // Add the login button to the navbar.
       const loginButton = document.createElement('button');
       loginButton.innerText = 'Login';
       loginButton.addEventListener('click', () => {
