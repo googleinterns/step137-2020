@@ -18,11 +18,11 @@ import javax.servlet.http.HttpServletResponse;
 public class UserNameServlet extends HttpServlet {
 
     @Override
-    public void doPost(HttpServletRequest request, HttpServletResponse respone) throws IOException {
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
       UserService userService = UserServiceFactory.getUserService();
       DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
-      String name = request.getParamter(Constants.USER_NAME_PARAM);
+      String name = request.getParameter(Constants.USER_NAME_PARAM);
       String id = userService.getCurrentUser().getUserId();
 
       Entity existingUserEntity = getUserEntity(id);
@@ -51,7 +51,7 @@ public class UserNameServlet extends HttpServlet {
       // Get the name property of the current User entity, or an empty string otherwise. 
       String name = "";
       Entity currentUserEntity = getUserEntity(userService.getCurrentUser().getUserId());
-      if (getUserEntity(currentUserEntity != null) {
+      if (currentUserEntity != null) {
         name = (String) currentUserEntity.getProperty(Constants.USER_NAME_PARAM);
       }
 
