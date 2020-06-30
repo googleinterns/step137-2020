@@ -40,7 +40,7 @@ public class EventServlet extends HttpServlet {
     eventEntity.setProperty(Constants.START_TIME_PARAM, startTime);
     eventEntity.setProperty(Constants.END_DATE_PARAM, endDate);
     eventEntity.setProperty(Constants.END_TIME_PARAM, endTime);
-    eventEntity.setProperty(Constants.LOCATION_PARAM, location;
+    eventEntity.setProperty(Constants.LOCATION_PARAM, location);
     eventEntity.setProperty(Constants.EVENT_DETAILS_PARAM, eventDetails);
     eventEntity.setProperty(Constants.COVID_SAFE_PARAM, yesCOVIDSafe);
     eventEntity.setProperty(Constants.PRIVACY_PARAM, privacy);
