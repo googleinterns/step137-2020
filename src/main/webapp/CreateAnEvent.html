@@ -14,19 +14,19 @@
     <h1>Create An Event</h1>
     <form action="/events" method="POST" target="_self">
       <label for="event-name">Event Name: </label>
-      <input type="text" id="event-name" name="event-name"></textarea>
+      <input type="text" id="event-name" name="event-name" required></textarea>
       <br><br>
       
       <label for="start-date">Start Date: </label>
-      <input type="date" id="start-date" name="start-date">
+      <input type="date" id="start-date" name="start-date" required>
       <label for="start-time">Start Time: </label>
-      <input type="time" id="start-time" name="start-time">
+      <input type="time" id="start-time" name="start-time" required>
       <br><br>
 
       <label for="end-date">End Date: </label>
-      <input type="date" id="end-date" name="end-date">
+      <input type="date" id="end-date" name="end-date" required>
       <label for="end-time">End Time: </label>
-      <input type="time" id="end-time" name="end-time">
+      <input type="time" id="end-time" name="end-time" required>
       <br><br>
 
       <label for="location">Location: </label>
@@ -37,18 +37,8 @@
       <input type="text" id="event-details" name="event-details">
       <br><br>
 
-      <h3>COVID-19 Safety Notice: <br> </h3>
-      <p>Please check the box if this event plans to 
-         follow government mandated COVID safety restrictions (masks, social distancing, etc).
-         <br>Please note that this information will not be reported to local authorities
-         and will in no way be used against you. It is only for the use of other
-         users who would like to know the intended level of caution at this event.</p>
-      <input type="checkbox" id="yes-COVID-Safe" name="yes-COVID-Safe">
-      <label for="yes-COVID-Safe">Yes, this event intends to implement COVID-19 safety measures</label>
-      <br><br>
-
       <label for="privacy">Privacy: (please choose one)</label>
-      <select id="privacy" onClick="specifiedAttendees(this.value)" name="privacy">
+      <select id="privacy" onClick="specifiedAttendees(this.value)" name="privacy" required>
         <option value="public">Public</option>
         <option value="buddies-only">Buddies Only</option>
         <option value="attendees">Specified Attendees</option>
@@ -56,14 +46,26 @@
       <br><br>
 
       <div id="attendees-wrap">
-        <label for="number-attendees">Please enter the number of guests to invite: (max 30)</label>
-        <input type="number" id="number-attendees" name="number-attendees" min="0" max="30">
+        <label for="number-attendees">Please enter the number of guests to invite: </label>
+        <input type="number" id="number-attendees" name="number-attendees" min="0" required>
         <button type="button" onclick="addAttendees()">Add Attendees</button>
         <div id="attendees-input"></div>
         <button type="button" onclick="checkAttendees()">Enter</button>
         <input type="text" id="attendees-list" name="attendees-list">
       </div>
-      <br><br>
+      <br>
+
+      <div id="COVID-notice">
+        <h3>COVID-19 Safety Notice:</h3>
+        <p>Please check the box if this event plans to 
+          follow government mandated COVID safety restrictions (masks, social distancing, etc).
+          <br>Please note that this information will not be reported to local authorities
+          and will in no way be used against you. It is only for the use of other
+          users who would like to know the intended level of caution at this event.</p>
+        <input type="checkbox" id="yes-COVID-Safe" name="yes-COVID-Safe">
+        <label for="yes-COVID-Safe">Yes, this event intends to implement COVID-19 safety measures</label>
+        <br><br>
+      </div>
 
       <input type="submit" value="Create Event">
     </form>

@@ -6,8 +6,23 @@
   background-color: #333;
 }
 
+/*events styling */
 #attendees-wrap {
   display: none;
+}
+
+#attendees-list {
+  display: none;
+}
+
+#COVID-notice h3 {
+  font-size: 15px;
+  color: grey;
+}
+
+#COVID-notice p {
+  font-size: 10px;
+  color: grey;
 }
 
 .navbar a {
@@ -63,6 +78,3 @@
   justify-content: space-around;
 }
 
-#attendees-list {
-  display: none;
-}
