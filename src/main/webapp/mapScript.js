@@ -1,6 +1,9 @@
+// Global Variables
+API_KEY = 'AIzaSyBf5E9ymEYBv6mAi78mFBOn8oUVvO8sph4';
+
 /** Initializes map and displays it. */
 function initMap() {
-  const map = new google.maps.Map(document.getElementById("map"), {
+  const map = new google.maps.Map(document.getElementById('map'), {
     center: { lat: -34.937, lng: 150.644 },
     zoom: 14
   })
@@ -18,6 +21,9 @@ function initMap() {
       infoWindow.setContent('Location found.');
       infoWindow.open(map);
       map.setCenter(pos);
+      map.addListener('click', function(e) {
+        fetchPlaceInformation(e.placeId);
+      });
       }, function() {
         handleLocationError(true, map.getCenter());
       });
@@ -34,4 +40,42 @@ function handleLocationError(browserHasGeolocation, pos) {
     'Error: Your browser does not suppor geolocation.'
     );
   infoWindow.open(map);
+}
+
+/** Fetches information about a place */
+function fetchPlaceInformation( place_id ) {
+  // Not sure if I am allowed to use a heroku proxy for this request.
+  // Without the proxy, the data returned by the request is blocked.
+  // With the proxy, it seems to work fine 
+  // TODO: ask VSE about this when they become available.
+  const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+  var fetchUrl = 'https://maps.googleapis.com/maps/';
+  fetchUrl += 'api/place/details/json?place_id='+ place_id;
+  fetchUrl += '&fields=name,rating,formatted_address,website,business_status';
+  fetchUrl += '&key='+API_KEY;
+  fetch(proxyUrl + fetchUrl)
+  .then(response => response.json())
+  .then(result => { 
+    console.log(result.result);
+    sideBarElement = document.getElementById('side');
+    sideBarElement.innerHTML = '';
+    infoDivElement = document.createElement('div');
+    nameElement = document.createElement('p');
+    ratingElement = document.createElement('p');
+    addressElement = document.createElement('p');
+    websiteElement = document.createElement('a');
+    businessStatusElement = document.createElement('p');    
+    nameElement.innerText = 'Name: ' + result.result.name;
+    ratingElement.innerText = 'Rating: ' + result.result.rating;
+    addressElement.innerText = 'Address: ' + result.result.formatted_address;
+    websiteElement.href = result.result.website;
+    businessStatusElement.innerText = 'Business Status: ' + result.result.business_status;
+    infoDivElement.appendChild(nameElement);
+    infoDivElement.appendChild(ratingElement);
+    infoDivElement.appendChild(addressElement);
+    infoDivElement.appendChild(websiteElement);
+    infoDivElement.appendChild(businessStatusElement);
+    sideBarElement.appendChild(infoDivElement);
+    return sideBarElement;
+  })
 }
