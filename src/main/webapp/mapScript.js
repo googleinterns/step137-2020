@@ -1,10 +1,11 @@
-
+/** Initializes map and displays it. */
 function initMap() {
   const map = new google.maps.Map(document.getElementById("map"), {
     center: { lat: -34.937, lng: 150.644 },
     zoom: 14
   })
 
+  // Checks if browser supports geolocation
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(function(position) {
       var pos = {
@@ -26,6 +27,7 @@ function initMap() {
   }
 }
 
+/** Handles any errors that have to do with geolocation. */
 function handleLocationError(browserHasGeolocation, pos) {
   infoWindow.setContent(browserHasGeolocation ? 
     'Error: The Geolocation service failed.' :
