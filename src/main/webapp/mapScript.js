@@ -62,6 +62,7 @@ function fetchPlaceInformation( place_id ) {
     nameElement = document.createElement('p');
     nameElement.innerText = result.result.name;
     infoDivElement.appendChild(nameElement);
-    return infoDivElement;
-    })
+    sideBarElement.appendChild(infoDivElement);
+    return sideBarElement;
+  })
 }
