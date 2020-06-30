@@ -55,5 +55,13 @@ function fetchPlaceInformation( place_id ) {
   fetchUrl += '&key='+API_KEY;
   fetch(proxyUrl + fetchUrl)
   .then(response => response.json())
-  .then(result => { console.log(result) })
+  .then(result => { 
+    console.log(result.result.name);
+    sideBarElement = document.getElementById('side');
+    infoDivElement = document.createElement('div');
+    nameElement = document.createElement('p');
+    nameElement.innerText = result.result.name;
+    infoDivElement.appendChild(nameElement);
+    return infoDivElement;
+    })
 }
