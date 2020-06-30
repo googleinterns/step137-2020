@@ -49,3 +49,12 @@
   overflow: auto;
   background-color: rgba(0, 0, 0, 0.4);
 }
+
+#user-info {
+  justify-content: center;
+}
+
+#bottom-wrapper {
+  display: flex;
+  justify-content: space-around;
+}

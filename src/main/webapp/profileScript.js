@@ -5,11 +5,13 @@ function loginStatusDisplay() {
   // Clear the user-specific elements previously displayed.
   const userNavbarSection = document.getElementById('user-navbar-section');
   userNavbarSection.innerHTML = '';
+  const userInfo = document.getElementById('user-info');
+  userInfo.innerHTML = '';
 
   // Get the login status and display the corresponding elements.
   const promise = fetch('/login').then(response => response.json()).then((json) => {
-    // If the user is logged in, confirm that they have a name, 
-    // then add the logout button and profile page button to the navbar.
+    // If the user is logged in, confirm that they have a name, then add the logout button 
+    // and profile page button to the navbar and the name to user info.
     if (json['loginStatus'].localeCompare('true') == 0) {
       confirmUserName();
       const logoutButton = document.createElement('button');
@@ -24,6 +26,9 @@ function loginStatusDisplay() {
       });
       userNavbarSection.appendChild(logoutButton);
       userNavbarSection.appendChild(personalProfileButton);
+      const profileName = document.createElement('h1');
+      profileName.innerText = "PLACEHOLDER NAME";
+      userInfo.appendChild(profileName);
     // If the user is logged out, add the login button to the navbar.
     } else {
       const loginButton = document.createElement('button');
@@ -40,12 +45,11 @@ function loginStatusDisplay() {
  * Confirms that the user already has a name, and if not sends them to update it.
  */
 function confirmUserName() {
-  console.log("yes, we are checking what we're supposed to");
   const promise = fetch('/user-name').then(response => response.text()).then((name) => {
     if (name.localeCompare('\n') == 0) {
       updateName();
     }
-  })
+  });
 }
 
 /*
