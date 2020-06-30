@@ -1,6 +1,13 @@
 * {
   box-sizing: border-box;
 }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 .navbar {
   display: flex;
   background-color: #333;
@@ -33,17 +40,22 @@
 }
 
 .row {
+  height: 95%;
   display: flex;
   flex-wrap: wrap;
 }
 
-.side {
+#side {
   flex: 30%;
   background-color: #f1f1f1;
   padding: 20px;
 }
 
-.map {
+#map {
+  height: 100%;
+}
+
+.main {
   flex: 70%;
   background-color: white;
   padding: 20px;
