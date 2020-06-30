@@ -1,7 +1,41 @@
-#navbar {
+* {
+  box-sizing: border-box;
+}
+.navbar {
   display: flex;
+  background-color: #333;
 }
 
 #attendees-wrap {
   display: none;
+}
+
+.navbar a {
+  color: white;
+  padding: 14px 20px;
+  text-decoration: none;
+  text-align: center;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.side {
+  flex: 30%;
+  background-color: #f1f1f1;
+  padding: 20px;
+}
+
+.map {
+  flex: 70%;
+  background-color: white;
+  padding: 20px;
+}
+
+@media sceen and (max-width: 700px) {
+  .row, .navbar {
+    flex-direction: column;
+  }
 }
