@@ -51,17 +51,30 @@ function fetchPlaceInformation( place_id ) {
   const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
   var fetchUrl = 'https://maps.googleapis.com/maps/';
   fetchUrl += 'api/place/details/json?place_id='+ place_id;
-  fetchUrl += '&fields=name';
+  fetchUrl += '&fields=name,rating,formatted_address,website,business_status';
   fetchUrl += '&key='+API_KEY;
   fetch(proxyUrl + fetchUrl)
   .then(response => response.json())
   .then(result => { 
-    console.log(result.result.name);
+    console.log(result.result);
     sideBarElement = document.getElementById('side');
+    sideBarElement.innerHTML = '';
     infoDivElement = document.createElement('div');
     nameElement = document.createElement('p');
-    nameElement.innerText = result.result.name;
+    ratingElement = document.createElement('p');
+    addressElement = document.createElement('p');
+    websiteElement = document.createElement('a');
+    businessStatusElement = document.createElement('p');    
+    nameElement.innerText = 'Name: ' + result.result.name;
+    ratingElement.innerText = 'Rating: ' + result.result.rating;
+    addressElement.innerText = 'Address: ' + result.result.formatted_address;
+    websiteElement.href = result.result.website;
+    businessStatusElement.innerText = 'Business Status: ' + result.result.business_status;
     infoDivElement.appendChild(nameElement);
+    infoDivElement.appendChild(ratingElement);
+    infoDivElement.appendChild(addressElement);
+    infoDivElement.appendChild(websiteElement);
+    infoDivElement.appendChild(businessStatusElement);
     sideBarElement.appendChild(infoDivElement);
     return sideBarElement;
   })
