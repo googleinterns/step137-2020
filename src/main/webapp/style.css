@@ -6,6 +6,10 @@
   background-color: #333;
 }
 
+#attendees-wrap {
+  display: none;
+}
+
 .navbar a {
   color: white;
   padding: 14px 20px;
