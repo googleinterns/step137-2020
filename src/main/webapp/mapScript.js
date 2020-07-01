@@ -63,7 +63,6 @@ function fetchPlaceInformation(place_id) {
   fetch(proxyUrl + fetchUrl)
   .then(response => response.json())
   .then(result => { 
-    console.log(result.result);
     sessionStorage.setItem('locationName', result.result.name);
     sessionStorage.setItem('locationId', place_id);
     sideBarElement = document.getElementById('side');
