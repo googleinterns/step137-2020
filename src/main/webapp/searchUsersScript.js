@@ -1,4 +1,12 @@
 /*
+ * Displays the page's content as soon as the page is laoded.
+ */
+function searchUsersOnload() {
+  navbarLoginDisplay();
+  displayUsers();
+}
+
+/*
  * Displays all of the site's users (placeholder until actual search feature).
  */
 function displayUsers() {
