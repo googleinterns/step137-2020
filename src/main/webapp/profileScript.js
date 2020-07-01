@@ -78,6 +78,7 @@ function displayProfileContent() {
       for (let i = 0; i < users.length; i ++) {
         if ((users[i].id + '\n').localeCompare(id) == 0) {
           displayBasicInfo(users[i]);
+          displaySavedInterests(users[i]);
           break;
         }
       }
@@ -95,4 +96,18 @@ function displayBasicInfo(user) {
   const name = document.createElement('h1');
   name.innerText = user.name;
   basicInfoContainer.appendChild(name);
+}
+
+/*
+ * Displays the saved interests of the specified user.
+ */
+function displaySavedInterests(user) {
+  const savedInterestsContainer = document.getElementById('interests-container');
+  savedInterestsContainer.innerHTML = '';
+
+  for (i = 1; i < user.interests.length; i ++) { // Starts at 1 to skip initial placeholder interest.
+    const interest = document.createElement('p');
+    interest.innerText = user.interests[i];
+    savedInterestsContainer.appendChild(interest);
+  }
 }
