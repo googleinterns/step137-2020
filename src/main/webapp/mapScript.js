@@ -73,7 +73,8 @@ function fetchPlaceInformation(place_id) {
     addressElement = document.createElement('p');
     websiteElement = document.createElement('a');
     createEventElement = document.createElement('a');
-    businessStatusElement = document.createElement('p');    
+    businessStatusElement = document.createElement('p');
+    saveInterestButtonElement = document.createElement('button');    
     nameElement.innerText = 'Name: ' + result.result.name;
     ratingElement.innerText = 'Rating: ' + result.result.rating;
     addressElement.innerText = 'Address: ' + result.result.formatted_address;
@@ -81,6 +82,10 @@ function fetchPlaceInformation(place_id) {
     websiteElement.href = result.result.website;
     createEventElement.innerText = 'Create an Event';
     createEventElement.href = 'CreateAnEvent.html';
+    saveInterestButtonElement.innerText = 'Interested';
+    saveInterestButtonElement.addEventListener('click', () => {
+      saveInterest(result.result.name, place_id);
+    });
     businessStatusElement.innerText = 'Business Status: ' + result.result.business_status;
     infoDivElement.appendChild(nameElement);
     infoDivElement.appendChild(ratingElement);
@@ -89,8 +94,9 @@ function fetchPlaceInformation(place_id) {
     infoDivElement.appendChild(businessStatusElement);
     userIsLoggedIn().then( loginStatus => {
       if (loginStatus) {
-        infoDivElement.appendChild(getUserPosts());
         infoDivElement.appendChild(createEventElement);
+        infoDivElement.appendChild(saveInterestButtonElement);
+        infoDivElement.appendChild(getUserPosts());
       }
     });
     sideBarElement.appendChild(infoDivElement);
@@ -127,5 +133,14 @@ function userIsLoggedIn() {
   .then(response => response.json())
   .then(json => { 
     return json['loginStatus'] == 'true' 
+  });
+}
+
+function saveInterest(locationName, placeId) {
+  const params = new URLSearchParams();
+  params.append('name', locationName);
+  params.append('placeId', placeId);
+  fetch('/saveInterest', {
+    method: 'POST', body: params
   });
 }
