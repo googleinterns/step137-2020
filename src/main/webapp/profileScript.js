@@ -1,19 +1,25 @@
 /*
- * Updates the page's display based on the user's login status.
+ * Displays the page's content as soon as the page is laoded.
  */
-function loginStatusDisplay() {
-  // Clear the user-specific elements previously displayed.
+function initialDisplay() {
+  navbarLoginDisplay();
+  displayProfileContent();
+}
+
+/*
+ * Displays login options in the navbar based on the user's login status.
+ */
+function navbarLoginDisplay() {
+  // Clear the login-specific elements previously displayed.
   const userNavbarSection = document.getElementById('user-navbar-section');
   userNavbarSection.innerHTML = '';
-  const userInfo = document.getElementById('user-info');
-  userInfo.innerHTML = '';
 
-  // Get the login status and display the corresponding elements.
-  const promise = fetch('/login').then(response => response.json()).then((json) => {
+  fetch('/login').then(response => response.json()).then((json) => {
+  
+    // If the user is logged in, confirm the user has a name, then 
+    // add logout and profile buttons to the navbar.
     if (json['loginStatus'].localeCompare('true') == 0) {
       confirmUserName();
-
-      // Add the logout and profile buttons to the navbar.
       const logoutButton = document.createElement('button');
       logoutButton.innerText = 'Logout';
       logoutButton.addEventListener('click', () => {
@@ -22,18 +28,13 @@ function loginStatusDisplay() {
       const personalProfileButton = document.createElement('button');
       personalProfileButton.innerText = 'My Profile';
       personalProfileButton.addEventListener('click', () => {
-        window.location.href = 'profile.html';
+        visitProfile(json['id']);
       });
       userNavbarSection.appendChild(logoutButton);
       userNavbarSection.appendChild(personalProfileButton);
-
-      // Add the user's name to the profile info.
-      const profileName = document.createElement('h1');
-      profileName.innerText = json['name'];
-      userInfo.appendChild(profileName);
+    
+    // If the user is logged in, add a login button to the navbar.
     } else {
-     
-      // Add the login button to the navbar.
       const loginButton = document.createElement('button');
       loginButton.innerText = 'Login';
       loginButton.addEventListener('click', () => {
@@ -45,19 +46,53 @@ function loginStatusDisplay() {
 }
 
 /*
- * Confirms that the user already has a name, and if not sends them to update it.
+ * Displays a form for the user to input their name if they do not yet have one.
  */
 function confirmUserName() {
   const promise = fetch('/user-name').then(response => response.text()).then((name) => {
     if (name.localeCompare('\n') == 0) {
-      updateName();
+      document.getElementById('name-form-container').style.display = 'block';
     }
   });
 }
 
 /*
- * Displays a form for the user to update their name.
+ * Redirects the site to the clicked user's profile.
  */
-function updateName() {
-  document.getElementById('name-form-container').style.display = 'block';
+function visitProfile(userId) {
+  const params = new URLSearchParams();
+  params.append('id', userId);
+  const request = new Request('/profile', {method: 'POST', body: params});
+  const promise = fetch(request);
+  promise.then(
+    window.location.href = 'profile.html'
+  );
+}
+
+/*
+ * Displays the profile content of the requested user.
+ */
+function displayProfileContent() {
+  fetch('/profile').then(response => response.text()).then((id) => {
+    fetch('/user').then(response => response.json()).then((users) => {
+      for (let i = 0; i < users.length; i ++) {
+        if ((users[i].id + '\n').localeCompare(id) == 0) {
+          displayBasicInfo(users[i]);
+          break;
+        }
+      }
+    });
+  });
+}
+
+/*
+ * Displays the basic info of the specified user.
+ */
+function displayBasicInfo(user) {
+  const basicInfoContainer = document.getElementById('basic-info');
+  basicInfoContainer.innerHTML = '';
+
+  const name = document.createElement('h1');
+  name.innerText = user.name;
+  basicInfoContainer.appendChild(name);
 }
