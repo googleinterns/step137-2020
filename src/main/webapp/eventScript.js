@@ -1,4 +1,12 @@
 /**
+  function calls for body onload
+ */
+function onload() {
+  navbarLoginDisplay();
+  getLocationInfo();
+}
+
+/**
   display attendees input only if the privacy specified 
   is "attendees"
 */
@@ -48,4 +56,3 @@ function checkAttendees() {
   document.getElementById("attendees-list").style.display = "block";
   document.getElementById("attendees-list").value = attendees;
 }
-

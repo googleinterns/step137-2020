@@ -8,11 +8,11 @@
     <script src="eventScript.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   </head>
-  <body onload="getLocationInfo()">
+  <body onload="onload()">
     <div class="navbar">
       <a href="map.html">Explore Map</a>
       <a href="searchUsers.html">Search Users</a>
-      <a href="profile.html">My Profile Page</a>
+      <div id="user-navbar-section"></div>
     </div>
     <h1>Create An Event</h1>
     <form action="/events" method="POST" target="_self">
@@ -63,7 +63,7 @@
         <p>Please check the box if this event plans to 
           follow government mandated COVID safety restrictions (masks, social distancing, etc).
           <br>Please note that this information will not be reported to local authorities
-          and will in no way be used against you. It is only for the use of other
+          and will in no way be used against you. <br>It is only for the use of other
           users who would like to know the intended level of caution at this event.</p>
         <input type="checkbox" id="yes-COVID-Safe" name="yes-COVID-Safe">
         <label for="yes-COVID-Safe">Yes, this event intends to implement COVID-19 safety measures</label>
