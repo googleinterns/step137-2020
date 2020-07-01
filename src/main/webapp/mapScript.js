@@ -87,8 +87,12 @@ function fetchPlaceInformation(place_id) {
     infoDivElement.appendChild(addressElement);
     infoDivElement.appendChild(websiteElement);
     infoDivElement.appendChild(businessStatusElement);
-    infoDivElement.appendChild(getUserPosts());
-    infoDivElement.appendChild(createEventElement);
+    userIsLoggedIn().then( loginStatus => {
+      if (loginStatus) {
+        infoDivElement.appendChild(getUserPosts());
+        infoDivElement.appendChild(createEventElement);
+      }
+    });
     sideBarElement.appendChild(infoDivElement);
     return sideBarElement;
   })
@@ -116,4 +120,12 @@ function getUserPosts() {
     userPostDivElement.appendChild(userPostElement);
   }
   return userPostDivElement;
+}
+
+function userIsLoggedIn() {
+   return fetch('/login')
+  .then(response => response.json())
+  .then(json => { 
+    return json['loginStatus'] == 'true' 
+  });
 }
