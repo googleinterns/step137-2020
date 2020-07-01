@@ -4,7 +4,8 @@ const API_KEY = 'AIzaSyBf5E9ymEYBv6mAi78mFBOn8oUVvO8sph4';
 /** Initial display of screen */
 function initialDisplay() {
   initMap();
-  navbarLoginDisplay();
+  // This function is located in profileScript.js
+  navbarLoginDisplay(); 
 }
 
 /** Initializes map and displays it. */
