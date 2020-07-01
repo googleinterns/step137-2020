@@ -32,6 +32,10 @@ html, body {
   color: grey;
 }
 
+#warning {
+  color: red;
+}
+
 .navbar a {
   color: white;
   padding: 14px 20px;

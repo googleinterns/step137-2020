@@ -44,8 +44,15 @@ function loadUser(user) {
 }
 
 function appendInfo(userId, userName) {
-  attendeeIDs.push(userId);
-  attendeeNames.push(userName);
-  document.getElementById("attendee-list").value = attendeeNames;
-  document.getElementById("attendee-ID-list").value = attendeeIDs;
+  document.getElementById("warning").innerHTML = "";
+  if (attendeeIDs.includes(userId)) {
+    document.getElementById("warning").innerHTML = 
+    "<p>User is already added to list</p>";
+  }
+  else {
+    attendeeIDs.push(userId);
+    attendeeNames.push(userName);
+    document.getElementById("attendee-list").value = attendeeNames;
+    document.getElementById("attendee-ID-list").value = attendeeIDs;
+  }
 }
