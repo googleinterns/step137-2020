@@ -9,11 +9,12 @@ import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.sps.data.Constants;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
 
 @WebServlet("/user-name")
 public class UserNameServlet extends HttpServlet {
@@ -71,7 +72,9 @@ public class UserNameServlet extends HttpServlet {
       Entity newUserEntity = new Entity(Constants.USER_ENTITY_PARAM);
       newUserEntity.setProperty(Constants.USER_ID_PARAM, id);
       newUserEntity.setProperty(Constants.USER_NAME_PARAM, name);
-      newUserEntity.setProperty(Constants.USER_INTERESTS_PARAM, new ArrayList<>());
+      List<String> interests = new ArrayList<>();
+      interests.add(""); // Add placeholder entry to prevent empty list from becoming null entity property.
+      newUserEntity.setProperty(Constants.USER_INTERESTS_PARAM, interests);
       return newUserEntity;
     }
 }

@@ -4,7 +4,6 @@ import com.google.appengine.api.datastore.*;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.sps.data.Constants;
-import com.google.sps.data.Interest;
 import java.io.IOException;
 import java.util.List;
 import javax.servlet.annotation.WebServlet;
@@ -17,9 +16,7 @@ public class InterestServlet extends HttpServlet {
   
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    String locationId = request.getParameter(Constants.INTEREST_ID_PARAM);
     String locationName = request.getParameter(Constants.INTEREST_NAME_PARAM);
-    Interest newInterest = new Interest(locationId, locationName);
 
     UserService userService = UserServiceFactory.getUserService();
     String userId = userService.getCurrentUser().getUserId();
@@ -29,14 +26,14 @@ public class InterestServlet extends HttpServlet {
     PreparedQuery results = datastore.prepare(query);
     Entity userEntity = results.asSingleEntity();
 
-    List<Interest> interests = (List<Interest>) userEntity.getProperty(Constants.USER_INTERESTS_PARAM);
+    List<String> interests = (List<String>) userEntity.getProperty(Constants.USER_INTERESTS_PARAM);
     // removes the interest if it has already been saved by the user
-    if (interests.contains(newInterest)) {
-      interests.remove(newInterest);
+    if (interests.contains(locationName)) {
+      interests.remove(locationName);
     }
     // adds the interest if it has not yet been saved by the user
     else {
-      interests.add(newInterest);
+      interests.add(locationName);
     }
 
     userEntity.setProperty(Constants.USER_INTERESTS_PARAM, interests);
