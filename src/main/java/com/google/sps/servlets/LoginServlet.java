@@ -32,7 +32,7 @@ public class LoginServlet extends HttpServlet {
 
     // If the user is logged out, add the login url to the json.
     } else {
-      String loginUrl = userService.createLoginURL("/");
+      String loginUrl = userService.createLoginURL("/profile.html");
       buildJson(jsonBuilder, Constants.LOGIN_URL_PARAM, loginUrl);
     }
 
