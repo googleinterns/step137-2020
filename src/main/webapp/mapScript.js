@@ -1,7 +1,11 @@
 // Global Variables
 const API_KEY = 'AIzaSyBf5E9ymEYBv6mAi78mFBOn8oUVvO8sph4';
-var currentPlaceId;
-var currentLocationName;
+
+/** Initial display of screen */
+function initialDisplay() {
+  initMap();
+  navbarLoginDisplay();
+}
 
 /** Initializes map and displays it. */
 function initMap() {
@@ -10,7 +14,7 @@ function initMap() {
     zoom: 14
   })
 
-  // Checks if browser supports geolocation
+  // Checks if browser supports geolocation.
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(function(position) {
       var pos = {
@@ -30,7 +34,7 @@ function initMap() {
         handleLocationError(true, map.getCenter());
       });
   } else {
-    // Browser does not support Geolocation
+    // Browser does not support Geolocation.
     handleLocationError(false, map.getCenter());
   }
 }
@@ -44,8 +48,8 @@ function handleLocationError(browserHasGeolocation, pos) {
   infoWindow.open(map);
 }
 
-/** Fetches information about a place */
-function fetchPlaceInformation( place_id ) {
+/** Fetches information about a place. */
+function fetchPlaceInformation(place_id) {
   // Not sure if I am allowed to use a heroku proxy for this request.
   // Without the proxy, the data returned by the request is blocked.
   // With the proxy, it seems to work fine 
@@ -83,15 +87,71 @@ function fetchPlaceInformation( place_id ) {
     infoDivElement.appendChild(addressElement);
     infoDivElement.appendChild(websiteElement);
     infoDivElement.appendChild(businessStatusElement);
+    infoDivElement.appendChild(getUserPosts());
     infoDivElement.appendChild(createEventElement);
     sideBarElement.appendChild(infoDivElement);
     return sideBarElement;
   })
 }
 
-/** Makes place_id and location name of a place available */
+/** Makes place_id and location name of a place available. */
 function getLocationInfo() {
   locationInputElement = document.getElementById('location');
   locationName = sessionStorage.getItem('locationName');
   locationInputElement.value = locationName;
+}
+
+/** Gets user posts. */
+function getUserPosts() {
+  const testPosts = [
+    "Test Post 1",
+    "Test Post 2",
+    "Test Post 3",
+    "Test Post 4"
+  ];
+  userPostDivElement = document.createElement('div');
+  for (i = 0; i < testPosts.length; i ++) {
+    userPostElement = document.createElement('p');
+    userPostElement.innerText = testPosts[i];
+    userPostDivElement.appendChild(userPostElement);
+  }
+  return userPostDivElement;
+}
+
+/*
+ * Displays login options in the navbar based on the user's login status.
+ */
+function navbarLoginDisplay() {
+  // Clear the login-specific elements previously displayed.
+  const userNavbarSection = document.getElementById('user-navbar-section');
+  userNavbarSection.innerHTML = '';
+
+  fetch('/login').then(response => response.json()).then((json) => {
+  
+    // If the user is logged in, confirm the user has a name, then 
+    // add logout and profile buttons to the navbar.
+    if (json['loginStatus'].localeCompare('true') == 0) {
+      const logoutButton = document.createElement('button');
+      logoutButton.innerText = 'Logout';
+      logoutButton.addEventListener('click', () => {
+        window.location.href = json['logoutUrl'];
+      });
+      const personalProfileButton = document.createElement('button');
+      personalProfileButton.innerText = 'My Profile';
+      personalProfileButton.addEventListener('click', () => {
+        visitProfile(json['id']);
+      });
+      userNavbarSection.appendChild(logoutButton);
+      userNavbarSection.appendChild(personalProfileButton);
+    
+    // If the user is logged in, add a login button to the navbar.
+    } else {
+      const loginButton = document.createElement('button');
+      loginButton.innerText = 'Login';
+      loginButton.addEventListener('click', () => {
+        window.location.href = json['loginUrl'];
+      });
+      userNavbarSection.appendChild(loginButton);
+    }
+  });
 }
