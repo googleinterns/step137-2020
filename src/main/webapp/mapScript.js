@@ -63,7 +63,6 @@ function fetchPlaceInformation(place_id) {
   fetch(proxyUrl + fetchUrl)
   .then(response => response.json())
   .then(result => { 
-    console.log(result.result);
     sessionStorage.setItem('locationName', result.result.name);
     sessionStorage.setItem('locationId', place_id);
     sideBarElement = document.getElementById('side');
@@ -74,7 +73,8 @@ function fetchPlaceInformation(place_id) {
     addressElement = document.createElement('p');
     websiteElement = document.createElement('a');
     createEventElement = document.createElement('a');
-    businessStatusElement = document.createElement('p');    
+    businessStatusElement = document.createElement('p');
+    saveInterestButtonElement = document.createElement('button');    
     nameElement.innerText = 'Name: ' + result.result.name;
     ratingElement.innerText = 'Rating: ' + result.result.rating;
     addressElement.innerText = 'Address: ' + result.result.formatted_address;
@@ -82,14 +82,23 @@ function fetchPlaceInformation(place_id) {
     websiteElement.href = result.result.website;
     createEventElement.innerText = 'Create an Event';
     createEventElement.href = 'CreateAnEvent.html';
+    saveInterestButtonElement.innerText = 'Interested';
+    saveInterestButtonElement.addEventListener('click', () => {
+      saveInterest(result.result.name, place_id);
+    });
     businessStatusElement.innerText = 'Business Status: ' + result.result.business_status;
     infoDivElement.appendChild(nameElement);
     infoDivElement.appendChild(ratingElement);
     infoDivElement.appendChild(addressElement);
     infoDivElement.appendChild(websiteElement);
     infoDivElement.appendChild(businessStatusElement);
-    infoDivElement.appendChild(getUserPosts());
-    infoDivElement.appendChild(createEventElement);
+    userIsLoggedIn().then( loginStatus => {
+      if (loginStatus) {
+        infoDivElement.appendChild(createEventElement);
+        infoDivElement.appendChild(saveInterestButtonElement);
+        infoDivElement.appendChild(getUserPosts());
+      }
+    });
     sideBarElement.appendChild(infoDivElement);
     return sideBarElement;
   })
@@ -117,4 +126,21 @@ function getUserPosts() {
     userPostDivElement.appendChild(userPostElement);
   }
   return userPostDivElement;
+}
+
+function userIsLoggedIn() {
+   return fetch('/login')
+  .then(response => response.json())
+  .then(json => { 
+    return json['loginStatus'] == 'true' 
+  });
+}
+
+function saveInterest(locationName, placeId) {
+  const params = new URLSearchParams();
+  params.append('name', locationName);
+  params.append('placeId', placeId);
+  fetch('/saveInterest', {
+    method: 'POST', body: params
+  });
 }
