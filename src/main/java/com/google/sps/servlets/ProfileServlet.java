@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 
 @WebServlet("/profile")
 public class ProfileServlet extends HttpServlet {
-  public String id;
+  private String id;
 
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
