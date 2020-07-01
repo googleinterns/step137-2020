@@ -1,7 +1,7 @@
 /*
  * Displays the page's content as soon as the page is laoded.
  */
-function initialDisplay() {
+function profileOnload() {
   navbarLoginDisplay();
   displayProfileContent();
 }
@@ -33,7 +33,7 @@ function navbarLoginDisplay() {
       userNavbarSection.appendChild(logoutButton);
       userNavbarSection.appendChild(personalProfileButton);
     
-    // If the user is logged in, add a login button to the navbar.
+    // If the user is logged out, add a login button to the navbar.
     } else {
       const loginButton = document.createElement('button');
       loginButton.innerText = 'Login';
