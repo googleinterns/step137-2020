@@ -1,3 +1,7 @@
+/**
+  display attendees input only if the privacy specified 
+  is "attendees"
+*/
 function specifiedAttendees(value) {
   if (value == "attendees") {
     document.getElementById("attendees-wrap").style.display = "block";
@@ -6,6 +10,11 @@ function specifiedAttendees(value) {
     document.getElementById("attendees-wrap").style.display = "none";
   }
 }
+
+/**
+  Adds the user-specified number of text input boxes to the 
+  attendees input div
+ */
 
 function addAttendees(){
   var number = document.getElementById("number-attendees").value;
@@ -23,6 +32,12 @@ function addAttendees(){
   }
 }
 
+/**
+  Eventually will check to make sure the attendees added are on the 
+  current users buddy list, for now just adds them to an array
+  and displays them
+ */
+
 function checkAttendees() {
   var number = document.getElementById("number-attendees").value;
   var attendees = new Array();
@@ -33,3 +48,4 @@ function checkAttendees() {
   document.getElementById("attendees-list").style.display = "block";
   document.getElementById("attendees-list").value = attendees;
 }
+

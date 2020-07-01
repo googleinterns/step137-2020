@@ -3,8 +3,9 @@
   <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="style.css">
-    <script src=eventScript.js></script>
-    <script src=mapScript.js></script>
+    <script src="mapScript.js"></script>
+    <script src="profileScript.js"></script>
+    <script src="eventScript.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   </head>
   <body onload="getLocationInfo()">
@@ -49,7 +50,7 @@
 
       <div id="attendees-wrap">
         <label for="number-attendees">Please enter the number of guests to invite: </label>
-        <input type="number" id="number-attendees" name="number-attendees" min="0" required>
+        <input type="number" id="number-attendees" name="number-attendees" min="0">
         <button type="button" onclick="addAttendees()">Add Attendees</button>
         <div id="attendees-input"></div>
         <button type="button" onclick="checkAttendees()">Enter</button>
