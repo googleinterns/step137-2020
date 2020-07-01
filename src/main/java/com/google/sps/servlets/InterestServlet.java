@@ -39,9 +39,4 @@ public class InterestServlet extends HttpServlet {
     userEntity.setProperty(Constants.USER_INTERESTS_PARAM, interests);
     datastore.put(userEntity);
   }
-
-  @Override
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-
-  }
 }
