@@ -23,12 +23,12 @@ public class LoginServlet extends HttpServlet {
     StringBuilder jsonBuilder = new StringBuilder("{");
     buildJson(jsonBuilder, Constants.LOGIN_STATUS_PARAM, loginStatus.toString());
 
-    // If the user is logged in, add the logout url and the user name to the json.
+    // If the user is logged in, add the logout url and the user ID to the json.
     if (loginStatus) {
       String logoutUrl = userService.createLogoutURL("/");
-      String userName = getUserName(userService.getCurrentUser().getUserId());
+      String userId = userService.getCurrentUser().getUserId();
       buildJson(jsonBuilder, Constants.LOGOUT_URL_PARAM, logoutUrl);
-      buildJson(jsonBuilder, Constants.USER_NAME_PARAM, userName);
+      buildJson(jsonBuilder, Constants.USER_ID_PARAM, userId);
 
     // If the user is logged out, add the login url to the json.
     } else {
@@ -52,19 +52,5 @@ public class LoginServlet extends HttpServlet {
     builder.append("\": \"");
     builder.append(paramValue);
     builder.append("\", ");
-  }
-
-  /** Returns the name of the user or an empty string if they do not yet have one. */
-  private String getUserName(String id) {
-    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-    Query query = new Query(Constants.USER_ENTITY_PARAM)
-        .setFilter(new Query.FilterPredicate(Constants.USER_ID_PARAM, Query.FilterOperator.EQUAL, id));
-    PreparedQuery results = datastore.prepare(query);
-    Entity userEntity = results.asSingleEntity();
-    String name = "";
-    if (userEntity != null) {
-      name = (String) userEntity.getProperty(Constants.USER_NAME_PARAM);
-    }
-    return name;
   }
 }
