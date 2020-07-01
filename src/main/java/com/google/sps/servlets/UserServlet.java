@@ -2,8 +2,8 @@ package com.google.sps.servlets;
 
 import com.google.appengine.api.datastore.*;
 import com.google.gson.Gson;
-import com.google.sps.data.User;
 import com.google.sps.data.Constants;
+import com.google.sps.data.User;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
