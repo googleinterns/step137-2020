@@ -18,7 +18,7 @@ html, body {
   display: none;
 }
 
-#attendees-list {
+#attendee-ID-list {
   display: none;
 }
 
@@ -30,6 +30,10 @@ html, body {
 #COVID-notice p {
   font-size: 10px;
   color: grey;
+}
+
+#warning {
+  color: red;
 }
 
 .navbar a {

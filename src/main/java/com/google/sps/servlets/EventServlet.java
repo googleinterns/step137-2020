@@ -58,93 +58,45 @@ public class EventServlet extends HttpServlet {
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     datastore.put(eventEntity);
 
-    response.sendRedirect("/CreateAnEvent.html");
+    response.sendRedirect("/map.html");
   }
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     UserService userService = UserServiceFactory.getUserService();
     String currentUserID = userService.getCurrentUser().getUserId();
-    String currentUserName = getUserName(userService.getCurrentUser().getUserId());
  
     Query query = new Query(Constants.EVENT_ENTITY_PARAM)
                       .addSort(Constants.START_TIME_PARAM, SortDirection.ASCENDING);
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     PreparedQuery results = datastore.prepare(query);
  
-    List<Entity> applicableEvents = new ArrayList<>();
-    for (Entity entity : results.asIterable()) {
-      String privacy = (String) entity.getProperty(Constants.PRIVACY_PARAM);
-      if (privacy == "public") {
-        applicableEvents.add(entity);
-      }
- /*
-   This will be implemented when buddy list functionaliy becomes available
-
-      else if (privacy == "buddies-only") {
-        Query userQuery = new Query(Constants.USER_ENTITY_PARAM)
-        DatastoreService userDataStore = DatastoreServiceFactory.getDatastoreService();
-        PreparedQuery userResults = datastore.prepare(userQuery);
- 
-        //get creator of event ID
-        String creatorID = entity.getProperty(Constants.CREATOR_PARAM);
-        //check if current user is in creators buddy list
-        for (Entity userEntity : userResults.asIterable()) {
-          if (userEntity.getProperty(Constants.USER_ID_PARAM) == creatorID) {
-            List<String> userBuddies = userEntity.getProperty(BUDDIES_PROPERTY);
-            if (userBuddies.contains(currentUserID) {
-              applicableEvents.add(entity);
-              break;
-            }
-          }
-        }
-      }
-  */
- 
-      else if (privacy == "attendees") {
-        List<String> attendees = (List<String>) entity.getProperty(Constants.ATTENDEES_PARAM);
-        if (attendees.contains(currentUserName)) {
-          applicableEvents.add(entity);
-        }
-      }
-    }
-
-    //converting the list of entities to a list of events 
+     //converting the list of entities to a list of events 
     List<Event> events = new ArrayList<>();
-    for (int i = 0; i < applicableEvents.size(); ++i) {
+    for (Entity entity : results.asIterable()) {
+
       String eventName = 
-          (String) applicableEvents.get(i)
-              .getProperty(Constants.EVENT_NAME_PARAM);
+          (String) entity.getProperty(Constants.EVENT_NAME_PARAM);
       String startDate = 
-          (String) applicableEvents.get(i)
-              .getProperty(Constants.START_DATE_PARAM);
+          (String) entity.getProperty(Constants.START_DATE_PARAM);
       String startTime =  
-          (String) applicableEvents.get(i)
-              .getProperty(Constants.START_TIME_PARAM);
+          (String) entity.getProperty(Constants.START_TIME_PARAM);
       String endDate = 
-          (String) applicableEvents.get(i)
-              .getProperty(Constants.END_DATE_PARAM);
+          (String) entity.getProperty(Constants.END_DATE_PARAM);
       String endTime = 
-          (String) applicableEvents.get(i)
-              .getProperty(Constants.END_TIME_PARAM);
+          (String) entity.getProperty(Constants.END_TIME_PARAM);
       String location = 
-          (String) applicableEvents.get(i)
-              .getProperty(Constants.LOCATION_PARAM);
+          (String) entity.getProperty(Constants.LOCATION_PARAM);
       String eventDetails = 
-          (String) applicableEvents.get(i)
-              .getProperty(Constants.EVENT_DETAILS_PARAM);
+          (String) entity.getProperty(Constants.EVENT_DETAILS_PARAM);
       String privacy = 
-          (String) applicableEvents.get(i)
-              .getProperty(Constants.PRIVACY_PARAM);
+          (String) entity.getProperty(Constants.PRIVACY_PARAM);
       String yesCOVIDSafe = 
-          (String) applicableEvents.get(i)
-              .getProperty(Constants.COVID_SAFE_PARAM);
+          (String) entity.getProperty(Constants.COVID_SAFE_PARAM);
       List<String> attendees = 
-          (List<String>) applicableEvents.get(i)
-              .getProperty(Constants.ATTENDEES_PARAM);
+          (List<String>) entity.getProperty(Constants.ATTENDEES_PARAM);
       String creator = 
-          (String) applicableEvents.get(i)
-              .getProperty(Constants.CREATOR_PARAM);
+          (String) entity.getProperty(Constants.CREATOR_PARAM);
 
       Event event = new Event(eventName, startDate, startTime, endDate, endTime,
                           location, eventDetails, yesCOVIDSafe, privacy, 
@@ -152,24 +104,9 @@ public class EventServlet extends HttpServlet {
       events.add(event);
     }
 
- 
     Gson gson = new Gson();
     response.setContentType("application/json;");
     response.getWriter().println(gson.toJson(events));
 
-  }
-
-  /** Returns the name of the user or an empty string if they do not yet have one. */
-  private String getUserName(String id) {
-    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-    Query query = new Query(Constants.USER_ENTITY_PARAM)
-        .setFilter(new Query.FilterPredicate(Constants.USER_ID_PARAM, Query.FilterOperator.EQUAL, id));
-    PreparedQuery results = datastore.prepare(query);
-    Entity userEntity = results.asSingleEntity();
-    String name = "";
-    if (userEntity != null) {
-      name = (String) userEntity.getProperty(Constants.USER_NAME_PARAM);
-    }
-    return name;
   }
 }
