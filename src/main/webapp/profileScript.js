@@ -79,6 +79,7 @@ function displayProfileContent() {
         if ((users[i].id + '\n').localeCompare(id) == 0) {
           displayBasicInfo(users[i]);
           displaySavedInterests(users[i]);
+          displayAttendingEvents(users[i]);
           break;
         }
       }
@@ -105,9 +106,43 @@ function displaySavedInterests(user) {
   const savedInterestsContainer = document.getElementById('interests-container');
   savedInterestsContainer.innerHTML = '';
 
-  for (i = 1; i < user.interests.length; i ++) { // Starts at 1 to skip initial placeholder interest.
+  for (let i = 1; i < user.interests.length; i ++) { // Starts at 1 to skip initial placeholder interest.
     const interest = document.createElement('p');
     interest.innerText = user.interests[i];
     savedInterestsContainer.appendChild(interest);
   }
+}
+
+/*
+ * Displays the events for which the specified user is on the attendees list.
+ */
+function displayAttendingEvents(user) {
+  const eventsContainer = document.getElementById('events-container');
+  eventsContainer.innerHTML = '';
+
+  fetch('/events').then(response => response.json()).then((events) => {
+    for (let i = 0; i < events.length; i ++) {
+      if (events[i].attendees.includes(user.id)) {
+        eventsContainer.appendChild(createEvent(events[i]));
+      }
+    }
+  });
+}
+
+/*
+ * Creates an event element to be displayed on the page.
+ */
+function createEvent(event) {
+  const eventName = document.createElement('h4');
+  eventName.innerText = event.eventName;
+  const eventLocation = document.createElement('p');
+  eventLocation.innerText = event.location;
+  const eventDetails = document.createElement('p'); 
+  eventDetails.innerText = event.eventDetails;
+
+  const eventElement = document.createElement('div');
+  eventElement.append(eventName);
+  eventElement.append(eventLocation);
+  eventElement.append(eventDetails);
+  return eventElement;
 }
