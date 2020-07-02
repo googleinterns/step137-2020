@@ -60,30 +60,24 @@ function confirmUserName() {
  * Redirects the site to the clicked user's profile.
  */
 function visitProfile(userId) {
-  const params = new URLSearchParams();
-  params.append('id', userId);
-  const request = new Request('/profile', {method: 'POST', body: params});
-  const promise = fetch(request);
-  promise.then(
-    window.location.href = 'profile.html'
-  );
+  sessionStorage.setItem("loadProfile", userId);
+  window.location.href = 'profile.html';
 }
 
 /*
  * Displays the profile content of the requested user.
  */
 function displayProfileContent() {
-  fetch('/profile').then(response => response.text()).then((id) => {
-    fetch('/user').then(response => response.json()).then((users) => {
-      for (let i = 0; i < users.length; i ++) {
-        if ((users[i].id + '\n').localeCompare(id) == 0) {
-          displayBasicInfo(users[i]);
-          displaySavedInterests(users[i]);
-          displayAttendingEvents(users[i]);
-          break;
-        }
+  let id = sessionStorage.getItem("loadProfile");
+  fetch('/user').then(response => response.json()).then((users) => {
+    for (let i = 0; i < users.length; i ++) {
+      if ((users[i].id).localeCompare(id) == 0) {
+        displayBasicInfo(users[i]);
+        displaySavedInterests(users[i]);
+        displayAttendingEvents(users[i]);
+        break;
       }
-    });
+    }
   });
 }
 
@@ -133,7 +127,7 @@ function displayAttendingEvents(user) {
  * Creates an event element to be displayed on the page.
  */
 function createEvent(event) {
-  const eventName = document.createElement('h4');
+  const eventName = document.createElement('h3');
   eventName.innerText = event.eventName;
   const eventLocation = document.createElement('p');
   eventLocation.innerText = event.location;
