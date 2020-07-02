@@ -140,3 +140,13 @@ function createEvent(event) {
   eventElement.append(eventDetails);
   return eventElement;
 }
+
+/*
+ * Updates the page to display the current user's profile info.
+ */
+function updateCurrentProfile() {
+  fetch('/login').then(response => response.json()).then((json) => {
+    sessionStorage.setItem("loadProfile", json['id']);
+    profileOnload();
+  });
+}
