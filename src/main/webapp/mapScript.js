@@ -10,13 +10,28 @@ function initialDisplay() {
 
 /** Initializes map and displays it. */
 function initMap() {
+  geocoder = new google.maps.Geocoder();
+  newCenterId = sessionStorage.getItem('currentLocationId');
+  mapCenter = { lat: -34.937, lng: 150.644 };
+  
   const map = new google.maps.Map(document.getElementById('map'), {
-    center: { lat: -34.937, lng: 150.644 },
+    center: mapCenter,
     zoom: 14
   })
 
+  // Checks to see if location was clicked from users saved interests
+  if (newCenterId) {
+    geocoder.geocode( {'placeId' : newCenterId}, function(results, status) {
+      if (status == "OK") {
+        mapCenter = results[0].geometry.location;
+      }
+      else {
+        alert('Geocode was not successful for the following reason: ' + status);
+      }
+    })
+  }
   // Checks if browser supports geolocation.
-  if (navigator.geolocation) {
+  else if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(function(position) {
       var pos = {
         lat: position.coords.latitude,
@@ -55,12 +70,20 @@ function fetchPlaceInformation(place_id) {
   // Without the proxy, the data returned by the request is blocked.
   // With the proxy, it seems to work fine 
   // TODO: ask VSE about this when they become available.
+  detailFinder = google.maps.places.PlaceDetailsRequest()
   const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+  let headers = new Headers();
+  headers.append('Access-Control-Allow-Origin','*');
+  let requestOptions = {
+    method: 'GET',
+    headers: headers,
+    redirect: 'follow'
+  }
   var fetchUrl = 'https://maps.googleapis.com/maps/';
   fetchUrl += 'api/place/details/json?place_id='+ place_id;
   fetchUrl += '&fields=name,rating,formatted_address,website,business_status';
   fetchUrl += '&key=' + API_KEY;
-  fetch(proxyUrl + fetchUrl)
+  fetch(fetchUrl, requestOptions)//(proxyUrl + fetchUrl)
   .then(response => response.json())
   .then(result => { 
     sessionStorage.setItem('locationName', result.result.name);
@@ -152,8 +175,6 @@ function userIsLoggedIn() {
 }
 
 /** Sends post request to store saved interest. */
-//function saveInterest(locationName, placeId) {
-
 function saveInterest(locationName, placeId) {
   const params = new URLSearchParams();
   params.append('location-name', locationName);
