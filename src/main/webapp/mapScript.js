@@ -65,9 +65,11 @@ function fetchPlaceInformation(place_id) {
   .then(result => { 
     sessionStorage.setItem('locationName', result.result.name);
     sessionStorage.setItem('locationId', place_id);
+    
     sideBarElement = document.getElementById('side');
     infoDivElement = document.getElementById('place-info');
     infoDivElement.innerHTML = '';
+    
     nameElement = document.createElement('p');
     ratingElement = document.createElement('p');
     addressElement = document.createElement('p');
@@ -75,6 +77,7 @@ function fetchPlaceInformation(place_id) {
     createEventElement = document.createElement('a');
     businessStatusElement = document.createElement('p');
     saveInterestButtonElement = document.createElement('button');    
+    
     nameElement.innerText = 'Name: ' + result.result.name;
     ratingElement.innerText = 'Rating: ' + result.result.rating;
     addressElement.innerText = 'Address: ' + result.result.formatted_address;
@@ -92,6 +95,7 @@ function fetchPlaceInformation(place_id) {
     infoDivElement.appendChild(addressElement);
     infoDivElement.appendChild(websiteElement);
     infoDivElement.appendChild(businessStatusElement);
+    infoDivElement.appendChild(getAvailableEvents());
     userIsLoggedIn().then( loginStatus => {
       if (loginStatus) {
         infoDivElement.appendChild(createEventElement);
@@ -128,6 +132,41 @@ function getUserPosts() {
   return userPostDivElement;
 }
 
+/**
+  Gets events the user is allowed to see
+*/
+function getAvailableEvents() {
+  eventDivElement = document.createElement("div");
+  locationName = sessionStorage.getItem('locationName');
+  fetch("events")
+    .then(response => response.json())
+    .then(events => {
+      for (i = 0; i < events.length; i++) {
+        if (events[i].location = locationName) {
+          if (events[i].privacy = "public") {
+            eventDivElement.appendChild(createEvent(events[i]));
+          }
+        }
+      }
+    });
+  return eventDivElement;
+}
+
+function createEvent(event) {
+  const eventName = document.createElement('h3');
+  eventName.innerText = event.eventName;
+  const eventLocation = document.createElement('p');
+  eventLocation.innerText = event.location;
+  const eventDetails = document.createElement('p'); 
+  eventDetails.innerText = event.eventDetails;
+
+  const eventElement = document.createElement('div');
+  eventElement.append(eventName);
+  eventElement.append(eventLocation);
+  eventElement.append(eventDetails);
+  return eventElement;
+}
+
 function userIsLoggedIn() {
    return fetch('/login')
   .then(response => response.json())
@@ -139,7 +178,6 @@ function userIsLoggedIn() {
 function saveInterest(locationName) {
   const params = new URLSearchParams();
   params.append('location-name', locationName);
-  fetch('/interest', {
-    method: 'POST', body: params
-  });
+  const request = new Request('/interest', {method: 'POST', body: params});
+  fetch(request);
 }
