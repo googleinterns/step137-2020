@@ -64,7 +64,7 @@ function fetchPlaceInformation(place_id) {
   .then(response => response.json())
   .then(result => { 
     sessionStorage.setItem('locationName', result.result.name);
-    sessionStorage.setItem('locationId', place_id);
+    sessionStorage.setItem('placeId', place_id);
     sideBarElement = document.getElementById('side');
     infoDivElement = document.getElementById('place-info');
     infoDivElement.innerHTML = '';
@@ -108,8 +108,12 @@ function fetchPlaceInformation(place_id) {
 /** Makes place_id and location name of a place available. */
 function getLocationInfo() {
   locationInputElement = document.getElementById('location');
+  placeIdInputElement = document.getElementById('placeId');
   locationName = sessionStorage.getItem('locationName');
+  placeId = sessionStorage.getItem('placeId');
+  console.log(placeId);
   locationInputElement.value = locationName;
+  placeIdInputElement.value = placeId;
 }
 
 /** Gets user posts. */
@@ -134,7 +138,7 @@ function getEvents() {
   fetch('/events')
   .then(response => response.json())
   .then(json => {
-    console.log(json[0])
+    console.log(json);
   });
 }
 
@@ -147,13 +151,13 @@ function userIsLoggedIn() {
   });
 }
 
-
 /** Sends post request to store saved interest. */
 //function saveInterest(locationName, placeId) {
 
-function saveInterest(locationName) {
+function saveInterest(locationName, placeId) {
   const params = new URLSearchParams();
   params.append('location-name', locationName);
+  params.append('place_id', placeId);
   fetch('/interest', {
     method: 'POST', body: params
   });
