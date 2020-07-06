@@ -36,11 +36,6 @@ function loadUser(user) {
  * Redirects the site to the clicked user's profile.
  */
 function visitProfile(userId) {
-  const params = new URLSearchParams();
-  params.append('id', userId);
-  const request = new Request('/profile', {method: 'POST', body: params});
-  const promise = fetch(request);
-  promise.then(
-    window.location.href = 'profile.html'
-  );
+  sessionStorage.setItem("loadProfile", userId);
+  window.location.href = 'profile.html';
 }

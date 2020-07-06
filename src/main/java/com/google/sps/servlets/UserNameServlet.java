@@ -9,6 +9,8 @@ import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.sps.data.Constants;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -27,12 +29,9 @@ public class UserNameServlet extends HttpServlet {
 
       Entity existingUserEntity = getUserEntity(id);
 
-      // If a User entity with the current user's id does not already exist, 
-      // create it and put it in datastore with its set "id" and "name" properties.
+      // If a User entity with the current user's id does not already exist, create it.
       if (existingUserEntity == null) {
-        Entity newUserEntity = new Entity(Constants.USER_ENTITY_PARAM);
-        newUserEntity.setProperty(Constants.USER_ID_PARAM, id);
-        newUserEntity.setProperty(Constants.USER_NAME_PARAM, name);
+        Entity newUserEntity = createNewUser(id, name);
         datastore.put(newUserEntity);
       
       // If the User entity exists, put it in datastore with its updated "name" property.
@@ -59,12 +58,23 @@ public class UserNameServlet extends HttpServlet {
       response.getWriter().println(name);
     }
 
-    /** Returns the User entity with the specified "id" property, or null if one could not be found.*/
+    /** Returns the User entity with the specified "id" property, or null if one could not be found. */
     private Entity getUserEntity(String id) {
       DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
       Query query = new Query(Constants.USER_ENTITY_PARAM)
           .setFilter(new Query.FilterPredicate(Constants.USER_ID_PARAM, Query.FilterOperator.EQUAL, id));
       PreparedQuery results = datastore.prepare(query);
       return results.asSingleEntity();
+    }
+
+    /** Returns a newly created User entity with the specified ID and name. */
+    private Entity createNewUser(String id, String name) {
+      Entity newUserEntity = new Entity(Constants.USER_ENTITY_PARAM);
+      newUserEntity.setProperty(Constants.USER_ID_PARAM, id);
+      newUserEntity.setProperty(Constants.USER_NAME_PARAM, name);
+      List<String> interests = new ArrayList<>();
+      interests.add(""); // Add placeholder entry to prevent empty list from becoming null entity property.
+      newUserEntity.setProperty(Constants.USER_INTERESTS_PARAM, interests);
+      return newUserEntity;
     }
 }
