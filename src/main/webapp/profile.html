@@ -12,7 +12,7 @@
       <div id="user-navbar-section"></div>
     </div>
     <div id="name-form-container" class="popup">
-      <form action="/user-name" method="POST">
+      <form action="/user-name" method="POST" onsubmit="updateCurrentProfile()">
       <label for="name">Enter a name for your account:</label><br>
       <input type="text" name="name" class="input"></input>
       <br></br>
@@ -24,10 +24,11 @@
     <div id="bottom-wrapper">
       <div id="saved-interests">
         <h2>Saved Interests</h2>
+        <div id="interests-container"></div>
       </div>
       <div id="events">
         <h2>Events</h2>
-        <a href="CreateAnEvent.html">Create An Event</a>
+        <div id="events-container"></div>
       </div>
       <div id="posts">
         <h2>Posts</h2>

@@ -60,28 +60,24 @@ function confirmUserName() {
  * Redirects the site to the clicked user's profile.
  */
 function visitProfile(userId) {
-  const params = new URLSearchParams();
-  params.append('id', userId);
-  const request = new Request('/profile', {method: 'POST', body: params});
-  const promise = fetch(request);
-  promise.then(
-    window.location.href = 'profile.html'
-  );
+  sessionStorage.setItem("loadProfile", userId);
+  window.location.href = 'profile.html';
 }
 
 /*
  * Displays the profile content of the requested user.
  */
 function displayProfileContent() {
-  fetch('/profile').then(response => response.text()).then((id) => {
-    fetch('/user').then(response => response.json()).then((users) => {
-      for (let i = 0; i < users.length; i ++) {
-        if ((users[i].id + '\n').localeCompare(id) == 0) {
-          displayBasicInfo(users[i]);
-          break;
-        }
+  let id = sessionStorage.getItem("loadProfile");
+  fetch('/user').then(response => response.json()).then((users) => {
+    for (let i = 0; i < users.length; i ++) {
+      if ((users[i].id).localeCompare(id) == 0) {
+        displayBasicInfo(users[i]);
+        displaySavedInterests(users[i]);
+        displayAttendingEvents(users[i]);
+        break;
       }
-    });
+    }
   });
 }
 
@@ -95,4 +91,62 @@ function displayBasicInfo(user) {
   const name = document.createElement('h1');
   name.innerText = user.name;
   basicInfoContainer.appendChild(name);
+}
+
+/*
+ * Displays the saved interests of the specified user.
+ */
+function displaySavedInterests(user) {
+  const savedInterestsContainer = document.getElementById('interests-container');
+  savedInterestsContainer.innerHTML = '';
+
+  for (let i = 1; i < user.interests.length; i ++) { // Starts at 1 to skip initial placeholder interest.
+    const interest = document.createElement('p');
+    interest.innerText = user.interests[i];
+    savedInterestsContainer.appendChild(interest);
+  }
+}
+
+/*
+ * Displays the events for which the specified user is on the attendees list.
+ */
+function displayAttendingEvents(user) {
+  const eventsContainer = document.getElementById('events-container');
+  eventsContainer.innerHTML = '';
+
+  fetch('/events').then(response => response.json()).then((events) => {
+    for (let i = 0; i < events.length; i ++) {
+      if (events[i].attendees.includes(user.id)) {
+        eventsContainer.appendChild(createEvent(events[i]));
+      }
+    }
+  });
+}
+
+/*
+ * Creates an event element to be displayed on the page.
+ */
+function createEvent(event) {
+  const eventName = document.createElement('h3');
+  eventName.innerText = event.eventName;
+  const eventLocation = document.createElement('p');
+  eventLocation.innerText = event.location;
+  const eventDetails = document.createElement('p'); 
+  eventDetails.innerText = event.eventDetails;
+
+  const eventElement = document.createElement('div');
+  eventElement.append(eventName);
+  eventElement.append(eventLocation);
+  eventElement.append(eventDetails);
+  return eventElement;
+}
+
+/*
+ * Updates the page to display the current user's profile info.
+ */
+function updateCurrentProfile() {
+  fetch('/login').then(response => response.json()).then((json) => {
+    sessionStorage.setItem("loadProfile", json['id']);
+    profileOnload();
+  });
 }

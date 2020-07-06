@@ -84,7 +84,7 @@ function fetchPlaceInformation(place_id) {
     createEventElement.href = 'CreateAnEvent.html';
     saveInterestButtonElement.innerText = 'Interested';
     saveInterestButtonElement.addEventListener('click', () => {
-      saveInterest(result.result.name, place_id);
+      saveInterest(result.result.name);
     });
     businessStatusElement.innerText = 'Business Status: ' + result.result.business_status;
     infoDivElement.appendChild(nameElement);
@@ -136,11 +136,10 @@ function userIsLoggedIn() {
   });
 }
 
-function saveInterest(locationName, placeId) {
+function saveInterest(locationName) {
   const params = new URLSearchParams();
-  params.append('name', locationName);
-  params.append('placeId', placeId);
-  fetch('/saveInterest', {
+  params.append('location-name', locationName);
+  fetch('/interest', {
     method: 'POST', body: params
   });
 }
