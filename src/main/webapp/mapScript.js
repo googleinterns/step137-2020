@@ -94,6 +94,7 @@ function fetchPlaceInformation(place_id) {
     infoDivElement.appendChild(businessStatusElement);
     userIsLoggedIn().then( loginStatus => {
       if (loginStatus) {
+        getEvents();
         infoDivElement.appendChild(createEventElement);
         infoDivElement.appendChild(saveInterestButtonElement);
         infoDivElement.appendChild(getUserPosts());
@@ -128,6 +129,16 @@ function getUserPosts() {
   return userPostDivElement;
 }
 
+/** Gets events at a location */
+function getEvents() {
+  fetch('/events')
+  .then(response => response.json())
+  .then(json => {
+    console.log(json[0])
+  });
+}
+
+/** Checks to see if a user is logged in. */
 function userIsLoggedIn() {
    return fetch('/login')
   .then(response => response.json())
@@ -136,6 +147,7 @@ function userIsLoggedIn() {
   });
 }
 
+/** Sends post request to store saved interest. */
 function saveInterest(locationName, placeId) {
   const params = new URLSearchParams();
   params.append('name', locationName);
