@@ -29,13 +29,12 @@ public class UserNameServlet extends HttpServlet {
 
     Entity existingUserEntity = getUserEntity(id);
 
-    // If a User entity with the current user's id does not already exist, create it.
     if (existingUserEntity == null) {
+      // If a User entity with the current user's id does not already exist, create it.
       Entity newUserEntity = createNewUser(id, name);
       datastore.put(newUserEntity);
-      
-    // If the User entity exists, put it in datastore with its updated "name" property.
     } else {
+      // If the User entity exists, put it in datastore with its updated "name" property.
       existingUserEntity.setProperty(Constants.USER_NAME_PARAM, name);
       datastore.put(existingUserEntity);
     }
@@ -58,11 +57,12 @@ public class UserNameServlet extends HttpServlet {
     response.getWriter().println(name);
   }
 
-  /** Returns the User entity with the specified "id" property, or null if one could not be found. */
+  /** Returns the User entity with the specified ID, or null if one could not be found. */
   private Entity getUserEntity(String id) {
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     Query query = new Query(Constants.USER_ENTITY_PARAM)
-        .setFilter(new Query.FilterPredicate(Constants.USER_ID_PARAM, Query.FilterOperator.EQUAL, id));
+        .setFilter(new Query.FilterPredicate(Constants.USER_ID_PARAM, 
+            Query.FilterOperator.EQUAL, id));
     PreparedQuery results = datastore.prepare(query);
     return results.asSingleEntity();
   }

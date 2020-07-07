@@ -26,22 +26,23 @@ public class BuddyServlet extends HttpServlet {
     Entity currentUserEntity = getUserEntity(currentUserId);
     Entity otherUserEntity = getUserEntity(otherUserId);
 
-    List<String> currentBuddiesList = (List<String>) currentUserEntity.getProperty(Constants.USER_BUDDIES_PARAM);
-    List<String> otherBuddiesList = (List<String>) otherUserEntity.getProperty(Constants.USER_BUDDIES_PARAM);
+    List<String> currentUserBuddies = (List<String>) currentUserEntity
+        .getProperty(Constants.USER_BUDDIES_PARAM);
+    List<String> otherUserBuddies = (List<String>) otherUserEntity
+        .getProperty(Constants.USER_BUDDIES_PARAM);
 
-    // If the users are already buddies, remove buddies.
-    if (currentBuddiesList.contains(otherUserId)) {
-      currentBuddiesList.remove(otherUserId);
-      otherBuddiesList.remove(currentUserId);
-    
-    // If the users are not yet buddies, add buddies.
+    if (currentUserBuddies.contains(otherUserId)) {
+      // If the users are already buddies, remove buddies.
+      currentUserBuddies.remove(otherUserId);
+      otherUserBuddies.remove(currentUserId);
     } else {
-      currentBuddiesList.add(otherUserId);
-      otherBuddiesList.add(currentUserId);
+      // If the users are not yet buddies, add buddies.
+      currentUserBuddies.add(otherUserId);
+      otherUserBuddies.add(currentUserId);
     }
 
-    currentUserEntity.setProperty(Constants.USER_BUDDIES_PARAM, currentBuddiesList);
-    otherUserEntity.setProperty(Constants.USER_BUDDIES_PARAM, otherBuddiesList);
+    currentUserEntity.setProperty(Constants.USER_BUDDIES_PARAM, currentUserBuddies);
+    otherUserEntity.setProperty(Constants.USER_BUDDIES_PARAM, otherUserBuddies);
     datastore.put(currentUserEntity);
     datastore.put(otherUserEntity);
   }
@@ -58,11 +59,12 @@ public class BuddyServlet extends HttpServlet {
     response.getWriter().println(gson.toJson(buddies));
   }
 
-  /** Returns the User entity with the specified "id" property, or null if one could not be found. */
+  /** Returns the User entity with the specified ID, or null if one could not be found. */
   private Entity getUserEntity(String id) {
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     Query query = new Query(Constants.USER_ENTITY_PARAM)
-        .setFilter(new Query.FilterPredicate(Constants.USER_ID_PARAM, Query.FilterOperator.EQUAL, id));
+        .setFilter(new Query.FilterPredicate(Constants.USER_ID_PARAM, 
+            Query.FilterOperator.EQUAL, id));
     PreparedQuery results = datastore.prepare(query);
     return results.asSingleEntity();
   }
