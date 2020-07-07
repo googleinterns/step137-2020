@@ -117,7 +117,7 @@ function createInterest(interest) {
   const interestName = document.createElement('h3');
   interestName.innerText = interest.locationName;
   interestName.addEventListener('click', () => {
-    // TODO: update session storage so map visits specified interest
+    sessionStorage.set('currentLocationId', interest.placeId);
     window.location.href = 'map.html';
   });
 
