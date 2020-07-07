@@ -205,9 +205,9 @@ function userIsLoggedIn() {
 
 /** Sends post request to store saved interest. */
 function saveInterest(locationName, placeId) {
-  const params = new URLSearchParams();
+  const params = new URLSearchParams()
+  params.append('place-id', placeId);
   params.append('location-name', locationName);
-  params.append('place_id', placeId);
   fetch('/interest', {
     method: 'POST', body: params
   });

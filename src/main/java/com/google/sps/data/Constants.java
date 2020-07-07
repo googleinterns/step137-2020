@@ -28,6 +28,8 @@ public final class Constants {
   public static final String CREATOR_PARAM = "creator";
 
   // Interest constants
+  public static final String INTEREST_ENTITY_PARAM = "Interest";
   public static final String INTEREST_NAME_PARAM = "location-name";
-  public static final String INTEREST_ID_PARAM = "location-id";
+  public static final String INTEREST_ID_PARAM = "place-id";
+  public static final String INTEREST_USERS_PARAM = "interested-users";
 }
