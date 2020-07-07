@@ -26,7 +26,7 @@ function navbarLoginDisplay() {
         window.location.href = json['logoutUrl'];
       });
       const personalProfileButton = document.createElement('button');
-      personalProfileButton.innerText = 'My Profile';
+      personalProfileButton.innerText = 'Your Profile';
       personalProfileButton.addEventListener('click', () => {
         visitProfile(json['id']);
       });
@@ -73,10 +73,9 @@ function displayProfileContent() {
     for (let i = 0; i < users.length; i ++) {
       if ((users[i].id).localeCompare(id) == 0) {
         displayBasicInfo(users[i]);
-        displayBuddies(users[i]);
         displaySavedInterests(users[i]);
         displayAttendingEvents(users[i]);
-        displayOptions(users[i]);
+        additionalDisplay(users[i]);
         break;
       }
     }
@@ -93,20 +92,6 @@ function displayBasicInfo(user) {
   const name = document.createElement('h1');
   name.innerText = user.name;
   basicInfoContainer.appendChild(name);
-}
-
-/*
- * Displays the buddies list of the specified user.
- */
-function displayBuddies(user) {
-  const buddiesContainer = document.getElementById('buddies');
-  buddiesContainer.innerHTML = '';
-
-  const buddiesList = document.createElement('p');
-  fetch('/buddy').then(response => response.json()).then((buddies) => {
-    buddiesList.innerText = buddies;
-  });
-  buddiesContainer.appendChild(buddiesList);
 }
 
 /*
@@ -186,22 +171,23 @@ function updateCurrentProfile() {
 }
 
 /*
- * Displays options for the user based on whose profile they are viewing.
+ * Displays additional information and options for the user 
+ * based on whose profile they are viewing.
  */
-function displayOptions(user) {
+function additionalDisplay(user) {
   fetch('/login').then(response => response.json()).then((json) => {
     if (json['loginStatus'].localeCompare('true') == 0) {
       if(json['id'].localeCompare(user.id) == 0) {
-        displayPersonalOptions();
+        personalDisplay();
       }
     }
   });
 }
 
 /*
- * Displays options for if the user is viewing their own profile.
+ * Displays information and options for if the user is viewing their own profile.
  */
-function displayPersonalOptions() {
+function personalDisplay() {
   // Add an option for the user to change their display name.
   const changeNameButton = document.createElement('button');
   changeNameButton.innerText = 'Change name';
@@ -209,8 +195,15 @@ function displayPersonalOptions() {
     showNameForm();
   });
 
+  // Add the list of the user's buddies.
+  buddiesList = document.createElement('p');
+  fetch('/buddy').then(response => response.json()).then((buddies) => {
+    buddiesList.innerText = 'Your buddies: ' + buddies;
+  });
+
   const basicInfoContainer = document.getElementById('basic-info');
   basicInfoContainer.appendChild(changeNameButton);
+  basicInfoContainer.appendChild(buddiesList);
 }
 
 /*
