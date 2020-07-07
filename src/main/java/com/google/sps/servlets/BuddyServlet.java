@@ -3,6 +3,7 @@ package com.google.sps.servlets;
 import com.google.appengine.api.datastore.*;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
+import com.google.gson.Gson;
 import com.google.sps.data.Constants;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,6 +44,18 @@ public class BuddyServlet extends HttpServlet {
     otherUserEntity.setProperty(Constants.USER_BUDDIES_PARAM, otherBuddiesList);
     datastore.put(currentUserEntity);
     datastore.put(otherUserEntity);
+  }
+
+  @Override
+  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    UserService userService = UserServiceFactory.getUserService();
+    String userId = userService.getCurrentUser().getUserId();
+    Entity userEntity = getUserEntity(userId);
+    List<String> buddies = (List<String>) userEntity.getProperty(Constants.USER_BUDDIES_PARAM);
+
+    Gson gson = new Gson();
+    response.setContentType("application/json");
+    response.getWriter().println(gson.toJson(buddies));
   }
 
   /** Returns the User entity with the specified "id" property, or null if one could not be found. */
