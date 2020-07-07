@@ -135,14 +135,15 @@ function getLocationInfo() {
   placeId = sessionStorage.getItem('placeId');
   console.log(placeId);
   locationInputElement.value = locationName;
-  placeIdInputElement.value = placeId;
+  //TODO: add this line when invisible placeId input form is added to create event form
+  //placeIdInputElement.value = placeId;
 }
 
 /** Makes map snippet for create event page. */
 function createMapSnippet() {
   var locationName = sessionStorage.getItem('locationName')
   var mapSnippetCenter = sessionStorage.getItem('placeId');
-  mapSnippet = new google.maps.Map(document.getElementById('map-snippet'), {
+  var mapSnippet = new google.maps.Map(document.getElementById('map-snippet'), {
     center: mapSnippetCenter,
     zoom: 16 
   });
