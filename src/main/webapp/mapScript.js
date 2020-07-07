@@ -10,7 +10,6 @@ function initialDisplay() {
 
 /** Initializes map and displays it. */
 function initMap() {
-  geocoder = new google.maps.Geocoder();
   newCenterId = sessionStorage.getItem('currentLocationId');
   mapCenter = { lat: -34.937, lng: 150.644 };
   
@@ -21,6 +20,7 @@ function initMap() {
   
   // Checks to see if location was clicked from users saved interests
   if (newCenterId) {
+    var geocoder = new google.maps.Geocoder();
     geocoder.geocode( {'placeId' : newCenterId}, function(results, status) {
       if (status == "OK") {
         mapCenter = results[0].geometry.location;
@@ -141,14 +141,28 @@ function getLocationInfo() {
 
 /** Makes map snippet for create event page. */
 function createMapSnippet() {
+  var geocoder = new google.maps.Geocoder();
   var locationName = sessionStorage.getItem('locationName')
-  var mapSnippetCenter = sessionStorage.getItem('placeId');
+  var placeId = sessionStorage.getItem('placeId');
+  var infoWindow = new google.maps.InfoWindow;
+
   var mapSnippet = new google.maps.Map(document.getElementById('map-snippet'), {
-    center: mapSnippetCenter,
     zoom: 16 
   });
-  infoWindow = new google.maps.InfoWindow;
-  infoWindow.setPosition(mapSnippetCenter);
+
+  // Using geocode API to transform placeId into LngLat.
+  geocoder.geocode( {'placeId' : placeId}, function(results, status) {
+    if (status == "OK") {
+      mapSnippetCenter = results[0].geometry.location;
+      mapSnippet.setCenter(mapSnippetCenter);
+      infoWindow.setPosition(mapSnippetCenter);
+    }
+    else {
+      alert('Geocode was not successful for the following reason: ' + status);
+      mapSnippet.setCenter( { lat: -34.937, lng: 150.644})
+    }
+  })
+
   infoWindow.setContent('Creating an event at ' + locationName);
   infoWindow.open(mapSnippet);
 }
