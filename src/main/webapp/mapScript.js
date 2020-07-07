@@ -109,7 +109,7 @@ function fetchPlaceInformation(place_id) {
     createEventElement.href = 'CreateAnEvent.html';
     saveInterestButtonElement.innerText = 'Interested';
     saveInterestButtonElement.addEventListener('click', () => {
-      saveInterest(result.result.name);
+      saveInterest(result.result.name, place_id);
     });
     businessStatusElement.innerText = 'Business Status: ' + result.result.business_status;
     infoDivElement.appendChild(nameElement);
