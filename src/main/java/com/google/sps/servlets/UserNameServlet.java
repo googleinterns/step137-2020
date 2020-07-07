@@ -72,6 +72,9 @@ public class UserNameServlet extends HttpServlet {
     Entity newUserEntity = new Entity(Constants.USER_ENTITY_PARAM);
     newUserEntity.setProperty(Constants.USER_ID_PARAM, id);
     newUserEntity.setProperty(Constants.USER_NAME_PARAM, name);
+    List<String> buddies = new ArrayList<>();
+    buddies.add(""); // placeholder entry to prevent empty list from becoming null
+    newUserEntity.setProperty(Constants.USER_BUDDIES_PARAM, buddies);
     return newUserEntity;
   }
 }
