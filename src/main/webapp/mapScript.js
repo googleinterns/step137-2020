@@ -74,6 +74,7 @@ function fetchPlaceInformation(place_id) {
     ratingElement = document.createElement('p');
     addressElement = document.createElement('p');
     websiteElement = document.createElement('a');
+    eventsElement = document.createElement('h2');
     createEventElement = document.createElement('a');
     businessStatusElement = document.createElement('p');
     saveInterestButtonElement = document.createElement('button');    
@@ -83,6 +84,7 @@ function fetchPlaceInformation(place_id) {
     addressElement.innerText = 'Address: ' + result.result.formatted_address;
     websiteElement.innerText = result.result.website;
     websiteElement.href = result.result.website;
+    eventsElement.innerText = "Events at this Location:";
     createEventElement.innerText = 'Create an Event';
     createEventElement.href = 'CreateAnEvent.html';
     saveInterestButtonElement.innerText = 'Interested';
@@ -95,6 +97,7 @@ function fetchPlaceInformation(place_id) {
     infoDivElement.appendChild(addressElement);
     infoDivElement.appendChild(websiteElement);
     infoDivElement.appendChild(businessStatusElement);
+    infoDivElement.appendChild(eventsElement);
     infoDivElement.appendChild(getAvailableEvents());
     userIsLoggedIn().then( loginStatus => {
       if (loginStatus) {
