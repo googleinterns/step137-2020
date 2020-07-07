@@ -14,7 +14,7 @@ function initMap() {
   newCenterId = sessionStorage.getItem('currentLocationId');
   mapCenter = { lat: -34.937, lng: 150.644 };
   
-  const map = new google.maps.Map(document.getElementById('map'), {
+  var map = new google.maps.Map(document.getElementById('map'), {
     center: mapCenter,
     zoom: 14
   })
@@ -70,20 +70,19 @@ function fetchPlaceInformation(place_id) {
   // Without the proxy, the data returned by the request is blocked.
   // With the proxy, it seems to work fine 
   // TODO: ask VSE about this when they become available.
-  detailFinder = google.maps.places.PlaceDetailsRequest()
   const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
-  let headers = new Headers();
-  headers.append('Access-Control-Allow-Origin','*');
-  let requestOptions = {
-    method: 'GET',
-    headers: headers,
-    redirect: 'follow'
-  }
+  // let headers = new Headers();
+  // headers.append('Access-Control-Allow-Origin','*');
+  // let requestOptions = {
+  //   method: 'GET',
+  //   headers: headers,
+  //   redirect: 'follow'
+  // }
   var fetchUrl = 'https://maps.googleapis.com/maps/';
   fetchUrl += 'api/place/details/json?place_id='+ place_id;
   fetchUrl += '&fields=name,rating,formatted_address,website,business_status';
   fetchUrl += '&key=' + API_KEY;
-  fetch(fetchUrl, requestOptions)//(proxyUrl + fetchUrl)
+  fetch(proxyUrl + fetchUrl)
   .then(response => response.json())
   .then(result => { 
     sessionStorage.setItem('locationName', result.result.name);
@@ -107,7 +106,7 @@ function fetchPlaceInformation(place_id) {
     createEventElement.href = 'CreateAnEvent.html';
     saveInterestButtonElement.innerText = 'Interested';
     saveInterestButtonElement.addEventListener('click', () => {
-      saveInterest(result.result.name);
+      saveInterest(result.result.name, place_id);
     });
     businessStatusElement.innerText = 'Business Status: ' + result.result.business_status;
     infoDivElement.appendChild(nameElement);
