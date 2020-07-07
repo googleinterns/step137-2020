@@ -100,11 +100,29 @@ function displaySavedInterests(user) {
   const savedInterestsContainer = document.getElementById('interests-container');
   savedInterestsContainer.innerHTML = '';
 
-  for (let i = 1; i < user.interests.length; i ++) { // Starts at 1 to skip initial placeholder interest.
-    const interest = document.createElement('p');
-    interest.innerText = user.interests[i];
-    savedInterestsContainer.appendChild(interest);
-  }
+  fetch('/interest').then(response => response.json()).then((interests) => {
+    for (let i = 0; i < interests.length; i ++) {
+      if (interests[i].interestedUsers.includes(user.id)) {
+        savedInterestsContainer.appendChild(createInterest(interests[i]));
+      }
+    }
+  });
+}
+
+/*
+ * Returns a newly created saved interest element to be displayed on the page.
+ */
+function createInterest(interest) {
+  const interestName = document.createElement('h3');
+  interestName.innerText = interest.locationName;
+  interestName.addEventListener('click', () => {
+    // TODO: update session storage so map visits specified interest
+    window.location.href = 'map.html';
+  });
+
+  const interestElement = document.createElement('div');
+  interestElement.append(interestName);
+  return interestElement;
 }
 
 /*
@@ -124,7 +142,7 @@ function displayAttendingEvents(user) {
 }
 
 /*
- * Creates an event element to be displayed on the page.
+ * Returns a newly created event element to be displayed on the page.
  */
 function createEvent(event) {
   const eventName = document.createElement('h3');
