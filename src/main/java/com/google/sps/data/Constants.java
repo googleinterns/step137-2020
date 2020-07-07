@@ -6,7 +6,7 @@ public final class Constants {
   public static final String USER_ENTITY_PARAM = "User";
   public static final String USER_ID_PARAM = "id";
   public static final String USER_NAME_PARAM = "name";
-  public static final String USER_INTERESTS_PARAM = "interests";
+  public static final String USER_BUDDIES_PARAM = "buddies";
 
   // Login constants
   public static final String LOGIN_STATUS_PARAM = "loginStatus";
@@ -32,4 +32,7 @@ public final class Constants {
   public static final String INTEREST_NAME_PARAM = "location-name";
   public static final String INTEREST_ID_PARAM = "place-id";
   public static final String INTEREST_USERS_PARAM = "interested-users";
+
+  // Buddy constants
+  public static final String BUDDY_ADD_PARAM = "add-buddy";
 }
