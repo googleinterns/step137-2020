@@ -156,7 +156,7 @@ function getAvailableEvents() {
     .then(response => response.json())
     .then(events => {
       for (i = 0; i < events.length; i++) {
-        if (events[i].location = locationName) {
+        if (events[i].location == locationName) {
           if (events[i].privacy == "public") {
             eventDivElement.appendChild(createEvent(events[i]));
           }
