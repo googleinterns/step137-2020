@@ -46,12 +46,12 @@ function navbarLoginDisplay() {
 }
 
 /*
- * Displays a form for the user to input their name if they do not yet have one.
+ * Checks whether the user does not yet have a display name.
  */
 function confirmUserName() {
   const promise = fetch('/user-name').then(response => response.text()).then((name) => {
     if (name.localeCompare('\n') == 0) {
-      document.getElementById('name-form-container').style.display = 'block';
+      showNameForm();
     }
   });
 }
@@ -75,6 +75,7 @@ function displayProfileContent() {
         displayBasicInfo(users[i]);
         displaySavedInterests(users[i]);
         displayAttendingEvents(users[i]);
+        displayOptions(users[i]);
         break;
       }
     }
@@ -167,4 +168,39 @@ function updateCurrentProfile() {
     sessionStorage.setItem("loadProfile", json['id']);
     profileOnload();
   });
+}
+
+/*
+ * Displays options for the user based on whose profile they are viewing.
+ */
+function displayOptions(user) {
+  fetch('/login').then(response => response.json()).then((json) => {
+    if (json['loginStatus'].localeCompare('true') == 0) {
+      if(json['id'].localeCompare(user.id) == 0) {
+        displayPersonalOptions();
+      }
+    }
+  });
+}
+
+/*
+ * Displays options for if the user is viewing their own profile.
+ */
+function displayPersonalOptions() {
+  // Add an option for the user to change their display name.
+  const changeNameButton = document.createElement('button');
+  changeNameButton.innerText = 'Change name';
+  changeNameButton.addEventListener('click', () => {
+    showNameForm();
+  });
+
+  const basicInfoContainer = document.getElementById('basic-info');
+  basicInfoContainer.appendChild(changeNameButton);
+}
+
+/*
+ * Presents the user with a form to change their display name.
+ */
+function showNameForm() {
+  document.getElementById('name-form-container').style.display = 'block';
 }
