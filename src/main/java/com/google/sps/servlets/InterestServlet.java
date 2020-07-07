@@ -3,7 +3,9 @@ package com.google.sps.servlets;
 import com.google.appengine.api.datastore.*;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
+import com.google.gson.Gson;
 import com.google.sps.data.Constants;
+import com.google.sps.data.Interest;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +48,30 @@ public class InterestServlet extends HttpServlet {
       interestEntity.setProperty(Constants.INTEREST_USERS_PARAM, interestedUsers);
       datastore.put(interestEntity);
     }
+  }
+
+  @Override
+  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    Query query = new Query(Constants.INTEREST_ENTITY_PARAM);
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    PreparedQuery results = datastore.prepare(query);
+
+    List<Interest> interests = new ArrayList<>();
+
+    for (Entity interestEntity : results.asIterable()) {
+      // Get the attributes from all the stored Interest entities.
+      String placeId = (String) interestEntity.getProperty(Constants.INTEREST_ID_PARAM);
+      String locationName = (String) interestEntity.getProperty(Constants.INTEREST_NAME_PARAM);
+      List<String> interestedUsers = (List<String>) interestEntity.getProperty(Constants.INTEREST_USERS_PARAM);
+
+      // Create a Interest object with those attributes and add it to the list of interests.
+      Interest interest = new Interest(placeId, locationName, interestedUsers);
+      interests.add(interest);
+    }
+
+    Gson gson = new Gson();
+    response.setContentType("application/json");
+    response.getWriter().println(gson.toJson(interests));
   }
 
   /** Returns a newly created Interest entity with the specified location ID and name and user ID. */
