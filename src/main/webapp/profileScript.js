@@ -73,6 +73,7 @@ function displayProfileContent() {
     for (let i = 0; i < users.length; i ++) {
       if ((users[i].id).localeCompare(id) == 0) {
         displayBasicInfo(users[i]);
+        displayBuddies(users[i]);
         displaySavedInterests(users[i]);
         displayAttendingEvents(users[i]);
         displayOptions(users[i]);
@@ -92,6 +93,20 @@ function displayBasicInfo(user) {
   const name = document.createElement('h1');
   name.innerText = user.name;
   basicInfoContainer.appendChild(name);
+}
+
+/*
+ * Displays the buddies list of the specified user.
+ */
+function displayBuddies(user) {
+  const buddiesContainer = document.getElementById('buddies');
+  buddiesContainer.innerHTML = '';
+
+  const buddiesList = document.createElement('p');
+  fetch('/buddy').then(response => response.json()).then((buddies) => {
+    buddiesList.innerText = buddies;
+  });
+  buddiesContainer.appendChild(buddiesList);
 }
 
 /*
