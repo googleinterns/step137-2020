@@ -6,11 +6,9 @@ import java.util.List;
 public final class User {
   private final String id;
   private final String name;
-  private final List<String> interests;
 
-  public User(String id, String name, List<String> interests) {
+  public User(String id, String name) {
     this.id = id;
     this.name = name;
-    this.interests = interests;
   }
 }

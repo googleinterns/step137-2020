@@ -26,10 +26,9 @@ public class UserServlet extends HttpServlet {
       // Get the attributes from all the stored User entities.
       String id = (String) userEntity.getProperty(Constants.USER_ID_PARAM);
       String name = (String) userEntity.getProperty(Constants.USER_NAME_PARAM);
-      List<String> interests = (List<String>) userEntity.getProperty(Constants.USER_INTERESTS_PARAM);
 
       // Create a User object with those attributes and add it to the list of users.
-      User user = new User(id, name, interests);
+      User user = new User(id, name);
       users.add(user);
     }
 
