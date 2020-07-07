@@ -138,6 +138,20 @@ function getLocationInfo() {
   placeIdInputElement.value = placeId;
 }
 
+/** Makes map snippet for create event page. */
+function createMapSnippet() {
+  var locationName = sessionStorage.getItem('locationName')
+  var mapSnippetCenter = sessionStorage.getItem('placeId');
+  mapSnippet = new google.maps.Map(document.getElementById('map-snippet'), {
+    center: mapSnippetCenter,
+    zoom: 16 
+  });
+  infoWindow = new google.maps.InfoWindow;
+  infoWindow.setPosition(mapSnippetCenter);
+  infoWindow.setContent('Creating an event at ' + locationName);
+  infoWindow.open(mapSnippet);
+}
+
 /** Gets user posts. */
 function getUserPosts() {
   const testPosts = [
@@ -156,7 +170,7 @@ function getUserPosts() {
 }
 
 /**
-  Gets events the user is allowed to see
+  Gets events the user is allowed to see.
 */
 function getAvailableEvents() {
   eventDivElement = document.createElement("div");
