@@ -10,13 +10,28 @@ function initialDisplay() {
 
 /** Initializes map and displays it. */
 function initMap() {
+  geocoder = new google.maps.Geocoder();
+  newCenterId = sessionStorage.getItem('currentLocationId');
+  mapCenter = { lat: -34.937, lng: 150.644 };
+  
   const map = new google.maps.Map(document.getElementById('map'), {
-    center: { lat: -34.937, lng: 150.644 },
+    center: mapCenter,
     zoom: 14
   })
 
+  // Checks to see if location was clicked from users saved interests
+  if (newCenterId) {
+    geocoder.geocode( {'placeId' : newCenterId}, function(results, status) {
+      if (status == "OK") {
+        mapCenter = results[0].geometry.location;
+      }
+      else {
+        alert('Geocode was not successful for the following reason: ' + status);
+      }
+    })
+  }
   // Checks if browser supports geolocation.
-  if (navigator.geolocation) {
+  else if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(function(position) {
       var pos = {
         lat: position.coords.latitude,
@@ -55,17 +70,24 @@ function fetchPlaceInformation(place_id) {
   // Without the proxy, the data returned by the request is blocked.
   // With the proxy, it seems to work fine 
   // TODO: ask VSE about this when they become available.
+  detailFinder = google.maps.places.PlaceDetailsRequest()
   const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+  let headers = new Headers();
+  headers.append('Access-Control-Allow-Origin','*');
+  let requestOptions = {
+    method: 'GET',
+    headers: headers,
+    redirect: 'follow'
+  }
   var fetchUrl = 'https://maps.googleapis.com/maps/';
   fetchUrl += 'api/place/details/json?place_id='+ place_id;
   fetchUrl += '&fields=name,rating,formatted_address,website,business_status';
   fetchUrl += '&key=' + API_KEY;
-  fetch(proxyUrl + fetchUrl)
+  fetch(fetchUrl, requestOptions)//(proxyUrl + fetchUrl)
   .then(response => response.json())
   .then(result => { 
     sessionStorage.setItem('locationName', result.result.name);
-    sessionStorage.setItem('locationId', place_id);
-    
+    sessionStorage.setItem('placeId', place_id);
     sideBarElement = document.getElementById('side');
     infoDivElement = document.getElementById('place-info');
     infoDivElement.innerHTML = '';
@@ -115,8 +137,12 @@ function fetchPlaceInformation(place_id) {
 /** Makes place_id and location name of a place available. */
 function getLocationInfo() {
   locationInputElement = document.getElementById('location');
+  placeIdInputElement = document.getElementById('placeId');
   locationName = sessionStorage.getItem('locationName');
+  placeId = sessionStorage.getItem('placeId');
+  console.log(placeId);
   locationInputElement.value = locationName;
+  placeIdInputElement.value = placeId;
 }
 
 /** Gets user posts. */
@@ -201,6 +227,7 @@ function createEvent(event) {
   return eventElement;
 }
 
+/** Checks to see if a user is logged in. */
 function userIsLoggedIn() {
    return fetch('/login')
   .then(response => response.json())
@@ -209,9 +236,12 @@ function userIsLoggedIn() {
   });
 }
 
-function saveInterest(locationName) {
+/** Sends post request to store saved interest. */
+function saveInterest(locationName, placeId) {
   const params = new URLSearchParams();
   params.append('location-name', locationName);
-  const request = new Request('/interest', {method: 'POST', body: params});
-  fetch(request);
+  params.append('place_id', placeId);
+  fetch('/interest', {
+    method: 'POST', body: params
+  });
 }
