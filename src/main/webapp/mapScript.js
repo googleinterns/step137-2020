@@ -18,7 +18,7 @@ function initMap() {
     center: mapCenter,
     zoom: 14
   })
-
+  
   // Checks to see if location was clicked from users saved interests
   if (newCenterId) {
     geocoder.geocode( {'placeId' : newCenterId}, function(results, status) {
@@ -44,7 +44,7 @@ function initMap() {
       infoWindow.open(map);
       map.setCenter(pos);
       map.addListener('click', function(e) {
-        fetchPlaceInformation(e.placeId);
+        fetchPlaceInformation(e.placeId, map);
       });
       }, function() {
         handleLocationError(true, map.getCenter());
@@ -65,69 +65,66 @@ function handleLocationError(browserHasGeolocation, pos) {
 }
 
 /** Fetches information about a place. */
-function fetchPlaceInformation(place_id) {
-  // Not sure if I am allowed to use a heroku proxy for this request.
-  // Without the proxy, the data returned by the request is blocked.
-  // With the proxy, it seems to work fine 
-  // TODO: ask VSE about this when they become available.
-  const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
-  // let headers = new Headers();
-  // headers.append('Access-Control-Allow-Origin','*');
-  // let requestOptions = {
-  //   method: 'GET',
-  //   headers: headers,
-  //   redirect: 'follow'
-  // }
-  var fetchUrl = 'https://maps.googleapis.com/maps/';
-  fetchUrl += 'api/place/details/json?place_id='+ place_id;
-  fetchUrl += '&fields=name,rating,formatted_address,website,business_status';
-  fetchUrl += '&key=' + API_KEY;
-  fetch(proxyUrl + fetchUrl)
-  .then(response => response.json())
-  .then(result => { 
-    sessionStorage.setItem('locationName', result.result.name);
-    sessionStorage.setItem('placeId', place_id);
-    sideBarElement = document.getElementById('side');
-    infoDivElement = document.getElementById('place-info');
-    infoDivElement.innerHTML = '';
-    
-    nameElement = document.createElement('p');
-    ratingElement = document.createElement('p');
-    addressElement = document.createElement('p');
-    websiteElement = document.createElement('a');
-    createEventElement = document.createElement('a');
-    businessStatusElement = document.createElement('p');
-    saveInterestButtonElement = document.createElement('button');    
-    
-    nameElement.innerText = 'Name: ' + result.result.name;
-    ratingElement.innerText = 'Rating: ' + result.result.rating;
-    addressElement.innerText = 'Address: ' + result.result.formatted_address;
-    websiteElement.innerText = result.result.website;
-    websiteElement.href = result.result.website;
-    createEventElement.innerText = 'Create an Event';
-    createEventElement.href = 'CreateAnEvent.html';
-    saveInterestButtonElement.innerText = 'Interested';
-    saveInterestButtonElement.addEventListener('click', () => {
-      saveInterest(result.result.name, place_id);
-    });
-    businessStatusElement.innerText = 'Business Status: ' + result.result.business_status;
-    infoDivElement.appendChild(nameElement);
-    infoDivElement.appendChild(ratingElement);
-    infoDivElement.appendChild(addressElement);
-    infoDivElement.appendChild(websiteElement);
-    infoDivElement.appendChild(businessStatusElement);
-    infoDivElement.appendChild(getAvailableEvents());
-    userIsLoggedIn().then( loginStatus => {
-      if (loginStatus) {
-        getEvents();
-        infoDivElement.appendChild(createEventElement);
-        infoDivElement.appendChild(saveInterestButtonElement);
-        infoDivElement.appendChild(getUserPosts());
-      }
-    });
-    sideBarElement.appendChild(infoDivElement);
-    return sideBarElement;
-  })
+function fetchPlaceInformation(place_id, map) {
+  var request = {
+    placeId: place_id,
+    fields: [
+     'name',
+     'rating',
+     'formatted_address',
+     'website',
+     'business_status'
+    ]
+  };
+
+  var service = new google.maps.places.PlacesService(map);
+  service.getDetails(request, callback);
+
+  function callback(place, status) {
+    if (status == google.maps.places.PlacesServiceStatus.OK) {
+      sessionStorage.setItem('locationName', place.name);
+      sessionStorage.setItem('placeId', place_id);
+      sideBarElement = document.getElementById('side');
+      infoDivElement = document.getElementById('place-info');
+      infoDivElement.innerHTML = '';
+      
+      nameElement = document.createElement('p');
+      ratingElement = document.createElement('p');
+      addressElement = document.createElement('p');
+      websiteElement = document.createElement('a');
+      createEventElement = document.createElement('a');
+      businessStatusElement = document.createElement('p');
+      saveInterestButtonElement = document.createElement('button');    
+      
+      nameElement.innerText = 'Name: ' + place.name;
+      ratingElement.innerText = 'Rating: ' + place.rating;
+      addressElement.innerText = 'Address: ' + place.formatted_address;
+      websiteElement.innerText = place.website;
+      websiteElement.href = place.website;
+      createEventElement.innerText = 'Create an Event';
+      createEventElement.href = 'CreateAnEvent.html';
+      saveInterestButtonElement.innerText = 'Interested';
+      saveInterestButtonElement.addEventListener('click', () => {
+        saveInterest(place.name, place_id);
+      });
+      businessStatusElement.innerText = 'Business Status: ' + place.business_status;
+      infoDivElement.appendChild(nameElement);
+      infoDivElement.appendChild(ratingElement);
+      infoDivElement.appendChild(addressElement);
+      infoDivElement.appendChild(websiteElement);
+      infoDivElement.appendChild(businessStatusElement);
+      infoDivElement.appendChild(getAvailableEvents());
+      userIsLoggedIn().then( loginStatus => {
+        if (loginStatus) {
+          infoDivElement.appendChild(createEventElement);
+          infoDivElement.appendChild(saveInterestButtonElement);
+          infoDivElement.appendChild(getUserPosts());
+        }
+      });
+      sideBarElement.appendChild(infoDivElement);
+      return sideBarElement;
+    }
+  }
 }
 
 /** Makes place_id and location name of a place available. */
