@@ -125,60 +125,6 @@ function fetchPlaceInformation(place_id, map) {
       return sideBarElement;
     }
   }
-
-  var fetchUrl = 'https://maps.googleapis.com/maps/';
-  fetchUrl += 'api/place/details/json?place_id='+ place_id;
-  fetchUrl += '&fields=name,rating,formatted_address,website,business_status';
-  fetchUrl += '&key=' + API_KEY;
-  fetch(fetchUrl, requestOptions)//(proxyUrl + fetchUrl)
-  .then(response => response.json())
-  .then(result => { 
-    sessionStorage.setItem('locationName', result.result.name);
-    sessionStorage.setItem('placeId', place_id);
-    sideBarElement = document.getElementById('side');
-    infoDivElement = document.getElementById('place-info');
-    infoDivElement.innerHTML = '';
-    
-    nameElement = document.createElement('p');
-    ratingElement = document.createElement('p');
-    addressElement = document.createElement('p');
-    websiteElement = document.createElement('a');
-    eventsElement = document.createElement('h2');
-    createEventElement = document.createElement('a');
-    businessStatusElement = document.createElement('p');
-    saveInterestButtonElement = document.createElement('button');    
-    
-    nameElement.innerText = 'Name: ' + result.result.name;
-    ratingElement.innerText = 'Rating: ' + result.result.rating;
-    addressElement.innerText = 'Address: ' + result.result.formatted_address;
-    websiteElement.innerText = result.result.website;
-    websiteElement.href = result.result.website;
-    eventsElement.innerText = "Events at this Location:";
-    createEventElement.innerText = 'Create an Event';
-    createEventElement.href = 'CreateAnEvent.html';
-    saveInterestButtonElement.innerText = 'Interested';
-    saveInterestButtonElement.addEventListener('click', () => {
-      saveInterest(result.result.name);
-    });
-    businessStatusElement.innerText = 'Business Status: ' + result.result.business_status;
-    infoDivElement.appendChild(nameElement);
-    infoDivElement.appendChild(ratingElement);
-    infoDivElement.appendChild(addressElement);
-    infoDivElement.appendChild(websiteElement);
-    infoDivElement.appendChild(businessStatusElement);
-    infoDivElement.appendChild(eventsElement);
-    infoDivElement.appendChild(getPublicEvents());
-    userIsLoggedIn().then( loginStatus => {
-      if (loginStatus) {
-        infoDivElement.appendChild(getAvailableEvents());
-        infoDivElement.appendChild(createEventElement);
-        infoDivElement.appendChild(saveInterestButtonElement);
-        infoDivElement.appendChild(getUserPosts());
-      }
-    });
-    sideBarElement.appendChild(infoDivElement);
-    return sideBarElement;
-  })
 }
 
 /** Makes place_id and location name of a place available. */
