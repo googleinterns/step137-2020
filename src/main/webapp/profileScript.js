@@ -179,6 +179,14 @@ function additionalDisplay(user) {
     if (json['loginStatus'].localeCompare('true') == 0) {
       if(json['id'].localeCompare(user.id) == 0) {
         personalDisplay();
+      } else {
+        fetch('/buddy').then(response => response.json()).then((buddies) => {
+          if (buddies.includes(user.id)) {
+            buddyDisplay(user);
+          } else {
+            strangerDisplay(user);
+          }
+        });
       }
     }
   });
@@ -188,22 +196,94 @@ function additionalDisplay(user) {
  * Displays information and options for if the user is viewing their own profile.
  */
 function personalDisplay() {
-  // Add an option for the user to change their display name.
+  // Add an option for the current user to change their display name.
   const changeNameButton = document.createElement('button');
   changeNameButton.innerText = 'Change name';
   changeNameButton.addEventListener('click', () => {
     showNameForm();
   });
 
-  // Add the list of the user's buddies.
-  buddiesList = document.createElement('p');
+  // Add the list of the current user's buddies.
+  const buddiesList = document.createElement('div');
+  const buddiesHeading = document.createElement('h3');
+  buddiesHeading.innerText = 'Your buddies:';
+  buddiesList.appendChild(buddiesHeading);
   fetch('/buddy').then(response => response.json()).then((buddies) => {
-    buddiesList.innerText = 'Your buddies: ' + buddies;
+    fetch('/user').then(response => response.json()).then((users) => {
+      for (let i = 0; i < users.length; i ++) {
+        if (buddies.includes(users[i].id)) {
+          // If the user's ID is in the list of the current user's buddies,
+          // add their name (which links to their profile) to the page. 
+          const buddyElement = document.createElement('p');
+          buddyElement.innerText = users[i].name;
+          buddyElement.addEventListener('click', () => {
+            visitProfile(users[i].id);
+          });
+          buddiesList.appendChild(buddyElement);
+        }
+      }
+    });
   });
 
   const basicInfoContainer = document.getElementById('basic-info');
   basicInfoContainer.appendChild(changeNameButton);
   basicInfoContainer.appendChild(buddiesList);
+}
+
+/*
+ * Displays information and options for if the user is viewing a buddy's profile.
+ */
+function buddyDisplay(user) {
+  // Add an option for the current user to remove this user as their buddy.
+  const removeBuddyButton = document.createElement('button');
+  removeBuddyButton.innerText = 'Remove buddy';
+  removeBuddyButton.addEventListener('click', () => {
+    removeBuddy(user);
+    profileOnload();
+  });
+
+  const basicInfoContainer = document.getElementById('basic-info');
+  basicInfoContainer.appendChild(removeBuddyButton);
+}
+
+/*
+ * Displays information and options for if the user is viewing a stranger's profile.
+ */
+function strangerDisplay(user) {
+    // Add an option for the current user to add this user as their buddy.
+  const removeBuddyButton = document.createElement('button');
+  removeBuddyButton.innerText = 'Add buddy';
+  removeBuddyButton.addEventListener('click', () => {
+    addBuddy(user);
+    profileOnload();
+  });
+
+  const basicInfoContainer = document.getElementById('basic-info');
+  basicInfoContainer.appendChild(removeBuddyButton);
+}
+
+/*
+ * Removes the buddy connection between the current user and the specified user.
+ */
+function removeBuddy(user) {
+  const params = new URLSearchParams();
+  params.append('user', user.id);
+  params.append('action', 'remove');
+  fetch('/buddy', {
+    method: 'POST', body: params
+  });
+}
+
+/*
+ * Adds the buddy connection between the current user and the specified user.
+ */
+function addBuddy(user) {
+  const params = new URLSearchParams();
+  params.append('user', user.id);
+  params.append('action', 'add');
+  fetch('/buddy', {
+    method: 'POST', body: params
+  });
 }
 
 /*

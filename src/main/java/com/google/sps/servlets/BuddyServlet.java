@@ -21,7 +21,8 @@ public class BuddyServlet extends HttpServlet {
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
     String currentUserId = userService.getCurrentUser().getUserId();
-    String otherUserId = request.getParameter(Constants.BUDDY_ADD_PARAM);
+    String otherUserId = request.getParameter(Constants.BUDDY_USER_PARAM);
+    String action = request.getParameter(Constants.BUDDY_ACTION_PARAM);
 
     Entity currentUserEntity = getUserEntity(currentUserId);
     Entity otherUserEntity = getUserEntity(otherUserId);
@@ -31,14 +32,13 @@ public class BuddyServlet extends HttpServlet {
     List<String> otherUserBuddies = (List<String>) otherUserEntity
         .getProperty(Constants.USER_BUDDIES_PARAM);
 
-    if (currentUserBuddies.contains(otherUserId)) {
-      // If the users are already buddies, remove buddies.
-      currentUserBuddies.remove(otherUserId);
-      otherUserBuddies.remove(currentUserId);
-    } else {
-      // If the users are not yet buddies, add buddies.
+    // Based on the requested action, add or remove the buddy connection.
+    if (action.equals(Constants.BUDDY_ADD_PARAM)) {
       currentUserBuddies.add(otherUserId);
       otherUserBuddies.add(currentUserId);
+    } else {
+      currentUserBuddies.remove(otherUserId);
+      otherUserBuddies.remove(currentUserId);
     }
 
     currentUserEntity.setProperty(Constants.USER_BUDDIES_PARAM, currentUserBuddies);
