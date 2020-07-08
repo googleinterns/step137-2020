@@ -21,6 +21,7 @@ public class InterestServlet extends HttpServlet {
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     String placeId = request.getParameter(Constants.INTEREST_ID_PARAM);
     String locationName = request.getParameter(Constants.INTEREST_NAME_PARAM);
+    String action = request.getParameter(Constants.INTEREST_ACTION_PARAM);
 
     UserService userService = UserServiceFactory.getUserService();
     String userId = userService.getCurrentUser().getUserId();
@@ -33,19 +34,19 @@ public class InterestServlet extends HttpServlet {
     Entity interestEntity = results.asSingleEntity();
 
     if (interestEntity == null) {
+      // If the interest entity does not yet exist, create a new one for the specified location
+      // including the user, and add it to the datastore. 
       Entity newInterestEntity = createNewInterest(placeId, locationName, userId);
       datastore.put(newInterestEntity);
     } else {
+      // If the interest entity already exists, either add or remove the user from it
+      // depending on the requested action.
       List<String> interestedUsers = (List<String>) interestEntity
           .getProperty(Constants.INTEREST_USERS_PARAM);
-      if (interestedUsers.contains(userId)) {
-        // If the user has already saved this interest, 
-        // remove them from the list of interested users.
-        interestedUsers.remove(userId);
-      } else {
-        // If the user has not yet saved this interest, 
-        // add them to the list of interested users.
+      if (action.equals(Constants.INTEREST_ADD_PARAM)) {
         interestedUsers.add(userId);
+      } else {
+        interestedUsers.remove(userId);
       }
       interestEntity.setProperty(Constants.INTEREST_USERS_PARAM, interestedUsers);
       datastore.put(interestEntity);
