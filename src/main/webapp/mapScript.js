@@ -189,14 +189,31 @@ function getUserPosts() {
 */
 function getAvailableEvents() {
   eventDivElement = document.createElement("div");
+  eventDivElement.innerText = '';
   locationName = sessionStorage.getItem('locationName');
+
+  var loginStatus;
+  var userID;
+
+  fetch("/login")
+    .then(response => response.json())
+    .then(json => {
+      loginStatus = json['loginStatus'];
+      userID = json['id'];
+    });
   fetch("events")
     .then(response => response.json())
     .then(events => {
       for (i = 0; i < events.length; i++) {
-        if (events[i].location = locationName) {
-          if (events[i].privacy = "public") {
+        if (events[i].location == locationName) {
+          if (events[i].privacy == "public") {
             eventDivElement.appendChild(createEvent(events[i]));
+          }
+          else if (events[i].privacy == "attendees") {
+            attendees = events[i].attendees;
+            if (attendees.includes(userID)) {
+              eventDivElement.appendChild(createEvent(events[i]));
+            }
           }
         }
       }
@@ -230,9 +247,9 @@ function userIsLoggedIn() {
 
 /** Sends post request to store saved interest. */
 function saveInterest(locationName, placeId) {
-  const params = new URLSearchParams();
+  const params = new URLSearchParams()
+  params.append('place-id', placeId);
   params.append('location-name', locationName);
-  params.append('place_id', placeId);
   fetch('/interest', {
     method: 'POST', body: params
   });
