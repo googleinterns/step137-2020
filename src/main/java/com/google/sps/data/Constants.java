@@ -34,5 +34,8 @@ public final class Constants {
   public static final String INTEREST_USERS_PARAM = "interested-users";
 
   // Buddy constants
-  public static final String BUDDY_ADD_PARAM = "add-buddy";
+  public static final String BUDDY_USER_PARAM = "user";
+  public static final String BUDDY_ACTION_PARAM = "action";
+  public static final String BUDDY_ADD_PARAM = "add";
+  public static final String BUDDY_REMOVE_PARAM = "remove";
 }
