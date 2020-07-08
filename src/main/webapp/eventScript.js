@@ -4,6 +4,7 @@
 function onload() {
   navbarLoginDisplay();
   getLocationInfo();
+  createMapSnippet();
 }
 
 /**
