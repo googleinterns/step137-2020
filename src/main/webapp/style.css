@@ -59,6 +59,11 @@ html, body {
   height: 100%;
 }
 
+#map-snippet {
+  height: 400px;
+  width: 400px;
+}
+
 .main {
   flex: 70%;
   background-color: white;
