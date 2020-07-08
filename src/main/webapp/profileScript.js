@@ -179,6 +179,14 @@ function additionalDisplay(user) {
     if (json['loginStatus'].localeCompare('true') == 0) {
       if(json['id'].localeCompare(user.id) == 0) {
         personalDisplay();
+      } else {
+        fetch('/buddy').then(response => response.json()).then((buddies) => {
+          if (buddies.includes(user.id)) {
+            buddyDisplay(user);
+          } else {
+            strangerDisplay(user);
+          }
+        });
       }
     }
   });
@@ -204,6 +212,62 @@ function personalDisplay() {
   const basicInfoContainer = document.getElementById('basic-info');
   basicInfoContainer.appendChild(changeNameButton);
   basicInfoContainer.appendChild(buddiesList);
+}
+
+/*
+ * Displays information and options for if the user is viewing a buddy's profile.
+ */
+function buddyDisplay(user) {
+  // Add an option for the current user to remove this user as their buddy.
+  const removeBuddyButton = document.createElement('button');
+  removeBuddyButton.innerText = 'Remove buddy';
+  removeBuddyButton.addEventListener('click', () => {
+    removeBuddy(user);
+    profileOnload();
+  });
+
+  const basicInfoContainer = document.getElementById('basic-info');
+  basicInfoContainer.appendChild(removeBuddyButton);
+}
+
+/*
+ * Displays information and options for if the user is viewing a stranger's profile.
+ */
+function strangerDisplay(user) {
+    // Add an option for the current user to add this user as their buddy.
+  const removeBuddyButton = document.createElement('button');
+  removeBuddyButton.innerText = 'Add buddy';
+  removeBuddyButton.addEventListener('click', () => {
+    addBuddy(user);
+    profileOnload();
+  });
+
+  const basicInfoContainer = document.getElementById('basic-info');
+  basicInfoContainer.appendChild(removeBuddyButton);
+}
+
+/*
+ * Removes the buddy connection between the current user and the specified user.
+ */
+function removeBuddy(user) {
+  const params = new URLSearchParams();
+  params.append('user', user.id);
+  params.append('action', 'remove');
+  fetch('/buddy', {
+    method: 'POST', body: params
+  });
+}
+
+/*
+ * Adds the buddy connection between the current user and the specified user.
+ */
+function addBuddy(user) {
+  const params = new URLSearchParams();
+  params.append('user', user.id);
+  params.append('action', 'add');
+  fetch('/buddy', {
+    method: 'POST', body: params
+  });
 }
 
 /*
