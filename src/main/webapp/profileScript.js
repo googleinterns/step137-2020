@@ -26,7 +26,7 @@ function navbarLoginDisplay() {
         window.location.href = json['logoutUrl'];
       });
       const personalProfileButton = document.createElement('button');
-      personalProfileButton.innerText = 'My Profile';
+      personalProfileButton.innerText = 'Your Profile';
       personalProfileButton.addEventListener('click', () => {
         visitProfile(json['id']);
       });
@@ -46,12 +46,12 @@ function navbarLoginDisplay() {
 }
 
 /*
- * Displays a form for the user to input their name if they do not yet have one.
+ * Checks whether the user does not yet have a display name.
  */
 function confirmUserName() {
   const promise = fetch('/user-name').then(response => response.text()).then((name) => {
     if (name.localeCompare('\n') == 0) {
-      document.getElementById('name-form-container').style.display = 'block';
+      showNameForm();
     }
   });
 }
@@ -75,6 +75,7 @@ function displayProfileContent() {
         displayBasicInfo(users[i]);
         displaySavedInterests(users[i]);
         displayAttendingEvents(users[i]);
+        additionalDisplay(users[i]);
         break;
       }
     }
@@ -100,11 +101,29 @@ function displaySavedInterests(user) {
   const savedInterestsContainer = document.getElementById('interests-container');
   savedInterestsContainer.innerHTML = '';
 
-  for (let i = 1; i < user.interests.length; i ++) { // Starts at 1 to skip initial placeholder interest.
-    const interest = document.createElement('p');
-    interest.innerText = user.interests[i];
-    savedInterestsContainer.appendChild(interest);
-  }
+  fetch('/interest').then(response => response.json()).then((interests) => {
+    for (let i = 0; i < interests.length; i ++) {
+      if (interests[i].interestedUsers.includes(user.id)) {
+        savedInterestsContainer.appendChild(createInterest(interests[i]));
+      }
+    }
+  });
+}
+
+/*
+ * Returns a newly created saved interest element to be displayed on the page.
+ */
+function createInterest(interest) {
+  const interestName = document.createElement('h3');
+  interestName.innerText = interest.locationName;
+  interestName.addEventListener('click', () => {
+    sessionStorage.set('currentLocationId', interest.placeId);
+    window.location.href = 'map.html';
+  });
+
+  const interestElement = document.createElement('div');
+  interestElement.append(interestName);
+  return interestElement;
 }
 
 /*
@@ -124,7 +143,7 @@ function displayAttendingEvents(user) {
 }
 
 /*
- * Creates an event element to be displayed on the page.
+ * Returns a newly created event element to be displayed on the page.
  */
 function createEvent(event) {
   const eventName = document.createElement('h3');
@@ -149,4 +168,47 @@ function updateCurrentProfile() {
     sessionStorage.setItem("loadProfile", json['id']);
     profileOnload();
   });
+}
+
+/*
+ * Displays additional information and options for the user 
+ * based on whose profile they are viewing.
+ */
+function additionalDisplay(user) {
+  fetch('/login').then(response => response.json()).then((json) => {
+    if (json['loginStatus'].localeCompare('true') == 0) {
+      if(json['id'].localeCompare(user.id) == 0) {
+        personalDisplay();
+      }
+    }
+  });
+}
+
+/*
+ * Displays information and options for if the user is viewing their own profile.
+ */
+function personalDisplay() {
+  // Add an option for the user to change their display name.
+  const changeNameButton = document.createElement('button');
+  changeNameButton.innerText = 'Change name';
+  changeNameButton.addEventListener('click', () => {
+    showNameForm();
+  });
+
+  // Add the list of the user's buddies.
+  buddiesList = document.createElement('p');
+  fetch('/buddy').then(response => response.json()).then((buddies) => {
+    buddiesList.innerText = 'Your buddies: ' + buddies;
+  });
+
+  const basicInfoContainer = document.getElementById('basic-info');
+  basicInfoContainer.appendChild(changeNameButton);
+  basicInfoContainer.appendChild(buddiesList);
+}
+
+/*
+ * Presents the user with a form to change their display name.
+ */
+function showNameForm() {
+  document.getElementById('name-form-container').style.display = 'block';
 }
