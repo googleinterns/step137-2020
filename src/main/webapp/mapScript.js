@@ -21,7 +21,6 @@ function initMap() {
   
   // Checks to see if location was clicked from users saved interests.
   if (newCenterId) {
-    console.log(newCenterId);
     var geocoder = new google.maps.Geocoder();
     geocoder.geocode( {'placeId' : newCenterId}, function(results, status) {
       if (status == "OK") {
