@@ -179,7 +179,6 @@ function fetchPlaceInformation(place_id, map) {
     sideBarElement.appendChild(infoDivElement);
     return sideBarElement;
   })
-
 }
 
 /** Makes place_id and location name of a place available. */
