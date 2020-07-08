@@ -12,18 +12,28 @@ function initialDisplay() {
 function initMap() {
   newCenterId = sessionStorage.getItem('currentLocationId');
   mapCenter = { lat: -34.937, lng: 150.644 };
+  infoWindow = new google.maps.InfoWindow;
   
   var map = new google.maps.Map(document.getElementById('map'), {
     center: mapCenter,
     zoom: 14
   })
   
-  // Checks to see if location was clicked from users saved interests
+  // Checks to see if location was clicked from users saved interests.
   if (newCenterId) {
+    console.log(newCenterId);
     var geocoder = new google.maps.Geocoder();
     geocoder.geocode( {'placeId' : newCenterId}, function(results, status) {
       if (status == "OK") {
         mapCenter = results[0].geometry.location;
+        infoWindow.setContent('You saved this location.');
+        infoWindow.setPosition(mapCenter);
+        infoWindow.open(map);
+        map.setCenter(mapCenter);
+        fetchPlaceInformation(newCenterId, map);
+
+        // Remove session storage variable until saved interest is clicked from profile page again.
+        sessionStorage.removeItem('currentLocationId');
       }
       else {
         alert('Geocode was not successful for the following reason: ' + status);
@@ -38,14 +48,10 @@ function initMap() {
         lng: position.coords.longitude
       };
 
-      infoWindow = new google.maps.InfoWindow;
       infoWindow.setPosition(pos);
-      infoWindow.setContent('Location found.');
+      infoWindow.setContent('Your current location has been found.');
       infoWindow.open(map);
       map.setCenter(pos);
-      map.addListener('click', function(e) {
-        fetchPlaceInformation(e.placeId, map);
-      });
       }, function() {
         handleLocationError(true, map.getCenter());
       });
@@ -53,6 +59,9 @@ function initMap() {
     // Browser does not support Geolocation.
     handleLocationError(false, map.getCenter());
   }
+  map.addListener('click', function(e) {
+    fetchPlaceInformation(e.placeId, map);
+  });
 }
 
 /** Handles any errors that have to do with geolocation. */
