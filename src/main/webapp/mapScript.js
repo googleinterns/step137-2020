@@ -121,9 +121,10 @@ function fetchPlaceInformation(place_id, map) {
       infoDivElement.appendChild(addressElement);
       infoDivElement.appendChild(websiteElement);
       infoDivElement.appendChild(businessStatusElement);
-      infoDivElement.appendChild(getAvailableEvents());
-      userIsLoggedIn().then( loginStatus => {
-        if (loginStatus) {
+      userIsLoggedIn().then( response => {
+        if (response[0] == 'true') {
+          var userID = response[1];
+          infoDivElement.appendChild(getAvailableEvents(userID));
           infoDivElement.appendChild(createEventElement);
           infoDivElement.appendChild(saveInterestButtonElement);
           infoDivElement.appendChild(getUserPosts());
@@ -195,20 +196,13 @@ function getUserPosts() {
 /**
   Gets events the user is allowed to see.
 */
-function getAvailableEvents() {
+function getAvailableEvents(userID) {
   eventDivElement = document.createElement("div");
   eventDivElement.innerText = '';
   locationName = sessionStorage.getItem('locationName');
 
   var loginStatus;
-  var userID;
 
-  fetch("/login")
-    .then(response => response.json())
-    .then(json => {
-      loginStatus = json['loginStatus'];
-      userID = json['id'];
-    });
   fetch("events")
     .then(response => response.json())
     .then(events => {
@@ -249,7 +243,7 @@ function userIsLoggedIn() {
    return fetch('/login')
   .then(response => response.json())
   .then(json => { 
-    return json['loginStatus'] == 'true' 
+    return [json['loginStatus'], json['id'] ]; 
   });
 }
 
