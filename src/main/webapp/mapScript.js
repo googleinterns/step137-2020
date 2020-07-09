@@ -202,7 +202,7 @@ function getPublicEvents() {
   eventDivElement.innerText = '';
   locationName = sessionStorage.getItem('locationName');
 
-  fetch("/events")
+  fetch("events")
     .then(response => response.json())
     .then(events => {
       for (i = 0; i < events.length; i++) {
@@ -223,7 +223,7 @@ function getAvailableEvents(userID) {
   eventDivElement.innerText = '';
   locationName = sessionStorage.getItem('locationName');
 
-  fetch('/events')
+  fetch("events")
     .then(response => response.json())
     .then(events => {
       console.log(events);
