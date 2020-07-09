@@ -150,6 +150,7 @@ function fetchPlaceInformation(place_id, map, where) {
             infoDivElement.appendChild(getUserPosts());
           }
         });
+        sideBarElement.innerText = 'Selected location: ';
         sideBarElement.appendChild(infoDivElement);
         return sideBarElement;
       }
