@@ -32,7 +32,11 @@ html, body {
   color: grey;
 }
 
-#warning {
+#place-id {
+  display: none;
+}
+
+.warning {
   color: red;
 }
 
