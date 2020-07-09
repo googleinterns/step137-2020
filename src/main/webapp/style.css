@@ -55,6 +55,7 @@ html, body {
 
 #side {
   flex: 30%;
+  max-width: 30%;
   background-color: #f1f1f1;
   padding: 20px;
 }
