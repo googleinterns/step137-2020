@@ -29,7 +29,7 @@ function initMap() {
         infoWindow.setPosition(mapCenter);
         infoWindow.open(map);
         map.setCenter(mapCenter);
-        fetchPlaceInformation(newCenterId, map);
+        fetchPlaceInformation(newCenterId, map, 'exploreMapPage');
 
         // Remove session storage variable until saved interest is clicked from profile page again.
         sessionStorage.removeItem('currentLocationId');
@@ -59,7 +59,7 @@ function initMap() {
     handleLocationError(false, map.getCenter());
   }
   map.addListener('click', function(e) {
-    fetchPlaceInformation(e.placeId, map);
+    fetchPlaceInformation(e.placeId, map, 'exploreMapPage');
   });
 }
 
@@ -73,66 +73,82 @@ function handleLocationError(browserHasGeolocation, pos) {
 }
 
 /** Fetches information about a place. */
-function fetchPlaceInformation(place_id, map) {
-  var request = {
-    placeId: place_id,
-    fields: [
-     'name',
-     'rating',
-     'formatted_address',
-     'website',
-     'business_status'
-    ]
-  };
-
+function fetchPlaceInformation(place_id, map, where) {
   var service = new google.maps.places.PlacesService(map);
-  service.getDetails(request, callback);
+  
+  if (where == 'createEventPage') {
+    var request = { placeId: place_id, fields: ['name'] };
+    service.getDetails(request, callback);
 
-  function callback(place, status) {
-    if (status == google.maps.places.PlacesServiceStatus.OK) {
-      sessionStorage.setItem('locationName', place.name);
-      sessionStorage.setItem('placeId', place_id);
-      sideBarElement = document.getElementById('side');
-      infoDivElement = document.getElementById('place-info');
-      infoDivElement.innerHTML = '';
-      
-      nameElement = document.createElement('p');
-      ratingElement = document.createElement('p');
-      addressElement = document.createElement('p');
-      websiteElement = document.createElement('a');
-      createEventElement = document.createElement('a');
-      businessStatusElement = document.createElement('p');
-      saveInterestButtonElement = document.createElement('button');    
-      
-      nameElement.innerText = 'Name: ' + place.name;
-      ratingElement.innerText = 'Rating: ' + place.rating;
-      addressElement.innerText = 'Address: ' + place.formatted_address;
-      websiteElement.innerText = place.website;
-      websiteElement.href = place.website;
-      createEventElement.innerText = 'Create an Event';
-      createEventElement.href = 'CreateAnEvent.html';
-      saveInterestButtonElement.innerText = 'Interested';
-      saveInterestButtonElement.addEventListener('click', () => {
-        saveInterest(place.name, place_id);
-      });
-      businessStatusElement.innerText = 'Business Status: ' + place.business_status;
-      infoDivElement.appendChild(nameElement);
-      infoDivElement.appendChild(ratingElement);
-      infoDivElement.appendChild(addressElement);
-      infoDivElement.appendChild(websiteElement);
-      infoDivElement.appendChild(businessStatusElement);
-      infoDivElement.appendChild(getPublicEvents());
-      userIsLoggedIn().then( response => {
-        if (response[0] == 'true') {
-          var userID = response[1];
-          infoDivElement.appendChild(getAvailableEvents(userID));
-          infoDivElement.appendChild(createEventElement);
-          infoDivElement.appendChild(saveInterestButtonElement);
-          infoDivElement.appendChild(getUserPosts());
-        }
-      });
-      sideBarElement.appendChild(infoDivElement);
-      return sideBarElement;
+    function callback(place, status) {
+      if (status == google.maps.places.PlacesServiceStatus.OK) {
+        locationNameElement = document.getElementById('location');
+        placeIdInputElement = document.getElementById('place-id');
+        locationNameElement.value = place.name;
+        placeIdInputElement.value = place_id;
+      }
+    }
+  } 
+  else if (where == 'exploreMapPage') {
+    var request = {
+      placeId: place_id,
+      fields: [
+        'name',
+        'rating',
+        'formatted_address',
+        'website',
+        'business_status'
+      ]
+    };
+
+    service.getDetails(request, callback);
+
+    function callback(place, status) {
+      if (status == google.maps.places.PlacesServiceStatus.OK) {
+        sessionStorage.setItem('locationName', place.name);
+        sessionStorage.setItem('placeId', place_id);
+        sideBarElement = document.getElementById('side');
+        infoDivElement = document.getElementById('place-info');
+        infoDivElement.innerHTML = '';
+        
+        nameElement = document.createElement('p');
+        ratingElement = document.createElement('p');
+        addressElement = document.createElement('p');
+        websiteElement = document.createElement('a');
+        createEventElement = document.createElement('a');
+        businessStatusElement = document.createElement('p');
+        saveInterestButtonElement = document.createElement('button');    
+        
+        nameElement.innerText = 'Name: ' + place.name;
+        ratingElement.innerText = 'Rating: ' + place.rating;
+        addressElement.innerText = 'Address: ' + place.formatted_address;
+        websiteElement.innerText = place.website;
+        websiteElement.href = place.website;
+        createEventElement.innerText = 'Create an Event';
+        createEventElement.href = 'CreateAnEvent.html';
+        saveInterestButtonElement.innerText = 'Interested';
+        saveInterestButtonElement.addEventListener('click', () => {
+          saveInterest(place.name, place_id);
+        });
+        businessStatusElement.innerText = 'Business Status: ' + place.business_status;
+        infoDivElement.appendChild(nameElement);
+        infoDivElement.appendChild(ratingElement);
+        infoDivElement.appendChild(addressElement);
+        infoDivElement.appendChild(websiteElement);
+        infoDivElement.appendChild(businessStatusElement);
+        infoDivElement.appendChild(getPublicEvents());
+        userIsLoggedIn().then( response => {
+          if (response[0] == 'true') {
+            var userID = response[1];
+            infoDivElement.appendChild(getAvailableEvents(userID));
+            infoDivElement.appendChild(createEventElement);
+            infoDivElement.appendChild(saveInterestButtonElement);
+            infoDivElement.appendChild(getUserPosts());
+          }
+        });
+        sideBarElement.appendChild(infoDivElement);
+        return sideBarElement;
+      }
     }
   }
 }
