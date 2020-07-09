@@ -1,5 +1,9 @@
 // Global Variables
 const API_KEY = 'AIzaSyBf5E9ymEYBv6mAi78mFBOn8oUVvO8sph4';
+const CREATE_EVENT_PAGE = 'createEventPage';
+const EXPLORE_MAP_PAGE = 'exploreMapPage';
+const SESSION_STORE_LOCATION = 'locationName';
+const SESSION_STORE_PLACEID = "placeId";
 
 /** Initial display of screen */
 function initialDisplay() {
@@ -29,7 +33,7 @@ function initMap() {
         infoWindow.setPosition(mapCenter);
         infoWindow.open(map);
         map.setCenter(mapCenter);
-        fetchPlaceInformation(newCenterId, map, 'exploreMapPage');
+        fetchPlaceInformation(newCenterId, map, EXPLORE_MAP_PAGE);
 
         // Remove session storage variable until saved interest is clicked from profile page again.
         sessionStorage.removeItem('currentLocationId');
@@ -59,7 +63,7 @@ function initMap() {
     handleLocationError(false, map.getCenter());
   }
   map.addListener('click', function(e) {
-    fetchPlaceInformation(e.placeId, map, 'exploreMapPage');
+    fetchPlaceInformation(e.placeId, map, EXPLORE_MAP_PAGE);
   });
 }
 
@@ -76,7 +80,7 @@ function handleLocationError(browserHasGeolocation, pos) {
 function fetchPlaceInformation(place_id, map, where) {
   var service = new google.maps.places.PlacesService(map);
   
-  if (where == 'createEventPage') {
+  if (where == CREATE_EVENT_PAGE) {
     var request = { placeId: place_id, fields: ['name'] };
     service.getDetails(request, callback);
 
@@ -87,12 +91,12 @@ function fetchPlaceInformation(place_id, map, where) {
         locationNameElement.value = place.name;
         placeIdInputElement.value = place_id;
         // Updates sessionStorage.
-        sessionStorage.setItem('locationName', place.name);
-        sessionStorage.setItem('placeId', place_id);
+        sessionStorage.setItem(SESSION_STORE_LOCATION, place.name);
+        sessionStorage.setItem(SESSION_STORE_PLACEID, place_id);
       }
     }
   } 
-  else if (where == 'exploreMapPage') {
+  else if (where == EXPLORE_MAP_PAGE) {
     var request = {
       placeId: place_id,
       fields: [
@@ -108,8 +112,8 @@ function fetchPlaceInformation(place_id, map, where) {
 
     function callback(place, status) {
       if (status == google.maps.places.PlacesServiceStatus.OK) {
-        sessionStorage.setItem('locationName', place.name);
-        sessionStorage.setItem('placeId', place_id);
+        sessionStorage.setItem(SESSION_STORE_LOCATION, place.name);
+        sessionStorage.setItem(SESSION_STORE_PLACEID, place_id);
         sideBarElement = document.getElementById('side');
         infoDivElement = document.getElementById('place-info');
         infoDivElement.innerHTML = '';
@@ -160,8 +164,8 @@ function fetchPlaceInformation(place_id, map, where) {
 function getLocationInfo() {
   locationInputElement = document.getElementById('location');
   placeIdInputElement = document.getElementById('placeId');
-  locationName = sessionStorage.getItem('locationName');
-  placeId = sessionStorage.getItem('placeId');
+  locationName = sessionStorage.getItem(SESSION_STORE_LOCATION);
+  placeId = sessionStorage.getItem(SESSION_STORE_PLACEID);
   locationInputElement.value = locationName;
   //TODO: add this line when invisible placeId input form is added to create event form
   //placeIdInputElement.value = placeId;
@@ -170,8 +174,8 @@ function getLocationInfo() {
 /** Makes map snippet for create event page. */
 function createMapSnippet() {
   var geocoder = new google.maps.Geocoder();
-  var locationName = sessionStorage.getItem('locationName')
-  var placeId = sessionStorage.getItem('placeId');
+  var locationName = sessionStorage.getItem(SESSION_STORE_LOCATION)
+  var placeId = sessionStorage.getItem(SESSION_STORE_PLACEID);
   var infoWindow = new google.maps.InfoWindow;
 
   var mapSnippet = new google.maps.Map(document.getElementById('map-snippet'), {
@@ -220,7 +224,7 @@ function getUserPosts() {
 function getPublicEvents() {
   eventDivElement = document.createElement("div");
   eventDivElement.innerText = '';
-  locationName = sessionStorage.getItem('locationName');
+  locationName = sessionStorage.getItem(SESSION_STORE_LOCATION);
 
   fetch("events")
     .then(response => response.json())
@@ -241,7 +245,7 @@ function getPublicEvents() {
 function getAvailableEvents(userID) {
   eventDivElement = document.createElement("div");
   eventDivElement.innerText = '';
-  locationName = sessionStorage.getItem('locationName');
+  locationName = sessionStorage.getItem(SESSION_STORE_LOCATION);
 
   fetch("events")
     .then(response => response.json())
