@@ -12,18 +12,27 @@ function initialDisplay() {
 function initMap() {
   newCenterId = sessionStorage.getItem('currentLocationId');
   mapCenter = { lat: -34.937, lng: 150.644 };
+  infoWindow = new google.maps.InfoWindow;
   
   var map = new google.maps.Map(document.getElementById('map'), {
     center: mapCenter,
     zoom: 14
   })
   
-  // Checks to see if location was clicked from users saved interests
+  // Checks to see if location was clicked from users saved interests.
   if (newCenterId) {
     var geocoder = new google.maps.Geocoder();
     geocoder.geocode( {'placeId' : newCenterId}, function(results, status) {
       if (status == "OK") {
         mapCenter = results[0].geometry.location;
+        infoWindow.setContent('You saved this location.');
+        infoWindow.setPosition(mapCenter);
+        infoWindow.open(map);
+        map.setCenter(mapCenter);
+        fetchPlaceInformation(newCenterId, map);
+
+        // Remove session storage variable until saved interest is clicked from profile page again.
+        sessionStorage.removeItem('currentLocationId');
       }
       else {
         alert('Geocode was not successful for the following reason: ' + status);
@@ -38,14 +47,10 @@ function initMap() {
         lng: position.coords.longitude
       };
 
-      infoWindow = new google.maps.InfoWindow;
       infoWindow.setPosition(pos);
-      infoWindow.setContent('Location found.');
+      infoWindow.setContent('Your current location has been found.');
       infoWindow.open(map);
       map.setCenter(pos);
-      map.addListener('click', function(e) {
-        fetchPlaceInformation(e.placeId, map);
-      });
       }, function() {
         handleLocationError(true, map.getCenter());
       });
@@ -53,6 +58,9 @@ function initMap() {
     // Browser does not support Geolocation.
     handleLocationError(false, map.getCenter());
   }
+  map.addListener('click', function(e) {
+    fetchPlaceInformation(e.placeId, map);
+  });
 }
 
 /** Handles any errors that have to do with geolocation. */
@@ -113,9 +121,10 @@ function fetchPlaceInformation(place_id, map) {
       infoDivElement.appendChild(addressElement);
       infoDivElement.appendChild(websiteElement);
       infoDivElement.appendChild(businessStatusElement);
-      infoDivElement.appendChild(getAvailableEvents());
+      infoDivElement.appendChild(getPublicEvents());
       userIsLoggedIn().then( loginStatus => {
         if (loginStatus) {
+          infoDivElement.appendChild(getAvailableEvents());
           infoDivElement.appendChild(createEventElement);
           infoDivElement.appendChild(saveInterestButtonElement);
           infoDivElement.appendChild(getUserPosts());
@@ -133,7 +142,6 @@ function getLocationInfo() {
   placeIdInputElement = document.getElementById('placeId');
   locationName = sessionStorage.getItem('locationName');
   placeId = sessionStorage.getItem('placeId');
-  console.log(placeId);
   locationInputElement.value = locationName;
   //TODO: add this line when invisible placeId input form is added to create event form
   //placeIdInputElement.value = placeId;
@@ -185,6 +193,27 @@ function getUserPosts() {
 }
 
 /**
+  Get all public events to display on map page even when user isn't logged in
+ */
+function getPublicEvents() {
+  eventDivElement = document.createElement("div");
+  eventDivElement.innerText = '';
+  locationName = sessionStorage.getItem('locationName');
+
+  fetch("events")
+    .then(response => response.json())
+    .then(events => {
+      for (i = 0; i < events.length; i++) {
+        if (events[i].location == locationName 
+            && events[i].privacy == "public") {
+            eventDivElement.appendChild(createEvent(events[i]));
+          }
+        }
+    });
+  return eventDivElement;
+}
+
+/**
   Gets events the user is allowed to see.
 */
 function getAvailableEvents() {
@@ -192,13 +221,11 @@ function getAvailableEvents() {
   eventDivElement.innerText = '';
   locationName = sessionStorage.getItem('locationName');
 
-  var loginStatus;
   var userID;
 
   fetch("/login")
     .then(response => response.json())
     .then(json => {
-      loginStatus = json['loginStatus'];
       userID = json['id'];
     });
   fetch("events")
@@ -206,10 +233,7 @@ function getAvailableEvents() {
     .then(events => {
       for (i = 0; i < events.length; i++) {
         if (events[i].location == locationName) {
-          if (events[i].privacy == "public") {
-            eventDivElement.appendChild(createEvent(events[i]));
-          }
-          else if (events[i].privacy == "attendees") {
+          if (events[i].privacy == "attendees") {
             attendees = events[i].attendees;
             if (attendees.includes(userID)) {
               eventDivElement.appendChild(createEvent(events[i]));

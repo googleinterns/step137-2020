@@ -22,7 +22,7 @@ public final class Constants {
   public static final String END_TIME_PARAM = "end-time";
   public static final String LOCATION_PARAM = "location";
   public static final String EVENT_DETAILS_PARAM = "event-details";
-  public static final String COVID_SAFE_PARAM = "yes-COVID-Safe";
+  public static final String COVID_SAFE_PARAM = "COVID-Safe";
   public static final String PRIVACY_PARAM = "privacy";
   public static final String ATTENDEES_PARAM = "attendee-ID-list";
   public static final String CREATOR_PARAM = "creator";
