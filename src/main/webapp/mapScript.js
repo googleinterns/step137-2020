@@ -125,7 +125,6 @@ function fetchPlaceInformation(place_id, map) {
       userIsLoggedIn().then( response => {
         if (response[0] == 'true') {
           var userID = response[1];
-          console.log(userID);
           infoDivElement.appendChild(getAvailableEvents(userID));
           infoDivElement.appendChild(createEventElement);
           infoDivElement.appendChild(saveInterestButtonElement);
@@ -226,7 +225,6 @@ function getAvailableEvents(userID) {
   fetch("events")
     .then(response => response.json())
     .then(events => {
-      console.log(events);
       for (i = 0; i < events.length; i++) {
         if (events[i].location == locationName) {
           if (events[i].privacy == "attendees") {
