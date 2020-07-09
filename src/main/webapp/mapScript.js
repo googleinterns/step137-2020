@@ -121,9 +121,10 @@ function fetchPlaceInformation(place_id, map) {
       infoDivElement.appendChild(addressElement);
       infoDivElement.appendChild(websiteElement);
       infoDivElement.appendChild(businessStatusElement);
-      infoDivElement.appendChild(getAvailableEvents());
+      infoDivElement.appendChild(getPublicEvents());
       userIsLoggedIn().then( loginStatus => {
         if (loginStatus) {
+          infoDivElement.appendChild(getAvailableEvents());
           infoDivElement.appendChild(createEventElement);
           infoDivElement.appendChild(saveInterestButtonElement);
           infoDivElement.appendChild(getUserPosts());
@@ -141,7 +142,6 @@ function getLocationInfo() {
   placeIdInputElement = document.getElementById('placeId');
   locationName = sessionStorage.getItem('locationName');
   placeId = sessionStorage.getItem('placeId');
-  console.log(placeId);
   locationInputElement.value = locationName;
   //TODO: add this line when invisible placeId input form is added to create event form
   //placeIdInputElement.value = placeId;
@@ -193,6 +193,27 @@ function getUserPosts() {
 }
 
 /**
+  Get all public events to display on map page even when user isn't logged in
+ */
+function getPublicEvents() {
+  eventDivElement = document.createElement("div");
+  eventDivElement.innerText = '';
+  locationName = sessionStorage.getItem('locationName');
+
+  fetch("events")
+    .then(response => response.json())
+    .then(events => {
+      for (i = 0; i < events.length; i++) {
+        if (events[i].location == locationName 
+            && events[i].privacy == "public") {
+            eventDivElement.appendChild(createEvent(events[i]));
+          }
+        }
+    });
+  return eventDivElement;
+}
+
+/**
   Gets events the user is allowed to see.
 */
 function getAvailableEvents() {
@@ -200,13 +221,11 @@ function getAvailableEvents() {
   eventDivElement.innerText = '';
   locationName = sessionStorage.getItem('locationName');
 
-  var loginStatus;
   var userID;
 
   fetch("/login")
     .then(response => response.json())
     .then(json => {
-      loginStatus = json['loginStatus'];
       userID = json['id'];
     });
   fetch("events")
@@ -214,10 +233,7 @@ function getAvailableEvents() {
     .then(events => {
       for (i = 0; i < events.length; i++) {
         if (events[i].location == locationName) {
-          if (events[i].privacy == "public") {
-            eventDivElement.appendChild(createEvent(events[i]));
-          }
-          else if (events[i].privacy == "attendees") {
+          if (events[i].privacy == "attendees") {
             attendees = events[i].attendees;
             if (attendees.includes(userID)) {
               eventDivElement.appendChild(createEvent(events[i]));
