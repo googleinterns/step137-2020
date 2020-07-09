@@ -86,13 +86,10 @@ function fetchPlaceInformation(place_id, map, where) {
 
     function callback(place, status) {
       if (status == google.maps.places.PlacesServiceStatus.OK) {
-        locationNameElement = document.getElementById('location');
-        placeIdInputElement = document.getElementById('place-id');
-        locationNameElement.value = place.name;
-        placeIdInputElement.value = place_id;
-        // Updates sessionStorage.
+        // Updates sessionStorage and update input forms.
         sessionStorage.setItem(SESSION_STORE_LOCATION, place.name);
         sessionStorage.setItem(SESSION_STORE_PLACEID, place_id);
+        getLocationInfo();
       }
     }
   } 
@@ -163,7 +160,7 @@ function fetchPlaceInformation(place_id, map, where) {
 /** Makes place_id and location name of a place available. */
 function getLocationInfo() {
   locationInputElement = document.getElementById('location');
-  placeIdInputElement = document.getElementById('placeId');
+  placeIdInputElement = document.getElementById('place-id');
   locationName = sessionStorage.getItem(SESSION_STORE_LOCATION);
   placeId = sessionStorage.getItem(SESSION_STORE_PLACEID);
   locationInputElement.value = locationName;
