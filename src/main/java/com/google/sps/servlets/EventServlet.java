@@ -59,7 +59,6 @@ public class EventServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     UserService userService = UserServiceFactory.getUserService();
-    String currentUserID = userService.getCurrentUser().getUserId();
  
     Query query = new Query(Constants.EVENT_ENTITY_PARAM);
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
