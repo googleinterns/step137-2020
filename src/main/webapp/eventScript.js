@@ -57,3 +57,37 @@ function appendInfo(userId, userName) {
     document.getElementById("attendee-ID-list").value = attendeeIDs;
   }
 }
+
+function submitForm() {
+  const params = new URLSearchParams();
+  params.append("event-name", document.getElementById("event-name").value);
+  params.append("start-date", document.getElementById("start-date").value);
+  params.append("start-time", document.getElementById("start-time").value);
+  params.append("end-date", document.getElementById("end-date").value);
+  params.append("end-time", document.getElementById("end-time").value);
+  params.append("location", document.getElementById("location").value);
+  params.append("event-details", document.getElementById("event-details").value);
+  params.append("privacy", document.getElementById("privacy").value);
+  params.append("attendee-ID-list", document.getElementById("attendee-ID-list").value);
+  params.append("COVID-Safe", document.getElementById("COVID-Safe").value);
+
+  const request = new Request('/events', {method: 'POST', body: params});
+  fetch(request)
+    .then(response => response.json())
+    .then(json => {
+      if (json['bad-time'] == "true") {
+        document.getElementById('date-warning').innerHTML = "";
+        document.getElementById("success").innerHTML = "";
+        document.getElementById('date-warning').innerHTML = 
+          "<p>Please make sure the end date and time are after the start " +
+          "date and time </p>"
+      }
+      else if (json['success'] == 'true') {
+        document.getElementById("success").innerHTML = "";
+        document.getElementById("date-warning").innerHTML = "";
+        document.getElementById("success").innerHTML = 
+          "<p>Event created successfully. Click <a href=\"/map.html\">here</a>" +
+          " to return to the map</p>";
+      }
+    });
+} 
