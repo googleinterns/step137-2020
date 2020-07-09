@@ -167,8 +167,7 @@ function getLocationInfo() {
   locationName = sessionStorage.getItem(SESSION_STORE_LOCATION);
   placeId = sessionStorage.getItem(SESSION_STORE_PLACEID);
   locationInputElement.value = locationName;
-  //TODO: add this line when invisible placeId input form is added to create event form
-  //placeIdInputElement.value = placeId;
+  placeIdInputElement.value = placeId;
 }
 
 /** Makes map snippet for create event page. */
