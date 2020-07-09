@@ -86,6 +86,9 @@ function fetchPlaceInformation(place_id, map, where) {
         placeIdInputElement = document.getElementById('place-id');
         locationNameElement.value = place.name;
         placeIdInputElement.value = place_id;
+        // Updates sessionStorage.
+        sessionStorage.setItem('locationName', place.name);
+        sessionStorage.setItem('placeId', place_id);
       }
     }
   } 
@@ -187,7 +190,9 @@ function createMapSnippet() {
       mapSnippet.setCenter( { lat: -34.937, lng: 150.644})
     }
   })
-
+  mapSnippet.addListener('click', function(e) {
+    fetchPlaceInformation(e.placeId, mapSnippet, 'createEventPage');
+  });
   infoWindow.setContent('Creating an event at ' + locationName);
   infoWindow.open(mapSnippet);
 }
