@@ -122,7 +122,7 @@ function fetchPlaceInformation(place_id, map, where) {
         userPostsDivElement.innerHTML = '';
         eventsDivElement.innerHTML = '';
         
-        nameElement = document.createElement('p');
+        nameElement = document.createElement('h2');
         ratingElement = document.createElement('p');
         addressElement = document.createElement('p');
         websiteElement = document.createElement('a');
@@ -130,11 +130,16 @@ function fetchPlaceInformation(place_id, map, where) {
         businessStatusElement = document.createElement('p');
         interestButtonElement = document.createElement('button');
         
-        nameElement.innerText = 'Name: ' + place.name;
+        nameElement.innerText = place.name;
         ratingElement.innerText = 'Rating: ' + place.rating;
         addressElement.innerText = 'Address: ' + place.formatted_address;
-        websiteElement.innerText = place.website;
-        websiteElement.href = place.website;
+        if (place.website) {
+          websiteElement.innerText = place.website;
+          websiteElement.href = place.website;
+        }
+        else {
+          websiteElement.innerText = ' ';
+        }
         // function to create tab and return tab div element
         tabDivElement = createTabElement();
         createEventElement.innerText = 'Create an Event';
@@ -145,10 +150,10 @@ function fetchPlaceInformation(place_id, map, where) {
         });
 
         infoDivElement.appendChild(nameElement);
-        infoDivElement.appendChild(ratingElement);
-        infoDivElement.appendChild(addressElement);
         infoDivElement.appendChild(websiteElement);
+        infoDivElement.appendChild(addressElement);
         infoDivElement.appendChild(businessStatusElement);
+        infoDivElement.appendChild(ratingElement);
         eventsDivElement.appendChild(getPublicEvents()); 
         if (localStorage.getItem('loginStatus').localeCompare('true') == 0) {
           let userId = localStorage.getItem('userId');
@@ -163,7 +168,6 @@ function fetchPlaceInformation(place_id, map, where) {
         infoDivElement.appendChild(userPostsDivElement);
         document.getElementById('open').click();
         sideBarElement.innerHTML = '<h1>Information Bar</h1>'
-        sideBarElement.innerHTML += '<h2>Selected location:</h2>';
         sideBarElement.appendChild(infoDivElement);
         return sideBarElement;
       }
