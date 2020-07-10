@@ -142,12 +142,13 @@ function fetchPlaceInformation(place_id, map, where) {
         infoDivElement.appendChild(getPublicEvents());
         if (localStorage.getItem('loginStatus').localeCompare('true') == 0) {
           let userId = localStorage.getItem('userId');
-          setInterestButtonText(interestButtonElement, place_id, userId);
-          infoDivElement.appendChild(interestButtonElement);
           infoDivElement.appendChild(getAvailableEvents(userId));
           infoDivElement.appendChild(createEventElement);
+          setInterestButtonText(interestButtonElement, place_id, userId);
+          infoDivElement.appendChild(interestButtonElement);
           infoDivElement.appendChild(getUserPosts());
         }
+        sideBarElement.innerText = 'Selected location: ';
         sideBarElement.appendChild(infoDivElement);
         return sideBarElement;
       }
