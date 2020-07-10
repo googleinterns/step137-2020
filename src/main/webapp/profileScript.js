@@ -256,16 +256,16 @@ function buddyDisplay(user) {
  * Displays information and options for if the user is viewing a stranger's profile.
  */
 function strangerDisplay(user) {
-    // Add an option for the current user to add this user as their buddy.
-  const removeBuddyButton = document.createElement('button');
-  removeBuddyButton.innerText = 'Add buddy';
-  removeBuddyButton.addEventListener('click', () => {
+  // Add an option for the current user to add this user as their buddy.
+  const addBuddyButton = document.createElement('button');
+  addBuddyButton.innerText = 'Add buddy';
+  addBuddyButton.addEventListener('click', () => {
     addBuddy(user);
     profileOnload();
   });
 
   const basicInfoContainer = document.getElementById('basic-info');
-  basicInfoContainer.appendChild(removeBuddyButton);
+  basicInfoContainer.appendChild(addBuddyButton);
 }
 
 /*
