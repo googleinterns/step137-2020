@@ -159,8 +159,8 @@ function fetchPlaceInformation(place_id, map, where) {
           let userId = localStorage.getItem('userId');
           setInterestButtonText(interestButtonElement, place_id, userId);
           infoDivElement.appendChild(interestButtonElement);
-          eventsDivElement.appendChild(getAvailableEvents(userId)); 
-          eventsDivElement.appendChild(createEventElement); 
+          eventsDivElement.appendChild(createEventElement);
+          eventsDivElement.appendChild(getAvailableEvents(userId));  
           userPostsDivElement.appendChild(getUserPosts()); 
         }
         infoDivElement.appendChild(tabDivElement);
