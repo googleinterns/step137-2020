@@ -40,6 +40,7 @@ function navbarLoginDisplay() {
       localStorage.removeItem('userName');
       loginButton.innerText = 'Login';
       loginButton.addEventListener('click', () => {
+        sessionStorage.setItem('loadProfile', 'justLoggedIn');
         window.location.href = json['loginUrl'];
       });
       userNavbarSection.appendChild(loginButton);
@@ -56,7 +57,9 @@ function confirmUserName() {
       showNameForm();
     } else {
       localStorage.setItem('userName', name);
-      displayProfileContent();
+      if (window.location.pathname.localeCompare('/profile.html') == 0) {
+        displayProfileContent();
+      }
     }
   });
 }
@@ -65,7 +68,7 @@ function confirmUserName() {
  * Redirects the site to the clicked user's profile.
  */
 function visitProfile(userId) {
-  sessionStorage.setItem("loadProfile", userId);
+  sessionStorage.setItem('loadProfile', userId);
   window.location.href = 'profile.html';
 }
 
@@ -73,7 +76,12 @@ function visitProfile(userId) {
  * Displays the profile content of the requested user.
  */
 function displayProfileContent() {
-  let id = sessionStorage.getItem("loadProfile");
+  let id = sessionStorage.getItem('loadProfile');
+  if (id.localeCompare('justLoggedIn') == 0) {
+    // If just logged in, show personal profile.
+    id = localStorage.getItem('userId');
+    sessionStorage.setItem('loadProfile', id);
+  }
   fetch('/user').then(response => response.json()).then((users) => {
     for (let i = 0; i < users.length; i ++) {
       if ((users[i].id).localeCompare(id) == 0) {
