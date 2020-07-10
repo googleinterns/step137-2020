@@ -312,7 +312,7 @@ function getAvailableEvents(userID) {
     .then(events => {
       for (i = 0; i < events.length; i++) {
         if (events[i].location == locationName) {
-          if (events[i].privacy == "attendees") {
+          if (events[i].privacy == "attendees" || events[i].privacy == "buddies-only") {
             attendees = events[i].attendees;
             if (attendees.includes(userID)) {
               eventDivElement.appendChild(createEvent(events[i]));
