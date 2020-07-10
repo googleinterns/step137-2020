@@ -161,6 +161,7 @@ function fetchPlaceInformation(place_id, map, where) {
         infoDivElement.appendChild(tabDivElement);
         infoDivElement.appendChild(eventsDivElement);
         infoDivElement.appendChild(userPostsDivElement);
+        document.getElementById('open').click();
         sideBarElement.innerText = 'Selected location: ';
         // append infoDiv to sidebar element 
         sideBarElement.appendChild(infoDivElement);
@@ -180,17 +181,17 @@ function createTabElement() {
   eventsButtonElement = document.createElement('button');
   postsButtonElement.innerText = 'Posts';
   postsButtonElement.class = 'tablinks';
-  postsButtonElement.id = 'defaultOpen';
+  postsButtonElement.id = 'open';
   eventsButtonElement.innerText = 'Events'
   eventsButtonElement.class = 'tablinks';
+  tabDivElement.appendChild(postsButtonElement);
+  tabDivElement.appendChild(eventsButtonElement);
   postsButtonElement.addEventListener('click', function(e) {
           openTab(e, 'UserPosts');
         });
   eventsButtonElement.addEventListener('click', function(e) {
           openTab(e, 'Events');
         });
-  tabDivElement.appendChild(postsButtonElement);
-  tabDivElement.appendChild(eventsButtonElement);
   return tabDivElement;
 }
 
@@ -204,13 +205,11 @@ function openTab(evt, tabName) {
   tablinks = document.getElementsByClassName('tablinks');
   for (i = 0; i < tablinks.length; i++) {
     tablinks[i].className = tablinks[i].className.replace('active', '');
-    tablins[i].id = tablinks[i].id.replace('defaultOpen', '');
+    tablins[i].id = tablinks[i].id.replace('open', '');
   }
   document.getElementById(tabName).style.display = 'block';
   evt.currentTarget.className += 'active';
-  evt.currentTarget.id += 'defaultOpen';
-
-  document.getElementById('defaultOpen').click();
+  evt.currentTarget.id += 'open';
 }
 
 /** Makes place_id and location name of a place available. */
