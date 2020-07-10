@@ -58,9 +58,7 @@ public class EventServlet extends HttpServlet {
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    UserService userService = UserServiceFactory.getUserService();
-    String currentUserID = userService.getCurrentUser().getUserId();
- 
+
     Query query = new Query(Constants.EVENT_ENTITY_PARAM);
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     PreparedQuery results = datastore.prepare(query);
@@ -117,10 +115,14 @@ public class EventServlet extends HttpServlet {
     String yesCOVIDSafe = request.getParameter(Constants.COVID_SAFE_PARAM);
     String privacy = request.getParameter(Constants.PRIVACY_PARAM);
     String attendeesString = request.getParameter(Constants.ATTENDEES_PARAM);
-    List<String> attendees = Arrays.asList(attendeesString.split("\\s*,\\s*"));
+    List<String> attendeesList = Arrays.asList(attendeesString.split("\\s*,\\s*"));
+    ArrayList<String> attendees = new ArrayList<String>(attendeesList);
     UserService userService = UserServiceFactory.getUserService();
     String currentUserID = userService.getCurrentUser().getUserId();
-    
+
+    if (!attendees.contains(currentUserID)) {
+      attendees.add(currentUserID);
+    }
     Entity eventEntity = new Entity(Constants.EVENT_ENTITY_PARAM);
 
     eventEntity.setProperty(Constants.EVENT_NAME_PARAM, eventName);
