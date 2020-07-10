@@ -162,8 +162,8 @@ function fetchPlaceInformation(place_id, map, where) {
         infoDivElement.appendChild(eventsDivElement);
         infoDivElement.appendChild(userPostsDivElement);
         document.getElementById('open').click();
-        sideBarElement.innerText = 'Selected location: ';
-        // append infoDiv to sidebar element 
+        sideBarElement.innerHTML = '<h1>Information Bar</h1>'
+        sideBarElement.innerHTML += '<h2>Selected location:</h2>';
         sideBarElement.appendChild(infoDivElement);
         return sideBarElement;
       }
@@ -175,15 +175,15 @@ function fetchPlaceInformation(place_id, map, where) {
 function createTabElement() {
   tabDivElement = document.createElement('div');
   tabDivElement.id = 'tab';
-  tabDivElement.class = 'tab';
+  tabDivElement.className = 'tab';
   tabDivElement.innerHTML = '';
   postsButtonElement = document.createElement('button');
   eventsButtonElement = document.createElement('button');
   postsButtonElement.innerText = 'Posts';
-  postsButtonElement.class = 'tablinks';
+  postsButtonElement.className = 'tablinks active';
   postsButtonElement.id = 'open';
   eventsButtonElement.innerText = 'Events'
-  eventsButtonElement.class = 'tablinks';
+  eventsButtonElement.className = 'tablinks';
   tabDivElement.appendChild(postsButtonElement);
   tabDivElement.appendChild(eventsButtonElement);
   postsButtonElement.addEventListener('click', function(e) {
@@ -198,17 +198,17 @@ function createTabElement() {
 /** Opens a specific tab (Posts/Events) when tab is clicked. */
 function openTab(evt, tabName) {
   var i, tabcontent, tablinks;
-  tabcontent = document.getElementsByClassName("tabcontent");
+  tabcontent = document.getElementsByClassName('tabcontent');
   for (i = 0; i < tabcontent.length; i++) {
     tabcontent[i].style.display = 'none';
   }
   tablinks = document.getElementsByClassName('tablinks');
   for (i = 0; i < tablinks.length; i++) {
-    tablinks[i].className = tablinks[i].className.replace('active', '');
-    tablins[i].id = tablinks[i].id.replace('open', '');
+    tablinks[i].className = tablinks[i].className.replace(' active', '');
+    tablinks[i].id = tablinks[i].id.replace('open', '');
   }
   document.getElementById(tabName).style.display = 'block';
-  evt.currentTarget.className += 'active';
+  evt.currentTarget.className += ' active';
   evt.currentTarget.id += 'open';
 }
 
