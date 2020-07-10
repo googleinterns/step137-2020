@@ -2,6 +2,10 @@
   box-sizing: border-box;
 }
 
+:root {
+  --navbar-color: #002b54;
+}
+
 html, body {
   height: 100%;
   margin: 0;
@@ -10,7 +14,20 @@ html, body {
 
 .navbar {
   display: flex;
-  background-color: #333;
+  background-color: var(--navbar-color);
+}
+
+.navbar-text {
+  color: white;
+  padding: 14px 20px;
+  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
+}
+
+#user-navbar-section {
+  display: flex;
+  margin-left: auto;
 }
 
 /*events styling */
@@ -38,13 +55,6 @@ html, body {
 
 .warning {
   color: red;
-}
-
-.navbar a {
-  color: white;
-  padding: 14px 20px;
-  text-decoration: none;
-  text-align: center;
 }
 
 .row {
