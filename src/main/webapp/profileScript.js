@@ -3,7 +3,6 @@
  */
 function profileOnload() {
   navbarLoginDisplay();
-  displayProfileContent();
 }
 
 /*
@@ -20,7 +19,6 @@ function navbarLoginDisplay() {
       // If the user is logged in, locally store their info, confirm they have a name, 
       // then add logout and profile buttons to the navbar.
       localStorage.setItem('userId', json['id']);
-      localStorage.removeItem('userID');
       confirmUserName();
       const logoutButton = document.createElement('button');
       logoutButton.innerText = 'Logout';
@@ -42,6 +40,7 @@ function navbarLoginDisplay() {
       localStorage.removeItem('userName');
       loginButton.innerText = 'Login';
       loginButton.addEventListener('click', () => {
+        sessionStorage.setItem('loadProfile', 'justLoggedIn');
         window.location.href = json['loginUrl'];
       });
       userNavbarSection.appendChild(loginButton);
@@ -58,6 +57,9 @@ function confirmUserName() {
       showNameForm();
     } else {
       localStorage.setItem('userName', name);
+      if (window.location.pathname.localeCompare('/profile.html') == 0) {
+        displayProfileContent();
+      }
     }
   });
 }
@@ -66,7 +68,7 @@ function confirmUserName() {
  * Redirects the site to the clicked user's profile.
  */
 function visitProfile(userId) {
-  sessionStorage.setItem("loadProfile", userId);
+  sessionStorage.setItem('loadProfile', userId);
   window.location.href = 'profile.html';
 }
 
@@ -74,7 +76,12 @@ function visitProfile(userId) {
  * Displays the profile content of the requested user.
  */
 function displayProfileContent() {
-  let id = sessionStorage.getItem("loadProfile");
+  let id = sessionStorage.getItem('loadProfile');
+  if (id.localeCompare('justLoggedIn') == 0) {
+    // If just logged in, show personal profile.
+    id = localStorage.getItem('userId');
+    sessionStorage.setItem('loadProfile', id);
+  }
   fetch('/user').then(response => response.json()).then((users) => {
     for (let i = 0; i < users.length; i ++) {
       if ((users[i].id).localeCompare(id) == 0) {
@@ -167,35 +174,23 @@ function createEvent(event) {
 }
 
 /*
- * Updates the page to display the current user's profile info.
- */
-function updateCurrentProfile() {
-  fetch('/login').then(response => response.json()).then((json) => {
-    sessionStorage.setItem("loadProfile", json['id']);
-    profileOnload();
-  });
-}
-
-/*
  * Displays additional information and options for the user 
  * based on whose profile they are viewing.
  */
 function additionalDisplay(user) {
-  fetch('/login').then(response => response.json()).then((json) => {
-    if (json['loginStatus'].localeCompare('true') == 0) {
-      if(json['id'].localeCompare(user.id) == 0) {
-        personalDisplay();
-      } else {
-        fetch('/buddy').then(response => response.json()).then((buddies) => {
-          if (buddies.includes(user.id)) {
-            buddyDisplay(user);
-          } else {
-            strangerDisplay(user);
-          }
-        });
-      }
+  if (localStorage.getItem('loginStatus').localeCompare('true') == 0) {
+    if (localStorage.getItem('userId').localeCompare(user.id) == 0) {
+      personalDisplay();
+    } else {
+      fetch('/buddy').then(response => response.json()).then((buddies) => {
+        if (buddies.includes(user.id)) {
+          buddyDisplay(user);
+        } else {
+          strangerDisplay(user);
+        }
+      });
     }
-  });
+  }
 }
 
 /*
