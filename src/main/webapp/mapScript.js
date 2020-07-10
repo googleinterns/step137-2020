@@ -1,5 +1,9 @@
 // Global Variables
 const API_KEY = 'AIzaSyBf5E9ymEYBv6mAi78mFBOn8oUVvO8sph4';
+const CREATE_EVENT_PAGE = 'createEventPage';
+const EXPLORE_MAP_PAGE = 'exploreMapPage';
+const SESSION_STORE_LOCATION = 'locationName';
+const SESSION_STORE_PLACEID = "placeId";
 
 /** Initial display of screen */
 function initialDisplay() {
@@ -29,7 +33,7 @@ function initMap() {
         infoWindow.setPosition(mapCenter);
         infoWindow.open(map);
         map.setCenter(mapCenter);
-        fetchPlaceInformation(newCenterId, map);
+        fetchPlaceInformation(newCenterId, map, EXPLORE_MAP_PAGE);
 
         // Remove session storage variable until saved interest is clicked from profile page again.
         sessionStorage.removeItem('currentLocationId');
@@ -59,7 +63,7 @@ function initMap() {
     handleLocationError(false, map.getCenter());
   }
   map.addListener('click', function(e) {
-    fetchPlaceInformation(e.placeId, map);
+    fetchPlaceInformation(e.placeId, map, EXPLORE_MAP_PAGE);
   });
 }
 
@@ -73,65 +77,83 @@ function handleLocationError(browserHasGeolocation, pos) {
 }
 
 /** Fetches information about a place. */
-function fetchPlaceInformation(place_id, map) {
-  var request = {
-    placeId: place_id,
-    fields: [
-     'name',
-     'rating',
-     'formatted_address',
-     'website',
-     'business_status'
-    ]
-  };
-
+function fetchPlaceInformation(place_id, map, where) {
   var service = new google.maps.places.PlacesService(map);
-  service.getDetails(request, callback);
+  
+  if (where == CREATE_EVENT_PAGE) {
+    var request = { placeId: place_id, fields: ['name'] };
+    service.getDetails(request, callback);
 
-  function callback(place, status) {
-    if (status == google.maps.places.PlacesServiceStatus.OK) {
-      sessionStorage.setItem('locationName', place.name);
-      sessionStorage.setItem('placeId', place_id);
-      sideBarElement = document.getElementById('side');
-      infoDivElement = document.getElementById('place-info');
-      infoDivElement.innerHTML = '';
-      
-      nameElement = document.createElement('p');
-      ratingElement = document.createElement('p');
-      addressElement = document.createElement('p');
-      websiteElement = document.createElement('a');
-      createEventElement = document.createElement('a');
-      businessStatusElement = document.createElement('p');
-      saveInterestButtonElement = document.createElement('button');    
-      
-      nameElement.innerText = 'Name: ' + place.name;
-      ratingElement.innerText = 'Rating: ' + place.rating;
-      addressElement.innerText = 'Address: ' + place.formatted_address;
-      websiteElement.innerText = place.website;
-      websiteElement.href = place.website;
-      createEventElement.innerText = 'Create an Event';
-      createEventElement.href = 'CreateAnEvent.html';
-      saveInterestButtonElement.innerText = 'Interested';
-      saveInterestButtonElement.addEventListener('click', () => {
-        saveInterest(place.name, place_id);
-      });
-      businessStatusElement.innerText = 'Business Status: ' + place.business_status;
-      infoDivElement.appendChild(nameElement);
-      infoDivElement.appendChild(ratingElement);
-      infoDivElement.appendChild(addressElement);
-      infoDivElement.appendChild(websiteElement);
-      infoDivElement.appendChild(businessStatusElement);
-      infoDivElement.appendChild(getPublicEvents());
-      userIsLoggedIn().then( loginStatus => {
-        if (loginStatus) {
-          infoDivElement.appendChild(getAvailableEvents());
-          infoDivElement.appendChild(createEventElement);
-          infoDivElement.appendChild(saveInterestButtonElement);
-          infoDivElement.appendChild(getUserPosts());
-        }
-      });
-      sideBarElement.appendChild(infoDivElement);
-      return sideBarElement;
+    function callback(place, status) {
+      if (status == google.maps.places.PlacesServiceStatus.OK) {
+        // Updates sessionStorage and update input forms.
+        sessionStorage.setItem(SESSION_STORE_LOCATION, place.name);
+        sessionStorage.setItem(SESSION_STORE_PLACEID, place_id);
+        getLocationInfo();
+      }
+    }
+  } 
+  else if (where == EXPLORE_MAP_PAGE) {
+    var request = {
+      placeId: place_id,
+      fields: [
+        'name',
+        'rating',
+        'formatted_address',
+        'website',
+        'business_status'
+      ]
+    };
+
+    service.getDetails(request, callback);
+
+    function callback(place, status) {
+      if (status == google.maps.places.PlacesServiceStatus.OK) {
+        sessionStorage.setItem(SESSION_STORE_LOCATION, place.name);
+        sessionStorage.setItem(SESSION_STORE_PLACEID, place_id);
+        sideBarElement = document.getElementById('side');
+        infoDivElement = document.getElementById('place-info');
+        infoDivElement.innerHTML = '';
+        
+        nameElement = document.createElement('p');
+        ratingElement = document.createElement('p');
+        addressElement = document.createElement('p');
+        websiteElement = document.createElement('a');
+        createEventElement = document.createElement('a');
+        businessStatusElement = document.createElement('p');
+        saveInterestButtonElement = document.createElement('button');    
+        
+        nameElement.innerText = 'Name: ' + place.name;
+        ratingElement.innerText = 'Rating: ' + place.rating;
+        addressElement.innerText = 'Address: ' + place.formatted_address;
+        websiteElement.innerText = place.website;
+        websiteElement.href = place.website;
+        createEventElement.innerText = 'Create an Event';
+        createEventElement.href = 'CreateAnEvent.html';
+        saveInterestButtonElement.innerText = 'Interested';
+        saveInterestButtonElement.addEventListener('click', () => {
+          saveInterest(place.name, place_id);
+        });
+        businessStatusElement.innerText = 'Business Status: ' + place.business_status;
+        infoDivElement.appendChild(nameElement);
+        infoDivElement.appendChild(ratingElement);
+        infoDivElement.appendChild(addressElement);
+        infoDivElement.appendChild(websiteElement);
+        infoDivElement.appendChild(businessStatusElement);
+        infoDivElement.appendChild(getPublicEvents());
+        userIsLoggedIn().then( response => {
+          if (response[0] == 'true') {
+            var userID = response[1];
+            infoDivElement.appendChild(getAvailableEvents(userID));
+            infoDivElement.appendChild(createEventElement);
+            infoDivElement.appendChild(saveInterestButtonElement);
+            infoDivElement.appendChild(getUserPosts());
+          }
+        });
+        sideBarElement.innerText = 'Selected location: ';
+        sideBarElement.appendChild(infoDivElement);
+        return sideBarElement;
+      }
     }
   }
 }
@@ -139,19 +161,18 @@ function fetchPlaceInformation(place_id, map) {
 /** Makes place_id and location name of a place available. */
 function getLocationInfo() {
   locationInputElement = document.getElementById('location');
-  placeIdInputElement = document.getElementById('placeId');
-  locationName = sessionStorage.getItem('locationName');
-  placeId = sessionStorage.getItem('placeId');
+  placeIdInputElement = document.getElementById('place-id');
+  locationName = sessionStorage.getItem(SESSION_STORE_LOCATION);
+  placeId = sessionStorage.getItem(SESSION_STORE_PLACEID);
   locationInputElement.value = locationName;
-  //TODO: add this line when invisible placeId input form is added to create event form
-  //placeIdInputElement.value = placeId;
+  placeIdInputElement.value = placeId;
 }
 
 /** Makes map snippet for create event page. */
 function createMapSnippet() {
   var geocoder = new google.maps.Geocoder();
-  var locationName = sessionStorage.getItem('locationName')
-  var placeId = sessionStorage.getItem('placeId');
+  var locationName = sessionStorage.getItem(SESSION_STORE_LOCATION)
+  var placeId = sessionStorage.getItem(SESSION_STORE_PLACEID);
   var infoWindow = new google.maps.InfoWindow;
 
   var mapSnippet = new google.maps.Map(document.getElementById('map-snippet'), {
@@ -170,7 +191,9 @@ function createMapSnippet() {
       mapSnippet.setCenter( { lat: -34.937, lng: 150.644})
     }
   })
-
+  mapSnippet.addListener('click', function(e) {
+    fetchPlaceInformation(e.placeId, mapSnippet, 'createEventPage');
+  });
   infoWindow.setContent('Creating an event at ' + locationName);
   infoWindow.open(mapSnippet);
 }
@@ -198,7 +221,7 @@ function getUserPosts() {
 function getPublicEvents() {
   eventDivElement = document.createElement("div");
   eventDivElement.innerText = '';
-  locationName = sessionStorage.getItem('locationName');
+  locationName = sessionStorage.getItem(SESSION_STORE_LOCATION);
 
   fetch("events")
     .then(response => response.json())
@@ -216,18 +239,11 @@ function getPublicEvents() {
 /**
   Gets events the user is allowed to see.
 */
-function getAvailableEvents() {
+function getAvailableEvents(userID) {
   eventDivElement = document.createElement("div");
   eventDivElement.innerText = '';
-  locationName = sessionStorage.getItem('locationName');
+  locationName = sessionStorage.getItem(SESSION_STORE_LOCATION);
 
-  var userID;
-
-  fetch("/login")
-    .then(response => response.json())
-    .then(json => {
-      userID = json['id'];
-    });
   fetch("events")
     .then(response => response.json())
     .then(events => {
@@ -265,7 +281,7 @@ function userIsLoggedIn() {
    return fetch('/login')
   .then(response => response.json())
   .then(json => { 
-    return json['loginStatus'] == 'true' 
+    return [ json['loginStatus'], json['id'] ] 
   });
 }
 
