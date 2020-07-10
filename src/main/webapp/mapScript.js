@@ -7,9 +7,8 @@ const SESSION_STORE_PLACEID = "placeId";
 
 /** Initial display of screen */
 function initialDisplay() {
+  navbarLoginDisplay(); // This function is located in profileScript.js
   initMap();
-  // This function is located in profileScript.js
-  navbarLoginDisplay(); 
 }
 
 /** Initializes map and displays it. */
@@ -121,7 +120,7 @@ function fetchPlaceInformation(place_id, map, where) {
         websiteElement = document.createElement('a');
         createEventElement = document.createElement('a');
         businessStatusElement = document.createElement('p');
-        saveInterestButtonElement = document.createElement('button');    
+        interestButtonElement = document.createElement('button');
         
         nameElement.innerText = 'Name: ' + place.name;
         ratingElement.innerText = 'Rating: ' + place.rating;
@@ -130,26 +129,25 @@ function fetchPlaceInformation(place_id, map, where) {
         websiteElement.href = place.website;
         createEventElement.innerText = 'Create an Event';
         createEventElement.href = 'CreateAnEvent.html';
-        saveInterestButtonElement.innerText = 'Interested';
-        saveInterestButtonElement.addEventListener('click', () => {
-          saveInterest(place.name, place_id);
-        });
         businessStatusElement.innerText = 'Business Status: ' + place.business_status;
+        interestButtonElement.addEventListener('click', () => {
+          saveOrRemoveInterest(place.name, place_id, interestButtonElement);
+        });
+
         infoDivElement.appendChild(nameElement);
         infoDivElement.appendChild(ratingElement);
         infoDivElement.appendChild(addressElement);
         infoDivElement.appendChild(websiteElement);
         infoDivElement.appendChild(businessStatusElement);
         infoDivElement.appendChild(getPublicEvents());
-        userIsLoggedIn().then( response => {
-          if (response[0] == 'true') {
-            var userID = response[1];
-            infoDivElement.appendChild(getAvailableEvents(userID));
-            infoDivElement.appendChild(createEventElement);
-            infoDivElement.appendChild(saveInterestButtonElement);
-            infoDivElement.appendChild(getUserPosts());
-          }
-        });
+        if (localStorage.getItem('loginStatus').localeCompare('true') == 0) {
+          let userId = localStorage.getItem('userId');
+          setInterestButtonText(interestButtonElement, place_id, userId);
+          infoDivElement.appendChild(interestButtonElement);
+          infoDivElement.appendChild(getAvailableEvents(userId));
+          infoDivElement.appendChild(createEventElement);
+          infoDivElement.appendChild(getUserPosts());
+        }
         sideBarElement.appendChild(infoDivElement);
         return sideBarElement;
       }
@@ -275,21 +273,38 @@ function createEvent(event) {
   return eventElement;
 }
 
-/** Checks to see if a user is logged in. */
-function userIsLoggedIn() {
-   return fetch('/login')
-  .then(response => response.json())
-  .then(json => { 
-    return [ json['loginStatus'], json['id'] ] 
-  });
-}
-
-/** Sends post request to store saved interest. */
-function saveInterest(locationName, placeId) {
+/** Sends post request to store or remove saved interest. */
+function saveOrRemoveInterest(locationName, placeId, interestButtonElement) {
   const params = new URLSearchParams()
   params.append('place-id', placeId);
   params.append('location-name', locationName);
   fetch('/interest', {
     method: 'POST', body: params
+  }).then(switchInterestButtonText(interestButtonElement));
+}
+
+/** Switches the text of the interest button. */
+function switchInterestButtonText(interestButtonElement) {
+  if (interestButtonElement.innerText.localeCompare('Remove as interest') == 0) {
+    interestButtonElement.innerText = 'Save as interest';
+  } else {
+    interestButtonElement.innerText = 'Remove as interest';
+  }
+}
+
+/** Sets interest button's text based on whether it has already been saved by the user. */
+function setInterestButtonText(interestButtonElement, placeId, userId) {
+  alreadySaved = false;
+  fetch('/interest').then(response => response.json()).then((interests) => {
+    for (let i = 0; i < interests.length; i ++) {
+      if (interests[i].placeId.localeCompare(placeId) == 0 && 
+          interests[i].interestedUsers.includes(userId)) {
+        alreadySaved = true;
+        interestButtonElement.innerText = 'Remove as interest';
+      }
+    }
+    if (!alreadySaved) {
+      interestButtonElement.innerText = 'Save as interest';
+    }
   });
 }

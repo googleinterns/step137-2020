@@ -21,7 +21,6 @@ public class InterestServlet extends HttpServlet {
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     String placeId = request.getParameter(Constants.INTEREST_ID_PARAM);
     String locationName = request.getParameter(Constants.INTEREST_NAME_PARAM);
-    String action = request.getParameter(Constants.INTEREST_ACTION_PARAM);
 
     UserService userService = UserServiceFactory.getUserService();
     String userId = userService.getCurrentUser().getUserId();
@@ -40,13 +39,13 @@ public class InterestServlet extends HttpServlet {
       datastore.put(newInterestEntity);
     } else {
       // If the interest entity already exists, either add or remove the user from it
-      // depending on the requested action.
+      // depending on whether the user has already saved it.
       List<String> interestedUsers = (List<String>) interestEntity
           .getProperty(Constants.INTEREST_USERS_PARAM);
-      if (action.equals(Constants.INTEREST_ADD_PARAM)) {
-        interestedUsers.add(userId);
-      } else {
+      if (interestedUsers.contains(userId)) {
         interestedUsers.remove(userId);
+      } else {
+        interestedUsers.add(userId);
       }
       interestEntity.setProperty(Constants.INTEREST_USERS_PARAM, interestedUsers);
       datastore.put(interestEntity);
@@ -84,6 +83,7 @@ public class InterestServlet extends HttpServlet {
     newInterestEntity.setProperty(Constants.INTEREST_ID_PARAM, placeId);
     newInterestEntity.setProperty(Constants.INTEREST_NAME_PARAM, locationName);
     List<String> interestedUsers = new ArrayList<>();
+    interestedUsers.add(""); // Placeholder entry to prevent empty list from becoming null
     interestedUsers.add(userId);
     newInterestEntity.setProperty(Constants.INTEREST_USERS_PARAM, interestedUsers);
     return newInterestEntity;
