@@ -17,6 +17,7 @@ function initMap() {
   newCenterId = sessionStorage.getItem('currentLocationId');
   mapCenter = { lat: -34.937, lng: 150.644 };
   infoWindow = new google.maps.InfoWindow;
+  var marker = new google.maps.Marker;
   
   var map = new google.maps.Map(document.getElementById('map'), {
     center: mapCenter,
@@ -29,11 +30,10 @@ function initMap() {
     geocoder.geocode( {'placeId' : newCenterId}, function(results, status) {
       if (status == "OK") {
         mapCenter = results[0].geometry.location;
-        infoWindow.setContent('You saved this location.');
-        infoWindow.setPosition(mapCenter);
-        infoWindow.open(map);
         map.setCenter(mapCenter);
         fetchPlaceInformation(newCenterId, map, EXPLORE_MAP_PAGE);
+        marker.setPosition(mapCenter);
+        marker.setMap(map);
 
         // Remove session storage variable until saved interest is clicked from profile page again.
         sessionStorage.removeItem('currentLocationId');
@@ -63,7 +63,11 @@ function initMap() {
     handleLocationError(false, map.getCenter());
   }
   map.addListener('click', function(e) {
+    infoWindow.close(map);
     fetchPlaceInformation(e.placeId, map, EXPLORE_MAP_PAGE);
+    e.stop(); // Stops infobox from appearing when location clicked
+    marker.setPosition(e.latLng);
+    marker.setMap(map);
   });
 }
 
@@ -174,6 +178,7 @@ function createMapSnippet() {
   var locationName = sessionStorage.getItem(SESSION_STORE_LOCATION)
   var placeId = sessionStorage.getItem(SESSION_STORE_PLACEID);
   var infoWindow = new google.maps.InfoWindow;
+  var marker = new google.maps.Marker;
 
   var mapSnippet = new google.maps.Map(document.getElementById('map-snippet'), {
     zoom: 16 
@@ -185,6 +190,8 @@ function createMapSnippet() {
       mapSnippetCenter = results[0].geometry.location;
       mapSnippet.setCenter(mapSnippetCenter);
       infoWindow.setPosition(mapSnippetCenter);
+      infoWindow.setContent('Creating an event at ' + locationName);
+      infoWindow.open(mapSnippet);
     }
     else {
       alert('Geocode was not successful for the following reason: ' + status);
@@ -192,10 +199,12 @@ function createMapSnippet() {
     }
   })
   mapSnippet.addListener('click', function(e) {
-    fetchPlaceInformation(e.placeId, mapSnippet, 'createEventPage');
+    fetchPlaceInformation(e.placeId, mapSnippet, CREATE_EVENT_PAGE);
+    e.stop(); // Stops infobox from showing when location clicked.
+    infoWindow.close(mapSnippet);
+    marker.setPosition(e.latLng);
+    marker.setMap(mapSnippet);
   });
-  infoWindow.setContent('Creating an event at ' + locationName);
-  infoWindow.open(mapSnippet);
 }
 
 /** Gets user posts. */
