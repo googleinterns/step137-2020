@@ -3,7 +3,6 @@
  */
 function profileOnload() {
   navbarLoginDisplay();
-  displayProfileContent();
 }
 
 /*
@@ -20,7 +19,6 @@ function navbarLoginDisplay() {
       // If the user is logged in, locally store their info, confirm they have a name, 
       // then add logout and profile buttons to the navbar.
       localStorage.setItem('userId', json['id']);
-      localStorage.removeItem('userID');
       confirmUserName();
       const logoutButton = document.createElement('button');
       logoutButton.innerText = 'Logout';
@@ -58,6 +56,7 @@ function confirmUserName() {
       showNameForm();
     } else {
       localStorage.setItem('userName', name);
+      displayProfileContent();
     }
   });
 }
@@ -167,35 +166,23 @@ function createEvent(event) {
 }
 
 /*
- * Updates the page to display the current user's profile info.
- */
-function updateCurrentProfile() {
-  fetch('/login').then(response => response.json()).then((json) => {
-    sessionStorage.setItem("loadProfile", json['id']);
-    profileOnload();
-  });
-}
-
-/*
  * Displays additional information and options for the user 
  * based on whose profile they are viewing.
  */
 function additionalDisplay(user) {
-  fetch('/login').then(response => response.json()).then((json) => {
-    if (json['loginStatus'].localeCompare('true') == 0) {
-      if(json['id'].localeCompare(user.id) == 0) {
-        personalDisplay();
-      } else {
-        fetch('/buddy').then(response => response.json()).then((buddies) => {
-          if (buddies.includes(user.id)) {
-            buddyDisplay(user);
-          } else {
-            strangerDisplay(user);
-          }
-        });
-      }
+  if (localStorage.getItem('loginStatus').localeCompare('true') == 0) {
+    if (localStorage.getItem('userId').localeCompare(user.id) == 0) {
+      personalDisplay();
+    } else {
+      fetch('/buddy').then(response => response.json()).then((buddies) => {
+        if (buddies.includes(user.id)) {
+          buddyDisplay(user);
+        } else {
+          strangerDisplay(user);
+        }
+      });
     }
-  });
+  }
 }
 
 /*
