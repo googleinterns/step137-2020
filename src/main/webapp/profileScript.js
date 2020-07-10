@@ -15,10 +15,12 @@ function navbarLoginDisplay() {
   userNavbarSection.innerHTML = '';
 
   fetch('/login').then(response => response.json()).then((json) => {
-  
-    // If the user is logged in, confirm the user has a name, then 
-    // add logout and profile buttons to the navbar.
+    localStorage.setItem('loginStatus', json['loginStatus']);
     if (json['loginStatus'].localeCompare('true') == 0) {
+      // If the user is logged in, locally store their info, confirm they have a name, 
+      // then add logout and profile buttons to the navbar.
+      localStorage.setItem('userId', json['id']);
+      localStorage.removeItem('userID');
       confirmUserName();
       const logoutButton = document.createElement('button');
       logoutButton.innerText = 'Logout';
@@ -32,10 +34,12 @@ function navbarLoginDisplay() {
       });
       userNavbarSection.appendChild(logoutButton);
       userNavbarSection.appendChild(personalProfileButton);
-    
-    // If the user is logged out, add a login button to the navbar.
     } else {
+      // If the user is logged out, clear the locally stored user data 
+      // and add a login button to the navbar.
       const loginButton = document.createElement('button');
+      localStorage.removeItem('userId');
+      localStorage.removeItem('userName');
       loginButton.innerText = 'Login';
       loginButton.addEventListener('click', () => {
         window.location.href = json['loginUrl'];
@@ -52,6 +56,8 @@ function confirmUserName() {
   const promise = fetch('/user-name').then(response => response.text()).then((name) => {
     if (name.localeCompare('\n') == 0) {
       showNameForm();
+    } else {
+      localStorage.setItem('userName', name);
     }
   });
 }
