@@ -149,14 +149,14 @@ function fetchPlaceInformation(place_id, map, where) {
         infoDivElement.appendChild(addressElement);
         infoDivElement.appendChild(websiteElement);
         infoDivElement.appendChild(businessStatusElement);
-        eventsDivElement.appendChild(getPublicEvents()); // append events to events element instead 
+        eventsDivElement.appendChild(getPublicEvents()); 
         if (localStorage.getItem('loginStatus').localeCompare('true') == 0) {
           let userId = localStorage.getItem('userId');
-          eventsDivElement.appendChild(getAvailableEvents(userId)); // append events to events element instead
-          eventsDivElement.appendChild(createEventElement); // also append to tab element
-          setInterestButtonText(interestButtonElement, place_id, userId); 
-          eventsDivElement.appendChild(interestButtonElement); // append to events element
-          userPostsDivElement.appendChild(getUserPosts()); // append to posts element
+          setInterestButtonText(interestButtonElement, place_id, userId);
+          infoDivElement.appendChild(interestButtonElement);
+          eventsDivElement.appendChild(getAvailableEvents(userId)); 
+          eventsDivElement.appendChild(createEventElement); 
+          userPostsDivElement.appendChild(getUserPosts()); 
         }
         infoDivElement.appendChild(tabDivElement);
         infoDivElement.appendChild(eventsDivElement);
