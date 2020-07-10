@@ -153,3 +153,7 @@ html, body {
   font-style: normal;
   font-weight: 500;
 }
+
+#side a {
+  color: black;
+}
