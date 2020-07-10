@@ -20,7 +20,14 @@
         <p> After your current location has been found, 
           click on a location on the map to view more information. 
         </p>
-        <div id="place-info"></div> 
+        <div id="place-info">
+          <div class="tab">
+            <button class="tablinks" onclick="openTab(event, 'UserPosts')" id="defaultOpen">Posts</button>
+            <button class="tablinks" onclick="openTab(event, 'Events')">Events</button>
+          </div>
+          <div id="UserPosts" class="tabcontent"></div>
+          <div id="Events" class="tabcontent"></div>
+        </div> 
       </div>
       <div class="main">
         <div id="map">
