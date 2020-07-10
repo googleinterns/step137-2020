@@ -116,7 +116,11 @@ function fetchPlaceInformation(place_id, map, where) {
         sessionStorage.setItem(SESSION_STORE_PLACEID, place_id);
         sideBarElement = document.getElementById('side');
         infoDivElement = document.getElementById('place-info');
+        userPostsDivElement = document.getElementById('UserPosts');
+        eventsDivElement = document.getElementById('Events');
         infoDivElement.innerHTML = '';
+        userPostsDivElement.innerHTML = '';
+        eventsDivElement.innerHTML = '';
         
         nameElement = document.createElement('p');
         ratingElement = document.createElement('p');
@@ -131,6 +135,8 @@ function fetchPlaceInformation(place_id, map, where) {
         addressElement.innerText = 'Address: ' + place.formatted_address;
         websiteElement.innerText = place.website;
         websiteElement.href = place.website;
+        // function to create tab and return tab div element
+        tabDivElement = createTabElement();
         createEventElement.innerText = 'Create an Event';
         createEventElement.href = 'CreateAnEvent.html';
         businessStatusElement.innerText = 'Business Status: ' + place.business_status;
@@ -143,21 +149,49 @@ function fetchPlaceInformation(place_id, map, where) {
         infoDivElement.appendChild(addressElement);
         infoDivElement.appendChild(websiteElement);
         infoDivElement.appendChild(businessStatusElement);
-        infoDivElement.appendChild(getPublicEvents());
+        eventsDivElement.appendChild(getPublicEvents()); // append events to events element instead 
         if (localStorage.getItem('loginStatus').localeCompare('true') == 0) {
           let userId = localStorage.getItem('userId');
-          infoDivElement.appendChild(getAvailableEvents(userId));
-          infoDivElement.appendChild(createEventElement);
-          setInterestButtonText(interestButtonElement, place_id, userId);
-          infoDivElement.appendChild(interestButtonElement);
-          infoDivElement.appendChild(getUserPosts());
+          eventsDivElement.appendChild(getAvailableEvents(userId)); // append events to events element instead
+          eventsDivElement.appendChild(createEventElement); // also append to tab element
+          setInterestButtonText(interestButtonElement, place_id, userId); 
+          eventsDivElement.appendChild(interestButtonElement); // append to events element
+          userPostsDivElement.appendChild(getUserPosts()); // append to posts element
         }
+        infoDivElement.appendChild(tabDivElement);
+        infoDivElement.appendChild(eventsDivElement);
+        infoDivElement.appendChild(userPostsDivElement);
         sideBarElement.innerText = 'Selected location: ';
+        // append infoDiv to sidebar element 
         sideBarElement.appendChild(infoDivElement);
         return sideBarElement;
       }
     }
   }
+}
+
+/** Creates tab element to display user posts and events in. */
+function createTabElement() {
+  tabDivElement = document.createElement('div');
+  tabDivElement.id = 'tab';
+  tabDivElement.class = 'tab';
+  tabDivElement.innerHTML = '';
+  postsButtonElement = document.createElement('button');
+  eventsButtonElement = document.createElement('button');
+  postsButtonElement.innerText = 'Posts';
+  postsButtonElement.class = 'tablinks';
+  postsButtonElement.id = 'defaultOpen';
+  eventsButtonElement.innerText = 'Events'
+  eventsButtonElement.class = 'tablinks';
+  postsButtonElement.addEventListener('click', function(e) {
+          openTab(e, 'UserPosts');
+        });
+  eventsButtonElement.addEventListener('click', function(e) {
+          openTab(e, 'Events');
+        });
+  tabDivElement.appendChild(postsButtonElement);
+  tabDivElement.appendChild(eventsButtonElement);
+  return tabDivElement;
 }
 
 /** Makes place_id and location name of a place available. */
