@@ -95,6 +95,12 @@ html, body {
   background-color: rgba(0, 0, 0, 0.4);
 }
 
+.popup-text {
+  margin: auto;
+  padding: 20px;
+  width: 400px;
+}
+
 #user-info {
   justify-content: center;
 }
