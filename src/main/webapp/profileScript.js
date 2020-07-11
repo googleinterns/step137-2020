@@ -141,7 +141,7 @@ function displayAttendingEvents(user) {
 
   fetch('/events').then(response => response.json()).then((events) => {
     for (let i = 0; i < events.length; i ++) {
-      if (events[i].attendees.includes(user.id)) {
+      if (events[i].rsvpAttendees.includes(user.id)) {
         eventsContainer.appendChild(createEvent(events[i]));
       }
     }

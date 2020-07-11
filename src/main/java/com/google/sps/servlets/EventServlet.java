@@ -66,7 +66,7 @@ public class EventServlet extends HttpServlet {
      //converting the list of entities to a list of events 
     List<Event> events = new ArrayList<>();
     for (Entity entity : results.asIterable()) {
-
+      long eventID = entity.getKey().getId();
       String eventName = 
           (String) entity.getProperty(Constants.EVENT_NAME_PARAM);
       Date startDate = 
@@ -81,13 +81,16 @@ public class EventServlet extends HttpServlet {
           (String) entity.getProperty(Constants.PRIVACY_PARAM);
       String yesCOVIDSafe = 
           (String) entity.getProperty(Constants.COVID_SAFE_PARAM);
-      List<String> attendees = 
-          (List<String>) entity.getProperty(Constants.ATTENDEES_PARAM);
+      List<String> invitedAttendees = 
+          (List<String>) entity.getProperty(Constants.INVITED_ATTENDEES_PARAM);
+      List<String> rsvpAttendees = 
+          (List<String>) entity.getProperty(Constants.RSVP_ATTENDEES_PARAM);
       String creator = 
           (String) entity.getProperty(Constants.CREATOR_PARAM);
 
-      Event event = new Event(eventName, startDate, endDate, location, 
-                          eventDetails, yesCOVIDSafe, privacy, attendees, creator);
+      Event event = new Event(eventID, eventName, startDate, endDate, location, 
+                          eventDetails, yesCOVIDSafe, privacy, invitedAttendees, 
+                          rsvpAttendees, creator);
       events.add(event);
     }
 
@@ -114,17 +117,17 @@ public class EventServlet extends HttpServlet {
     String eventDetails = request.getParameter(Constants.EVENT_DETAILS_PARAM);
     String yesCOVIDSafe = request.getParameter(Constants.COVID_SAFE_PARAM);
     String privacy = request.getParameter(Constants.PRIVACY_PARAM);
-    String attendeesString = request.getParameter(Constants.ATTENDEES_PARAM);
-    List<String> attendeesList = Arrays.asList(attendeesString.split("\\s*,\\s*"));
-    ArrayList<String> attendees = new ArrayList<String>(attendeesList);
+    String invitedAttendeesString = request.getParameter(Constants.INVITED_ATTENDEES_PARAM);
+    List<String> invitedAttendeesList = Arrays.asList(invitedAttendeesString.split("\\s*,\\s*"));
+    ArrayList<String> invitedAttendees = new ArrayList<String>(invitedAttendeesList);
     UserService userService = UserServiceFactory.getUserService();
     String currentUserID = userService.getCurrentUser().getUserId();
 
-    if (!attendees.contains(currentUserID)) {
-      attendees.add(currentUserID);
-    }
-    Entity eventEntity = new Entity(Constants.EVENT_ENTITY_PARAM);
+    //list of people who said they will come. Creator is assumed to be attending
+    List<String> rsvpAttendees = new ArrayList<>();
+    rsvpAttendees.add(currentUserID);
 
+    Entity eventEntity = new Entity(Constants.EVENT_ENTITY_PARAM);
     eventEntity.setProperty(Constants.EVENT_NAME_PARAM, eventName);
     eventEntity.setProperty(Constants.START_DATE_PARAM, startDate);
     eventEntity.setProperty(Constants.START_TIME_PARAM, startTime);
@@ -134,7 +137,8 @@ public class EventServlet extends HttpServlet {
     eventEntity.setProperty(Constants.EVENT_DETAILS_PARAM, eventDetails);
     eventEntity.setProperty(Constants.COVID_SAFE_PARAM, yesCOVIDSafe);
     eventEntity.setProperty(Constants.PRIVACY_PARAM, privacy);
-    eventEntity.setProperty(Constants.ATTENDEES_PARAM, attendees);
+    eventEntity.setProperty(Constants.INVITED_ATTENDEES_PARAM, invitedAttendees);
+    eventEntity.setProperty(Constants.RSVP_ATTENDEES_PARAM, rsvpAttendees);
     eventEntity.setProperty(Constants.CREATOR_PARAM, currentUserID);
 
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();

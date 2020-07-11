@@ -229,7 +229,7 @@ function getPublicEvents() {
       for (i = 0; i < events.length; i++) {
         if (events[i].location == locationName 
             && events[i].privacy == "public") {
-            eventDivElement.appendChild(createEvent(events[i]));
+            eventDivElement.appendChild(createEventPublic(events[i]));
           }
         }
     });
@@ -250,10 +250,7 @@ function getAvailableEvents(userID) {
       for (i = 0; i < events.length; i++) {
         if (events[i].location == locationName) {
           if (events[i].privacy == "attendees" || events[i].privacy == "buddies-only") {
-            attendees = events[i].attendees;
-            if (attendees.includes(userID)) {
-              eventDivElement.appendChild(createEvent(events[i]));
-            }
+            createEventAttendees(events[i], userID);
           }
         }
       }
@@ -261,7 +258,7 @@ function getAvailableEvents(userID) {
   return eventDivElement;
 }
 
-function createEvent(event) {
+function createEventPublic(event) {
   const eventName = document.createElement('h3');
   eventName.innerText = event.eventName;
   const eventLocation = document.createElement('p');
@@ -274,6 +271,36 @@ function createEvent(event) {
   eventElement.append(eventLocation);
   eventElement.append(eventDetails);
   return eventElement;
+}
+
+function createEventAttendees(event, userID) {
+  const eventName = document.createElement('h3');
+  eventName.innerText = event.eventName;
+  const eventLocation = document.createElement('p');
+  eventLocation.innerText = event.location;
+  const eventDetails = document.createElement('p'); 
+  eventDetails.innerText = event.eventDetails;
+  const rsvpButton = document.createElement('button');
+  rsvpButton.innerText = "RSVP";
+  rsvpButton.addEventListener('click', () => {
+    addAttendee(event, userID);
+  }); 
+
+  const eventElement = document.createElement('div');
+  eventElement.append(eventName);
+  eventElement.append(eventLocation);
+  eventElement.append(eventDetails);
+  eventElement.append(rsvpButton);
+  return eventElement;
+}
+
+function addAttendee(event, userID) {
+  const params = new URLSearchParams()
+  params.append('userID', userID);
+  params.append('eventId', event.eventId);
+  fetch('/add-attendee', {
+    method: 'POST', body: params
+  });
 }
 
 /** Checks to see if a user is logged in. */

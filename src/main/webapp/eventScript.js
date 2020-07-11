@@ -57,8 +57,8 @@ function appendInfo(userId, userName) {
   else {
     attendeeIDs.push(userId);
     attendeeNames.push(userName);
-    document.getElementById("attendee-list").value = attendeeNames;
-    document.getElementById("attendee-ID-list").value = attendeeIDs;
+    document.getElementById("invited-attendee-list").value = attendeeNames;
+    document.getElementById("invited-attendee-ID-list").value = attendeeIDs;
   }
 }
 
@@ -67,13 +67,12 @@ function buddiesOnly() {
   fetch("/buddy")
     .then(response => response.json())
     .then(buddies => {
-      console.log(buddies);
       for (let i = 1; i < buddies.length; i++) {
         buddyIds.push(buddies[i]);
       }
-      document.getElementById("attendee-ID-list").value = "";
-      document.getElementById("attendee-ID-list").value = buddyIds;
-      console.log(document.getElementById("attendee-ID-list").value);
+      document.getElementById("invited-attendee-ID-list").value = "";
+      document.getElementById("invited-attendee-ID-list").value = buddyIds;
+      console.log(document.getElementById("invited-attendee-ID-list").value);
     });
 }
 
@@ -90,7 +89,7 @@ function submitForm() {
     params.append("location", document.getElementById("location").value);
     params.append("event-details", document.getElementById("event-details").value);
     params.append("privacy", document.getElementById("privacy").value);
-    params.append("attendee-ID-list", document.getElementById("attendee-ID-list").value);
+    params.append("invited-attendee-ID-list", document.getElementById("invited-attendee-ID-list").value);
     params.append("COVID-Safe", document.getElementById("COVID-Safe").value);
 
     const request = new Request('/events', {method: 'POST', body: params});
