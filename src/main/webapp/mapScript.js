@@ -116,9 +116,13 @@ function fetchPlaceInformation(place_id, map, where) {
         sessionStorage.setItem(SESSION_STORE_PLACEID, place_id);
         sideBarElement = document.getElementById('side');
         infoDivElement = document.getElementById('place-info');
+        userPostsDivElement = document.getElementById('UserPosts');
+        eventsDivElement = document.getElementById('Events');
         infoDivElement.innerHTML = '';
+        userPostsDivElement.innerHTML = '';
+        eventsDivElement.innerHTML = '';
         
-        nameElement = document.createElement('p');
+        nameElement = document.createElement('h2');
         ratingElement = document.createElement('p');
         addressElement = document.createElement('p');
         websiteElement = document.createElement('a');
@@ -126,11 +130,18 @@ function fetchPlaceInformation(place_id, map, where) {
         businessStatusElement = document.createElement('p');
         interestButtonElement = document.createElement('button');
         
-        nameElement.innerText = 'Name: ' + place.name;
+        nameElement.innerText = place.name;
         ratingElement.innerText = 'Rating: ' + place.rating;
         addressElement.innerText = 'Address: ' + place.formatted_address;
-        websiteElement.innerText = place.website;
-        websiteElement.href = place.website;
+        if (place.website) {
+          websiteElement.innerText = place.website;
+          websiteElement.href = place.website;
+        }
+        else {
+          websiteElement.innerText = ' ';
+        }
+        // function to create tab and return tab div element
+        tabDivElement = createTabElement();
         createEventElement.innerText = 'Create an Event';
         createEventElement.href = 'CreateAnEvent.html';
         businessStatusElement.innerText = 'Business Status: ' + place.business_status;
@@ -139,25 +150,70 @@ function fetchPlaceInformation(place_id, map, where) {
         });
 
         infoDivElement.appendChild(nameElement);
-        infoDivElement.appendChild(ratingElement);
-        infoDivElement.appendChild(addressElement);
         infoDivElement.appendChild(websiteElement);
+        infoDivElement.appendChild(addressElement);
         infoDivElement.appendChild(businessStatusElement);
-        infoDivElement.appendChild(getPublicEvents());
+        infoDivElement.appendChild(ratingElement);
+        eventsDivElement.appendChild(getPublicEvents()); 
         if (localStorage.getItem('loginStatus').localeCompare('true') == 0) {
           let userId = localStorage.getItem('userId');
-          infoDivElement.appendChild(getAvailableEvents(userId));
-          infoDivElement.appendChild(createEventElement);
           setInterestButtonText(interestButtonElement, place_id, userId);
           infoDivElement.appendChild(interestButtonElement);
-          infoDivElement.appendChild(getUserPosts());
+          eventsDivElement.appendChild(createEventElement);
+          eventsDivElement.appendChild(getAvailableEvents(userId));  
+          userPostsDivElement.appendChild(getUserPosts()); 
         }
-        sideBarElement.innerText = 'Selected location: ';
+        infoDivElement.appendChild(tabDivElement);
+        infoDivElement.appendChild(eventsDivElement);
+        infoDivElement.appendChild(userPostsDivElement);
+        document.getElementById('open').click();
+        sideBarElement.innerHTML = '<h1>Information Bar</h1>'
         sideBarElement.appendChild(infoDivElement);
         return sideBarElement;
       }
     }
   }
+}
+
+/** Creates tab element to display user posts and events in. */
+function createTabElement() {
+  tabDivElement = document.createElement('div');
+  tabDivElement.id = 'tab';
+  tabDivElement.className = 'tab';
+  tabDivElement.innerHTML = '';
+  postsButtonElement = document.createElement('button');
+  eventsButtonElement = document.createElement('button');
+  postsButtonElement.innerText = 'Posts';
+  postsButtonElement.className = 'tablinks active';
+  postsButtonElement.id = 'open';
+  eventsButtonElement.innerText = 'Events'
+  eventsButtonElement.className = 'tablinks';
+  tabDivElement.appendChild(postsButtonElement);
+  tabDivElement.appendChild(eventsButtonElement);
+  postsButtonElement.addEventListener('click', function(e) {
+          openTab(e, 'UserPosts');
+        });
+  eventsButtonElement.addEventListener('click', function(e) {
+          openTab(e, 'Events');
+        });
+  return tabDivElement;
+}
+
+/** Opens a specific tab (Posts/Events) when tab is clicked. */
+function openTab(evt, tabName) {
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName('tabcontent');
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = 'none';
+  }
+  tablinks = document.getElementsByClassName('tablinks');
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(' active', '');
+    tablinks[i].id = tablinks[i].id.replace('open', '');
+  }
+  document.getElementById(tabName).style.display = 'block';
+  evt.currentTarget.className += ' active';
+  evt.currentTarget.id += 'open';
 }
 
 /** Makes place_id and location name of a place available. */

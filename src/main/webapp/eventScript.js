@@ -67,7 +67,6 @@ function buddiesOnly() {
   fetch("/buddy")
     .then(response => response.json())
     .then(buddies => {
-      console.log(buddies);
       for (let i = 1; i < buddies.length; i++) {
         buddyIds.push(buddies[i]);
       }
@@ -107,6 +106,8 @@ function submitForm() {
         else if (json['success'] == 'true') {
           document.getElementById("success").innerHTML = "";
           document.getElementById("date-warning").innerHTML = "";
+          var placeId = document.getElementById('place-id').value;
+          sessionStorage.setItem("currentLocationId", placeId);
           document.getElementById("success").innerHTML = 
             "<p>Event created successfully. Click <a href=\"/map.html\">here</a>" +
             " to return to the map</p>";
