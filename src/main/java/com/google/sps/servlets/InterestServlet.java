@@ -33,18 +33,18 @@ public class InterestServlet extends HttpServlet {
     Entity interestEntity = results.asSingleEntity();
 
     if (interestEntity == null) {
+      // If the interest entity does not yet exist, create a new one for the specified location
+      // including the user, and add it to the datastore. 
       Entity newInterestEntity = createNewInterest(placeId, locationName, userId);
       datastore.put(newInterestEntity);
     } else {
+      // If the interest entity already exists, either add or remove the user from it
+      // depending on whether the user has already saved it.
       List<String> interestedUsers = (List<String>) interestEntity
           .getProperty(Constants.INTEREST_USERS_PARAM);
       if (interestedUsers.contains(userId)) {
-        // If the user has already saved this interest, 
-        // remove them from the list of interested users.
         interestedUsers.remove(userId);
       } else {
-        // If the user has not yet saved this interest, 
-        // add them to the list of interested users.
         interestedUsers.add(userId);
       }
       interestEntity.setProperty(Constants.INTEREST_USERS_PARAM, interestedUsers);
@@ -83,6 +83,7 @@ public class InterestServlet extends HttpServlet {
     newInterestEntity.setProperty(Constants.INTEREST_ID_PARAM, placeId);
     newInterestEntity.setProperty(Constants.INTEREST_NAME_PARAM, locationName);
     List<String> interestedUsers = new ArrayList<>();
+    interestedUsers.add(""); // Placeholder entry to prevent empty list from becoming null
     interestedUsers.add(userId);
     newInterestEntity.setProperty(Constants.INTEREST_USERS_PARAM, interestedUsers);
     return newInterestEntity;

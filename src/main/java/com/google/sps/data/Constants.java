@@ -33,10 +33,11 @@ public final class Constants {
   public static final String INTEREST_NAME_PARAM = "location-name";
   public static final String INTEREST_ID_PARAM = "place-id";
   public static final String INTEREST_USERS_PARAM = "interested-users";
+  public static final String INTEREST_ACTION_PARAM = "action";
+  public static final String INTEREST_ADD_PARAM = "add";
 
   // Buddy constants
   public static final String BUDDY_USER_PARAM = "user";
   public static final String BUDDY_ACTION_PARAM = "action";
   public static final String BUDDY_ADD_PARAM = "add";
-  public static final String BUDDY_REMOVE_PARAM = "remove";
 }

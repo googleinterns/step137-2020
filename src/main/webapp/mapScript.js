@@ -7,9 +7,8 @@ const SESSION_STORE_PLACEID = "placeId";
 
 /** Initial display of screen */
 function initialDisplay() {
+  navbarLoginDisplay(); // This function is located in profileScript.js
   initMap();
-  // This function is located in profileScript.js
-  navbarLoginDisplay(); 
 }
 
 /** Initializes map and displays it. */
@@ -17,6 +16,7 @@ function initMap() {
   newCenterId = sessionStorage.getItem('currentLocationId');
   mapCenter = { lat: -34.937, lng: 150.644 };
   infoWindow = new google.maps.InfoWindow;
+  var marker = new google.maps.Marker;
   
   var map = new google.maps.Map(document.getElementById('map'), {
     center: mapCenter,
@@ -29,11 +29,10 @@ function initMap() {
     geocoder.geocode( {'placeId' : newCenterId}, function(results, status) {
       if (status == "OK") {
         mapCenter = results[0].geometry.location;
-        infoWindow.setContent('You saved this location.');
-        infoWindow.setPosition(mapCenter);
-        infoWindow.open(map);
         map.setCenter(mapCenter);
         fetchPlaceInformation(newCenterId, map, EXPLORE_MAP_PAGE);
+        marker.setPosition(mapCenter);
+        marker.setMap(map);
 
         // Remove session storage variable until saved interest is clicked from profile page again.
         sessionStorage.removeItem('currentLocationId');
@@ -63,7 +62,11 @@ function initMap() {
     handleLocationError(false, map.getCenter());
   }
   map.addListener('click', function(e) {
+    infoWindow.close(map);
     fetchPlaceInformation(e.placeId, map, EXPLORE_MAP_PAGE);
+    e.stop(); // Stops infobox from appearing when location clicked
+    marker.setPosition(e.latLng);
+    marker.setMap(map);
   });
 }
 
@@ -113,49 +116,104 @@ function fetchPlaceInformation(place_id, map, where) {
         sessionStorage.setItem(SESSION_STORE_PLACEID, place_id);
         sideBarElement = document.getElementById('side');
         infoDivElement = document.getElementById('place-info');
+        userPostsDivElement = document.getElementById('UserPosts');
+        eventsDivElement = document.getElementById('Events');
         infoDivElement.innerHTML = '';
+        userPostsDivElement.innerHTML = '';
+        eventsDivElement.innerHTML = '';
         
-        nameElement = document.createElement('p');
+        nameElement = document.createElement('h2');
         ratingElement = document.createElement('p');
         addressElement = document.createElement('p');
         websiteElement = document.createElement('a');
         createEventElement = document.createElement('a');
         businessStatusElement = document.createElement('p');
-        saveInterestButtonElement = document.createElement('button');    
+        interestButtonElement = document.createElement('button');
         
-        nameElement.innerText = 'Name: ' + place.name;
+        nameElement.innerText = place.name;
         ratingElement.innerText = 'Rating: ' + place.rating;
         addressElement.innerText = 'Address: ' + place.formatted_address;
-        websiteElement.innerText = place.website;
-        websiteElement.href = place.website;
+        if (place.website) {
+          websiteElement.innerText = place.website;
+          websiteElement.href = place.website;
+        }
+        else {
+          websiteElement.innerText = ' ';
+        }
+        // function to create tab and return tab div element
+        tabDivElement = createTabElement();
         createEventElement.innerText = 'Create an Event';
         createEventElement.href = 'CreateAnEvent.html';
-        saveInterestButtonElement.innerText = 'Interested';
-        saveInterestButtonElement.addEventListener('click', () => {
-          saveInterest(place.name, place_id);
-        });
         businessStatusElement.innerText = 'Business Status: ' + place.business_status;
-        infoDivElement.appendChild(nameElement);
-        infoDivElement.appendChild(ratingElement);
-        infoDivElement.appendChild(addressElement);
-        infoDivElement.appendChild(websiteElement);
-        infoDivElement.appendChild(businessStatusElement);
-        infoDivElement.appendChild(getPublicEvents());
-        userIsLoggedIn().then( response => {
-          if (response[0] == 'true') {
-            var userID = response[1];
-            infoDivElement.appendChild(getAvailableEvents(userID));
-            infoDivElement.appendChild(createEventElement);
-            infoDivElement.appendChild(saveInterestButtonElement);
-            infoDivElement.appendChild(getUserPosts());
-          }
+        interestButtonElement.addEventListener('click', () => {
+          saveOrRemoveInterest(place.name, place_id, interestButtonElement);
         });
-        sideBarElement.innerText = 'Selected location: ';
+
+        infoDivElement.appendChild(nameElement);
+        infoDivElement.appendChild(websiteElement);
+        infoDivElement.appendChild(addressElement);
+        infoDivElement.appendChild(businessStatusElement);
+        infoDivElement.appendChild(ratingElement);
+        eventsDivElement.appendChild(getPublicEvents()); 
+        if (localStorage.getItem('loginStatus').localeCompare('true') == 0) {
+          let userId = localStorage.getItem('userId');
+          setInterestButtonText(interestButtonElement, place_id, userId);
+          infoDivElement.appendChild(interestButtonElement);
+          eventsDivElement.appendChild(createEventElement);
+          eventsDivElement.appendChild(getAvailableEvents(userId));  
+          userPostsDivElement.appendChild(getUserPosts()); 
+        }
+        infoDivElement.appendChild(tabDivElement);
+        infoDivElement.appendChild(eventsDivElement);
+        infoDivElement.appendChild(userPostsDivElement);
+        document.getElementById('open').click();
+        sideBarElement.innerHTML = '<h1>Information Bar</h1>'
         sideBarElement.appendChild(infoDivElement);
         return sideBarElement;
       }
     }
   }
+}
+
+/** Creates tab element to display user posts and events in. */
+function createTabElement() {
+  tabDivElement = document.createElement('div');
+  tabDivElement.id = 'tab';
+  tabDivElement.className = 'tab';
+  tabDivElement.innerHTML = '';
+  postsButtonElement = document.createElement('button');
+  eventsButtonElement = document.createElement('button');
+  postsButtonElement.innerText = 'Posts';
+  postsButtonElement.className = 'tablinks active';
+  postsButtonElement.id = 'open';
+  eventsButtonElement.innerText = 'Events'
+  eventsButtonElement.className = 'tablinks';
+  tabDivElement.appendChild(postsButtonElement);
+  tabDivElement.appendChild(eventsButtonElement);
+  postsButtonElement.addEventListener('click', function(e) {
+          openTab(e, 'UserPosts');
+        });
+  eventsButtonElement.addEventListener('click', function(e) {
+          openTab(e, 'Events');
+        });
+  return tabDivElement;
+}
+
+/** Opens a specific tab (Posts/Events) when tab is clicked. */
+function openTab(evt, tabName) {
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName('tabcontent');
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = 'none';
+  }
+  tablinks = document.getElementsByClassName('tablinks');
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(' active', '');
+    tablinks[i].id = tablinks[i].id.replace('open', '');
+  }
+  document.getElementById(tabName).style.display = 'block';
+  evt.currentTarget.className += ' active';
+  evt.currentTarget.id += 'open';
 }
 
 /** Makes place_id and location name of a place available. */
@@ -174,6 +232,7 @@ function createMapSnippet() {
   var locationName = sessionStorage.getItem(SESSION_STORE_LOCATION)
   var placeId = sessionStorage.getItem(SESSION_STORE_PLACEID);
   var infoWindow = new google.maps.InfoWindow;
+  var marker = new google.maps.Marker;
 
   var mapSnippet = new google.maps.Map(document.getElementById('map-snippet'), {
     zoom: 16 
@@ -185,6 +244,8 @@ function createMapSnippet() {
       mapSnippetCenter = results[0].geometry.location;
       mapSnippet.setCenter(mapSnippetCenter);
       infoWindow.setPosition(mapSnippetCenter);
+      infoWindow.setContent('Creating an event at ' + locationName);
+      infoWindow.open(mapSnippet);
     }
     else {
       alert('Geocode was not successful for the following reason: ' + status);
@@ -192,10 +253,12 @@ function createMapSnippet() {
     }
   })
   mapSnippet.addListener('click', function(e) {
-    fetchPlaceInformation(e.placeId, mapSnippet, 'createEventPage');
+    fetchPlaceInformation(e.placeId, mapSnippet, CREATE_EVENT_PAGE);
+    e.stop(); // Stops infobox from showing when location clicked.
+    infoWindow.close(mapSnippet);
+    marker.setPosition(e.latLng);
+    marker.setMap(mapSnippet);
   });
-  infoWindow.setContent('Creating an event at ' + locationName);
-  infoWindow.open(mapSnippet);
 }
 
 /** Gets user posts. */
@@ -312,12 +375,38 @@ function userIsLoggedIn() {
   });
 }
 
-/** Sends post request to store saved interest. */
-function saveInterest(locationName, placeId) {
+/** Sends post request to store or remove saved interest. */
+function saveOrRemoveInterest(locationName, placeId, interestButtonElement) {
   const params = new URLSearchParams()
   params.append('place-id', placeId);
   params.append('location-name', locationName);
   fetch('/interest', {
     method: 'POST', body: params
+  }).then(switchInterestButtonText(interestButtonElement));
+}
+
+/** Switches the text of the interest button. */
+function switchInterestButtonText(interestButtonElement) {
+  if (interestButtonElement.innerText.localeCompare('Remove as interest') == 0) {
+    interestButtonElement.innerText = 'Save as interest';
+  } else {
+    interestButtonElement.innerText = 'Remove as interest';
+  }
+}
+
+/** Sets interest button's text based on whether it has already been saved by the user. */
+function setInterestButtonText(interestButtonElement, placeId, userId) {
+  alreadySaved = false;
+  fetch('/interest').then(response => response.json()).then((interests) => {
+    for (let i = 0; i < interests.length; i ++) {
+      if (interests[i].placeId.localeCompare(placeId) == 0 && 
+          interests[i].interestedUsers.includes(userId)) {
+        alreadySaved = true;
+        interestButtonElement.innerText = 'Remove as interest';
+      }
+    }
+    if (!alreadySaved) {
+      interestButtonElement.innerText = 'Save as interest';
+    }
   });
 }
