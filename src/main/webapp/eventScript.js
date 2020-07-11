@@ -8,14 +8,17 @@ function onload() {
 }
 
 /**
-  display attendees input only if the privacy specified 
-  is "attendees"
+  change display based on privacy setting
 */
 function specifiedAttendees(value) {
   if (value == "attendees") {
     document.getElementById("attendees-wrap").style.display = "block";
     userSearch();
   }
+  else if (value == "buddies-only") {
+    buddiesOnly();
+    document.getElementById("attendees-wrap").style.display = "none";
+  } 
   else {
     document.getElementById("attendees-wrap").style.display = "none";
   }
@@ -34,6 +37,7 @@ function userSearch() {
 
 var attendeeNames = new Array();
 var attendeeIDs = new Array();
+attendeeIDs.push("");
 
 function loadUser(user) {
   const userDisplay = document.createElement('p');
@@ -58,36 +62,89 @@ function appendInfo(userId, userName) {
   }
 }
 
+function buddiesOnly() {
+  var buddyIds = new Array();
+  fetch("/buddy")
+    .then(response => response.json())
+    .then(buddies => {
+      console.log(buddies);
+      for (let i = 1; i < buddies.length; i++) {
+        buddyIds.push(buddies[i]);
+      }
+      document.getElementById("attendee-ID-list").value = "";
+      document.getElementById("attendee-ID-list").value = buddyIds;
+      console.log(document.getElementById("attendee-ID-list").value);
+    });
+}
+
 function submitForm() {
   const params = new URLSearchParams();
-  params.append("event-name", document.getElementById("event-name").value);
-  params.append("start-date", document.getElementById("start-date").value);
-  params.append("start-time", document.getElementById("start-time").value);
-  params.append("end-date", document.getElementById("end-date").value);
-  params.append("end-time", document.getElementById("end-time").value);
-  params.append("location", document.getElementById("location").value);
-  params.append("event-details", document.getElementById("event-details").value);
-  params.append("privacy", document.getElementById("privacy").value);
-  params.append("attendee-ID-list", document.getElementById("attendee-ID-list").value);
-  params.append("COVID-Safe", document.getElementById("COVID-Safe").value);
+  filledIn = checkFillIn();
 
-  const request = new Request('/events', {method: 'POST', body: params});
-  fetch(request)
-    .then(response => response.json())
-    .then(json => {
-      if (json['bad-time'] == "true") {
-        document.getElementById('date-warning').innerHTML = "";
-        document.getElementById("success").innerHTML = "";
-        document.getElementById('date-warning').innerHTML = 
-          "<p>Please make sure the end date and time are after the start " +
-          "date and time </p>"
-      }
-      else if (json['success'] == 'true') {
-        document.getElementById("success").innerHTML = "";
-        document.getElementById("date-warning").innerHTML = "";
-        document.getElementById("success").innerHTML = 
-          "<p>Event created successfully. Click <a href=\"/map.html\">here</a>" +
-          " to return to the map</p>";
-      }
-    });
+  if (filledIn) {
+    params.append("event-name", document.getElementById("event-name").value);
+    params.append("start-date", document.getElementById("start-date").value);
+    params.append("start-time", document.getElementById("start-time").value);
+    params.append("end-date", document.getElementById("end-date").value);
+    params.append("end-time", document.getElementById("end-time").value);
+    params.append("location", document.getElementById("location").value);
+    params.append("event-details", document.getElementById("event-details").value);
+    params.append("privacy", document.getElementById("privacy").value);
+    params.append("attendee-ID-list", document.getElementById("attendee-ID-list").value);
+    params.append("COVID-Safe", document.getElementById("COVID-Safe").value);
+
+    const request = new Request('/events', {method: 'POST', body: params});
+    fetch(request)
+      .then(response => response.json())
+      .then(json => {
+        if (json['bad-time'] == "true") {
+          document.getElementById('date-warning').innerHTML = "";
+          document.getElementById("success").innerHTML = "";
+          document.getElementById('date-warning').innerHTML = 
+            "<p>Please make sure the end date and time are after the start " +
+            "date and time </p>"
+        }
+        else if (json['success'] == 'true') {
+          document.getElementById("success").innerHTML = "";
+          document.getElementById("date-warning").innerHTML = "";
+          document.getElementById("success").innerHTML = 
+            "<p>Event created successfully. Click <a href=\"/map.html\">here</a>" +
+            " to return to the map</p>";
+        }
+      });
+  }
 } 
+function checkFillIn() {
+  var fillIn = "<p>Please fill our all sections with an * by them</p>";
+  if (document.getElementById("event-name").value === "") {
+    document.getElementById("success").innerHTML = fillIn;
+    return false;
+  }
+  else if (document.getElementById("start-date").value === "") {
+    document.getElementById("success").innerHTML = fillIn;
+    return false;
+  }
+  else if (document.getElementById("start-time").value === "") {
+    document.getElementById("success").innerHTML = fillIn;
+    return false;
+  }
+  else if (document.getElementById("end-date").value === "") {
+    document.getElementById("success").innerHTML = fillIn;
+    return false;
+  }
+  else if (document.getElementById("end-time").value === "") {
+    document.getElementById("success").innerHTML = fillIn;
+    return false;
+  }
+  else if (document.getElementById("privacy").value === "") {
+    document.getElementById("success").innerHTML = fillIn;
+    return false;
+  }
+  else if (document.getElementById("COVID-Safe").value === "") {
+    document.getElementById("success").innerHTML = fillIn;
+    return false;
+  }
+  else {
+    return true;
+  }
+}

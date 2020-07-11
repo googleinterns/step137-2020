@@ -17,20 +17,20 @@
     </div>
     <h1>Create An Event</h1>
     <form>
-      <label for="event-name">Event Name: </label>
+      <label for="event-name">Event Name*: </label>
       <input type="text" id="event-name" name="event-name" required></textarea>
       <br><br>
       
-      <label for="start-date">Start Date: </label>
+      <label for="start-date">Start Date*: </label>
       <input type="date" id="start-date" name="start-date" required>
-      <label for="start-time">Start Time: </label>
+      <label for="start-time">Start Time*: </label>
       <input type="time" id="start-time" name="start-time" required>
       <br><br>
 
       <div id="date-warning" class="warning"></div>
-      <label for="end-date">End Date: </label>
+      <label for="end-date">End Date*: </label>
       <input type="date" id="end-date" name="end-date" required>
-      <label for="end-time">End Time: </label>
+      <label for="end-time">End Time*: </label>
       <input type="time" id="end-time" name="end-time" required>
       <br><br>
 
@@ -43,7 +43,7 @@
       <input type="text" id="event-details" name="event-details">
       <br><br>
 
-      <label for="privacy">Privacy: (please choose one)</label>
+      <label for="privacy">Privacy*: (please choose one)</label>
       <select id="privacy" onClick="specifiedAttendees(this.value)" name="privacy" required>
         <option value="public">Public</option>
         <option value="buddies-only">Buddies Only</option>
@@ -61,7 +61,7 @@
       <br>
 
       <div id="COVID-notice">
-        <h3>COVID-19 Safety Notice:</h3>
+        <h3>COVID-19 Safety Notice*:</h3>
         <p>Please indicate whether your event plans to 
           follow government mandated COVID safety restrictions (masks, social distancing, etc).
           <br>Please note that this information will not be reported to local authorities
