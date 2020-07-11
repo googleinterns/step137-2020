@@ -19,9 +19,7 @@ function navbarLoginDisplay() {
       // If the user is logged in, locally store their info, confirm they have a name, 
       // then add logout and profile buttons to the navbar.
       localStorage.setItem('userId', json['id']);
-      confirmUserName();
       const personalProfileButton = document.createElement('p');
-      personalProfileButton.id = 'personal-profile-button';
       personalProfileButton.classList.add('navbar-text');
       personalProfileButton.addEventListener('click', () => {
         visitProfile(json['id']);
@@ -32,6 +30,7 @@ function navbarLoginDisplay() {
       logoutButton.addEventListener('click', () => {
         window.location.href = json['logoutUrl'];
       });
+      confirmUserName(personalProfileButton);
       userNavbarSection.appendChild(personalProfileButton);
       userNavbarSection.appendChild(logoutButton);
     } else {
@@ -54,18 +53,29 @@ function navbarLoginDisplay() {
 /*
  * Checks whether the user does not yet have a display name.
  */
-function confirmUserName() {
-  const promise = fetch('/user-name').then(response => response.text()).then((name) => {
-    if (name.localeCompare('\n') == 0) {
-      showNameForm();
-    } else {
-      localStorage.setItem('userName', name);
-      document.getElementById('personal-profile-button').innerText = name;
-      if (window.location.pathname.localeCompare('/profile.html') == 0) {
-        displayProfileContent();
+function confirmUserName(personalProfileButton) {
+  const currentName = localStorage.getItem('userName');
+  if (currentName == null) {
+    const promise = fetch('/user-name').then(response => response.text()).then((name) => {
+      if (name.localeCompare('\n') == 0) {
+        // If the user has not yet set their name, display the form.
+        showNameForm();
+      } else {
+        // If the user's name is not yet in local storage, store it and display the page.
+        localStorage.setItem('userName', name);
+        personalProfileButton.innerText = name;
+        if (window.location.pathname.localeCompare('/profile.html') == 0) {
+          displayProfileContent();
+        }
       }
+    });
+  } else {
+    // If the user's name is in local storage, display the page.
+    personalProfileButton.innerText = currentName;
+    if (window.location.pathname.localeCompare('/profile.html') == 0) {
+      displayProfileContent();
     }
-  });
+  }
 }
 
 /*
