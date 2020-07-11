@@ -13,6 +13,7 @@ function onload() {
 function specifiedAttendees(value) {
   if (value == "attendees") {
     document.getElementById("attendees-wrap").style.display = "block";
+    document.getElementById("invited-attendee-ID-list").style.display = "none";
     userSearch();
   }
   else if (value == "buddies-only") {

@@ -313,7 +313,7 @@ function getAvailableEvents(userID) {
       for (i = 0; i < events.length; i++) {
         if (events[i].location == locationName) {
           if (events[i].privacy == "attendees" || events[i].privacy == "buddies-only") {
-            createEventAttendees(events[i], userID);
+            eventDivElement.appendChild(createEventAttendees(events[i], userID));
           }
         }
       }
@@ -330,6 +330,10 @@ function createEventPublic(event) {
   eventDetails.innerText = event.eventDetails;
 
   const eventElement = document.createElement('div');
+  eventElement.className = "card";
+  const eventContents = document.createElement('div');
+  eventContents.className = "contents";
+  eventElement.append(eventContents);
   eventElement.append(eventName);
   eventElement.append(eventLocation);
   eventElement.append(eventDetails);
@@ -350,6 +354,10 @@ function createEventAttendees(event, userID) {
   }); 
 
   const eventElement = document.createElement('div');
+  eventElement.className = "card";
+  const eventContents = document.createElement('div');
+  eventContents.className = "contents";
+  eventElement.append(eventContents);
   eventElement.append(eventName);
   eventElement.append(eventLocation);
   eventElement.append(eventDetails);
