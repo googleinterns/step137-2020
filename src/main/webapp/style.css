@@ -1,3 +1,7 @@
+:root {
+  --gray-icon-color: #808080;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -101,12 +105,27 @@ html, body {
   width: 400px;
 }
 
-#user-info {
-  justify-content: center;
+#basic-info {
+  text-align: center;
+}
+
+#name-container {
+  display: inline-flex;
+  align-items: center;
+}
+
+.fa-edit {
+  color: var(--gray-icon-color);
+  cursor: pointer;
+  padding-left: 10px;
+  padding-top: 3px;
 }
 
 #bottom-wrapper {
   display: flex;
-  justify-content: space-around;
+  text-align: center;
 }
 
+.bottom-section {
+  flex: 1;
+}

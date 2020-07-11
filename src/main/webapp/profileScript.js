@@ -99,12 +99,13 @@ function displayProfileContent() {
  * Displays the basic info of the specified user.
  */
 function displayBasicInfo(user) {
-  const basicInfoContainer = document.getElementById('basic-info');
-  basicInfoContainer.innerHTML = '';
+  const nameContainer = document.getElementById('name-container');
+  nameContainer.innerHTML = '';
 
   const name = document.createElement('h1');
   name.innerText = user.name;
-  basicInfoContainer.appendChild(name);
+  name.style = 'padding-left: 10px';
+  nameContainer.appendChild(name);
 }
 
 /*
@@ -198,9 +199,9 @@ function additionalDisplay(user) {
  */
 function personalDisplay() {
   // Add an option for the current user to change their display name.
-  const changeNameButton = document.createElement('button');
-  changeNameButton.innerText = 'Change name';
-  changeNameButton.addEventListener('click', () => {
+  const editNameButton = document.createElement('i');
+  editNameButton.className = 'fa fa-edit';
+  editNameButton.addEventListener('click', () => {
     showNameForm();
   });
 
@@ -226,8 +227,9 @@ function personalDisplay() {
     });
   });
 
+  const nameContainer = document.getElementById('name-container');
+  nameContainer.appendChild(editNameButton);
   const basicInfoContainer = document.getElementById('basic-info');
-  basicInfoContainer.appendChild(changeNameButton);
   basicInfoContainer.appendChild(buddiesList);
 }
 
