@@ -20,8 +20,17 @@ function initMap() {
   
   var map = new google.maps.Map(document.getElementById('map'), {
     center: mapCenter,
-    zoom: 14
-  })
+    zoom: 14,
+    mapTypeId: 'terrain',
+    styles: [
+      {
+        featureType: 'road',
+        elementType: 'labels.text',
+        stylers: [{visibility: 'off'}]
+      }
+    ]
+  });
+
   
   // Checks to see if location was clicked from users saved interests.
   if (newCenterId) {
