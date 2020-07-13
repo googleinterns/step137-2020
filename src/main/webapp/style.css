@@ -1,3 +1,7 @@
+:root {
+  --gray-icon-color: #808080;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -98,20 +102,42 @@ html, body {
   z-index: 1;
   left: 0;
   top: 0;
-  padding-top: 15%;
   width: 100%;
   height: 100%;
   overflow: auto;
   background-color: rgba(0, 0, 0, 0.4);
 }
 
-#user-info {
-  justify-content: center;
+.popup-text {
+  margin: auto;
+  padding-left: 100px;
+  padding-top: 350px;
+  width: 400px;
+}
+
+#basic-info {
+  text-align: center;
+}
+
+#name-container {
+  display: inline-flex;
+  align-items: center;
+}
+
+.fa-edit {
+  color: var(--gray-icon-color);
+  cursor: pointer;
+  padding-left: 10px;
+  padding-top: 3px;
 }
 
 #bottom-wrapper {
   display: flex;
-  justify-content: space-around;
+  text-align: center;
+}
+
+.bottom-section {
+  flex: 1;
 }
 
 /* Style the tab in sidebar */
