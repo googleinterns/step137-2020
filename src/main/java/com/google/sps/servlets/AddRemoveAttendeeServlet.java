@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.json.JSONObject;
 
-/** Servlet responsible for deleting single comments. */
+/** Servlet responsible for adding and removing attendees from a specified event */
 @WebServlet("/add-remove-attendee")
 public class AddRemoveAttendeeServlet extends HttpServlet {
 
