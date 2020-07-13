@@ -153,8 +153,7 @@ function fetchPlaceInformation(place_id, map, where) {
         infoDivElement.appendChild(websiteElement);
         infoDivElement.appendChild(addressElement);
         infoDivElement.appendChild(businessStatusElement);
-        infoDivElement.appendChild(ratingElement);
-        eventsDivElement.appendChild(getPublicEvents()); 
+        infoDivElement.appendChild(ratingElement); 
         if (localStorage.getItem('loginStatus').localeCompare('true') == 0) {
           let userId = localStorage.getItem('userId');
           setInterestButtonText(interestButtonElement, place_id, userId);
@@ -162,6 +161,9 @@ function fetchPlaceInformation(place_id, map, where) {
           eventsDivElement.appendChild(createEventElement);
           eventsDivElement.appendChild(getAvailableEvents(userId));  
           userPostsDivElement.appendChild(getUserPosts()); 
+        }
+        else {
+          eventsDivElement.appendChild(getPublicEvents());
         }
         infoDivElement.appendChild(tabDivElement);
         infoDivElement.appendChild(eventsDivElement);
@@ -279,7 +281,7 @@ function getUserPosts() {
 }
 
 /**
-  Get all public events to display on map page even when user isn't logged in
+  Get all public events to display on map page even when user isn't logged in.
  */
 function getPublicEvents() {
   eventDivElement = document.createElement("div");
@@ -292,7 +294,7 @@ function getPublicEvents() {
       for (i = 0; i < events.length; i++) {
         if (events[i].location == locationName 
             && events[i].privacy == "public") {
-            eventDivElement.appendChild(createEvent(events[i]));
+            eventDivElement.appendChild(createEventPublic(events[i]));
           }
         }
     });
@@ -312,11 +314,12 @@ function getAvailableEvents(userID) {
     .then(events => {
       for (i = 0; i < events.length; i++) {
         if (events[i].location == locationName) {
-          if (events[i].privacy == "attendees" || events[i].privacy == "buddies-only") {
-            attendees = events[i].attendees;
-            if (attendees.includes(userID)) {
-              eventDivElement.appendChild(createEvent(events[i]));
-            }
+          rsvpAttendees = events[i].rsvpAttendees;
+          if (rsvpAttendees.includes(userID)) {
+            eventDivElement.appendChild(createEventAttendees(events[i], userID, "true"));
+          }
+          else {
+            eventDivElement.appendChild(createEventAttendees(events[i], userID, "false"));
           }
         }
       }
@@ -324,7 +327,7 @@ function getAvailableEvents(userID) {
   return eventDivElement;
 }
 
-function createEvent(event) {
+function createEventPublic(event) {
   const eventName = document.createElement('h3');
   eventName.innerText = event.eventName;
   const eventLocation = document.createElement('p');
@@ -333,10 +336,74 @@ function createEvent(event) {
   eventDetails.innerText = event.eventDetails;
 
   const eventElement = document.createElement('div');
+  eventElement.className = "card";
+  const eventContents = document.createElement('div');
+  eventContents.className = "contents";
+  eventElement.append(eventContents);
   eventElement.append(eventName);
   eventElement.append(eventLocation);
   eventElement.append(eventDetails);
   return eventElement;
+}
+
+function createEventAttendees(event, userID, going) {
+  const eventElement = document.createElement('div');
+  eventElement.className = "card";
+  const eventContents = document.createElement('div');
+  eventContents.className = "contents";
+
+  const eventName = document.createElement('h3');
+  eventName.innerText = event.eventName;
+  const eventLocation = document.createElement('p');
+  eventLocation.innerText = event.location;
+  const eventDetails = document.createElement('p'); 
+  eventDetails.innerText = event.eventDetails;
+  const rsvpButton = document.createElement('button');
+  if (going === "true") {
+    rsvpButton.innerText = "Not Going";
+  }
+  else if (going === "false") {
+    rsvpButton.innerText = "Going";
+  }
+
+  rsvpButton.addEventListener('click', () => {
+    addRemoveAttendee(event, userID, rsvpButton);
+  }); 
+
+
+  eventElement.append(eventContents);
+  eventElement.append(eventName);
+  eventElement.append(eventLocation);
+  eventElement.append(eventDetails);
+  eventElement.append(rsvpButton);
+  return eventElement;
+}
+
+function addRemoveAttendee(event, userID, rsvpButton) {
+  const params = new URLSearchParams()
+  params.append('userID', userID);
+  params.append('eventId', event.eventId);
+  fetch('/add-remove-attendee', {
+    method: 'POST', body: params
+  }).then(switchRSVPButtonText(rsvpButton));
+}
+
+function switchRSVPButtonText(rsvpButton) {
+  if (rsvpButton.innerText === "Going") {
+    rsvpButton.innerText = "Not Going";
+  }
+  else {
+    rsvpButton.innerText = "Going";
+  }
+}
+
+/** Checks to see if a user is logged in. */
+function userIsLoggedIn() {
+   return fetch('/login')
+  .then(response => response.json())
+  .then(json => { 
+    return [ json['loginStatus'], json['id'] ] 
+  });
 }
 
 /** Sends post request to store or remove saved interest. */

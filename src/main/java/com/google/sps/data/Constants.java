@@ -24,7 +24,8 @@ public final class Constants {
   public static final String EVENT_DETAILS_PARAM = "event-details";
   public static final String COVID_SAFE_PARAM = "COVID-Safe";
   public static final String PRIVACY_PARAM = "privacy";
-  public static final String ATTENDEES_PARAM = "attendee-ID-list";
+  public static final String INVITED_ATTENDEES_PARAM = "invited-attendee-ID-list";
+  public static final String RSVP_ATTENDEES_PARAM = "rsvp-attendees";
   public static final String CREATOR_PARAM = "creator";
 
   // Interest constants
