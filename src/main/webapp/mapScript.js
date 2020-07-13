@@ -153,8 +153,7 @@ function fetchPlaceInformation(place_id, map, where) {
         infoDivElement.appendChild(websiteElement);
         infoDivElement.appendChild(addressElement);
         infoDivElement.appendChild(businessStatusElement);
-        infoDivElement.appendChild(ratingElement);
-        eventsDivElement.appendChild(getPublicEvents()); 
+        infoDivElement.appendChild(ratingElement); 
         if (localStorage.getItem('loginStatus').localeCompare('true') == 0) {
           let userId = localStorage.getItem('userId');
           setInterestButtonText(interestButtonElement, place_id, userId);
@@ -162,6 +161,9 @@ function fetchPlaceInformation(place_id, map, where) {
           eventsDivElement.appendChild(createEventElement);
           eventsDivElement.appendChild(getAvailableEvents(userId));  
           userPostsDivElement.appendChild(getUserPosts()); 
+        }
+        else {
+          eventsDivElement.appendChild(getPublicEvents());
         }
         infoDivElement.appendChild(tabDivElement);
         infoDivElement.appendChild(eventsDivElement);
@@ -279,7 +281,7 @@ function getUserPosts() {
 }
 
 /**
-  Get all public events to display on map page even when user isn't logged in
+  Get all public events to display on map page even when user isn't logged in.
  */
 function getPublicEvents() {
   eventDivElement = document.createElement("div");
@@ -312,8 +314,12 @@ function getAvailableEvents(userID) {
     .then(events => {
       for (i = 0; i < events.length; i++) {
         if (events[i].location == locationName) {
-          if (events[i].privacy == "attendees" || events[i].privacy == "buddies-only") {
-            eventDivElement.appendChild(createEventAttendees(events[i], userID));
+          rsvpAttendees = events[i].rsvpAttendees;
+          if (rsvpAttendees.includes(userID)) {
+            eventDivElement.appendChild(createEventAttendees(events[i], userID, "true"));
+          }
+          else {
+            eventDivElement.appendChild(createEventAttendees(events[i], userID, "false"));
           }
         }
       }
@@ -340,7 +346,12 @@ function createEventPublic(event) {
   return eventElement;
 }
 
-function createEventAttendees(event, userID) {
+function createEventAttendees(event, userID, going) {
+  const eventElement = document.createElement('div');
+  eventElement.className = "card";
+  const eventContents = document.createElement('div');
+  eventContents.className = "contents";
+
   const eventName = document.createElement('h3');
   eventName.innerText = event.eventName;
   const eventLocation = document.createElement('p');
@@ -348,15 +359,18 @@ function createEventAttendees(event, userID) {
   const eventDetails = document.createElement('p'); 
   eventDetails.innerText = event.eventDetails;
   const rsvpButton = document.createElement('button');
-  rsvpButton.innerText = "RSVP";
+  if (going === "true") {
+    rsvpButton.innerText = "Not Going";
+  }
+  else if (going === "false") {
+    rsvpButton.innerText = "Going";
+  }
+
   rsvpButton.addEventListener('click', () => {
-    addAttendee(event, userID);
+    addRemoveAttendee(event, userID, rsvpButton);
   }); 
 
-  const eventElement = document.createElement('div');
-  eventElement.className = "card";
-  const eventContents = document.createElement('div');
-  eventContents.className = "contents";
+
   eventElement.append(eventContents);
   eventElement.append(eventName);
   eventElement.append(eventLocation);
@@ -365,13 +379,22 @@ function createEventAttendees(event, userID) {
   return eventElement;
 }
 
-function addAttendee(event, userID) {
+function addRemoveAttendee(event, userID, rsvpButton) {
   const params = new URLSearchParams()
   params.append('userID', userID);
   params.append('eventId', event.eventId);
-  fetch('/add-attendee', {
+  fetch('/add-remove-attendee', {
     method: 'POST', body: params
-  });
+  }).then(switchRSVPButtonText(rsvpButton));
+}
+
+function switchRSVPButtonText(rsvpButton) {
+  if (rsvpButton.innerText === "Going") {
+    rsvpButton.innerText = "Not Going";
+  }
+  else {
+    rsvpButton.innerText = "Going";
+  }
 }
 
 /** Checks to see if a user is logged in. */

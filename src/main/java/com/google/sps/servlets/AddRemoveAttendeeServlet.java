@@ -18,8 +18,8 @@ import java.util.List;
 import org.json.JSONObject;
 
 /** Servlet responsible for deleting single comments. */
-@WebServlet("/add-attendee")
-public class AddAttendeeServlet extends HttpServlet {
+@WebServlet("/add-remove-attendee")
+public class AddRemoveAttendeeServlet extends HttpServlet {
 
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
