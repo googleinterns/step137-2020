@@ -1,5 +1,6 @@
 :root {
   --gray-icon-color: #808080;
+  --form-background: rgba(0,0,0,0.2);
 }
 
 * {
@@ -50,8 +51,34 @@ html, body {
 }
 
 /*events styling */
+#events-title {
+  font-family: Helvetica;
+  font-size: 40px;
+  margin: 1.5% 3% 1.5% 1%; 
+  text-align: center;
+}
+#event-body {
+  display: flex;
+}
+
+.shaded-box {
+  padding: 4%;
+  background-color: var(--form-background);
+}
+
+#event-form {
+  flex: 2;
+  justify-content: right;
+}
+
+
 #attendees-wrap {
   display: none;
+}
+
+#loaded-users {
+  height: 100px;
+  overflow-y: auto;
 }
 
 #COVID-notice h3 {
@@ -72,6 +99,13 @@ html, body {
   color: red;
 }
 
+#invited-attendee-list {
+  width: 200px;
+  height: 50px;
+}
+
+
+/**map styling */
 .row {
   height: 95%;
   display: flex;
@@ -90,8 +124,9 @@ html, body {
 }
 
 #map-snippet {
-  height: 400px;
+  height: 700px;
   width: 400px;
+  flex: 4;
 }
 
 .main {
