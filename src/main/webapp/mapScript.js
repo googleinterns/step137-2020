@@ -22,7 +22,8 @@ function initMap() {
     center: mapCenter,
     zoom: 14,
     mapTypeId: 'terrain',
-    styles: [
+    styles: [ 
+      {elementType: 'labels.text.fill', stylers: [{color: '#002b54'}]},
       {
         featureType: 'road',
         elementType: 'labels.text',
@@ -132,7 +133,8 @@ function fetchPlaceInformation(place_id, map, where) {
         eventsDivElement.innerHTML = '';
         
         nameElement = document.createElement('h2');
-        ratingElement = document.createElement('p');
+        ratingElement = document.createElement('span');
+        ratingElement.id = 'stars';
         addressElement = document.createElement('p');
         websiteElement = document.createElement('a');
         createEventElement = document.createElement('a');
@@ -140,7 +142,10 @@ function fetchPlaceInformation(place_id, map, where) {
         interestButtonElement = document.createElement('button');
         
         nameElement.innerText = place.name;
-        ratingElement.innerText = 'Rating: ' + place.rating;
+        if (place.rating) {
+          ratingElement.innerHTML = getStars(place.rating) +
+           ' ' + place.rating + '<br></br>';
+        }
         addressElement.innerText = 'Address: ' + place.formatted_address;
         if (place.website) {
           websiteElement.innerText = place.website;
@@ -225,6 +230,34 @@ function openTab(evt, tabName) {
   evt.currentTarget.id += 'open';
 }
 
+/** Converts place rating to stars. */
+function getStars(rating) {
+  // Round to the nearest half.
+  rating = Math.round(rating *2) / 2;
+  let output = [];
+  
+  // Append all the filled whole stars
+  for (var i = rating; i >= 1; i--) {
+    output.push(
+      '<i class="fa fa-star" aria-hidden="true" style="color: gold;"></i>&nbsp;'
+      );
+  }
+
+  // Appending half a star if it exists.
+  if (i == .5) {
+    output.push(
+      '<i class="fa fa-star-half-o" aria-hidden="true" style="color: gold;"></i>&nbsp;'
+      );
+  }
+
+  //Fill the empty stars.
+  for (let i = (5 - rating); i >= 1; i--) {
+    output.push(
+      '<i class="fa fa-star-o aria-hidden="true" style="color: gold;"></i>&nbsp;'
+    );
+  }
+  return output.join('');
+}
 /** Makes place_id and location name of a place available. */
 function getLocationInfo() {
   locationInputElement = document.getElementById('location');
