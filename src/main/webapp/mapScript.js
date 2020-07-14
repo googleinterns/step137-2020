@@ -3,7 +3,7 @@ const API_KEY = 'AIzaSyBf5E9ymEYBv6mAi78mFBOn8oUVvO8sph4';
 const CREATE_EVENT_PAGE = 'createEventPage';
 const EXPLORE_MAP_PAGE = 'exploreMapPage';
 const SESSION_STORE_LOCATION = 'locationName';
-const SESSION_STORE_PLACEID = "placeId";
+const SESSION_STORE_PLACEID = 'placeId';
 
 /** Initial display of screen */
 function initialDisplay() {
@@ -14,7 +14,7 @@ function initialDisplay() {
 /** Initializes map and displays it. */
 function initMap() {
   newCenterId = sessionStorage.getItem('currentLocationId');
-  mapCenter = { lat: 37.4220, lng: 122.0841 };
+  mapCenter = { lat: 122.0841, lng: 37.4220 };
   infoWindow = new google.maps.InfoWindow;
   var marker = new google.maps.Marker;
   
@@ -297,7 +297,7 @@ function createMapSnippet() {
     }
     else {
       alert('Geocode was not successful for the following reason: ' + status);
-      mapSnippet.setCenter( { lat: -34.937, lng: 150.644})
+      mapSnippet.setCenter( { lat: 122.0841, lng: 37.422 })
     }
   })
   mapSnippet.addListener('click', function(e) {
