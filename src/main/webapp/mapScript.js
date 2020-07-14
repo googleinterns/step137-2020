@@ -394,11 +394,11 @@ function createEventPublic(event) {
   eventElement.className = "card";
   const eventContents = document.createElement('div');
   eventContents.className = "contents";
+  eventContents.append(eventName);
+  eventContents.append(eventDate);
+  eventContents.append(eventLocation);
+  eventContents.append(eventDetails);
   eventElement.append(eventContents);
-  eventElement.append(eventName);
-  eventElement.append(eventDate);
-  eventElement.append(eventLocation);
-  eventElement.append(eventDetails);
   return eventElement;
 }
 
@@ -428,29 +428,27 @@ function createEventAttendees(event, userID, going) {
   const bottomCard = document.createElement('div');
   bottomCard.id = "bottom-event-wrapper";
 
-  const deleteButton = document.createElement('button');
-  deleteButton.className = "icon-button";
-  const deleteIcon = document.createElement('i');
-  deleteIcon.className = 'fa fa-trash-o';
-  deleteButton.appendChild(deleteIcon);
-  deleteButton.addEventListener('click', () => {
-    deleteSingleEvent(event, eventElement);
-  });
+  if (userID === event.creator) {
+    const deleteButton = document.createElement('button');
+    deleteButton.className = "icon-button";
+    const deleteIcon = document.createElement('i');
+    deleteIcon.className = 'fa fa-trash-o';
+    deleteButton.appendChild(deleteIcon);
+    deleteButton.addEventListener('click', () => {
+      deleteSingleEvent(event, eventElement);
+    });
+
+    bottomCard.append(deleteButton);
+  }
   
   const rsvpButton = document.createElement('button');
-  if (going === "true") {
-    rsvpButton.innerText = "Not Going";
-  }
-  else if (going === "false") {
-    rsvpButton.innerText = "Going";
-  }
+  setRSVPText(rsvpButton, going);
 
   rsvpButton.addEventListener('click', () => {
-    addRemoveAttendee(event, userID, rsvpButton);
+    addRemoveAttendee(event, rsvpButton);
   }); 
 
   bottomCard.append(rsvpButton);
-  bottomCard.append(deleteButton);
 
   eventElement.append(eventContents);
   eventElement.append(eventName);
@@ -461,9 +459,17 @@ function createEventAttendees(event, userID, going) {
   return eventElement;
 }
 
-function addRemoveAttendee(event, userID, rsvpButton) {
+function setRSVPText(rsvpButton, going) {
+  if (going === "true") {
+    rsvpButton.innerText = "Not Going";
+  }
+  else {
+    rsvpButton.innerText = "Going";
+  }
+}
+
+function addRemoveAttendee(event, rsvpButton) {
   const params = new URLSearchParams();
-  params.append('userID', userID);
   params.append('eventId', event.eventId);
   fetch('/add-remove-attendee', {
     method: 'POST', body: params

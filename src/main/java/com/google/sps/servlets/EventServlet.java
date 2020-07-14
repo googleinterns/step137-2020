@@ -58,7 +58,8 @@ public class EventServlet extends HttpServlet {
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    Query query = new Query(Constants.EVENT_ENTITY_PARAM);
+    Query query = new Query(Constants.EVENT_ENTITY_PARAM)
+              .addSort(Constants.DATE_TIME_PARAM, SortDirection.DESCENDING);
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     PreparedQuery results = datastore.prepare(query);
  
@@ -72,6 +73,8 @@ public class EventServlet extends HttpServlet {
           (String) entity.getProperty(Constants.DATE_TIME_PARAM);
       String location = 
           (String) entity.getProperty(Constants.LOCATION_PARAM);
+      String placeId = 
+          (String) entity.getProperty(Constants.PLACE_ID_PARAM);
       String eventDetails = 
           (String) entity.getProperty(Constants.EVENT_DETAILS_PARAM);
       String privacy = 
@@ -85,7 +88,7 @@ public class EventServlet extends HttpServlet {
       String creator = 
           (String) entity.getProperty(Constants.CREATOR_PARAM);
 
-      Event event = new Event(eventID, eventName, dateTime, location, 
+      Event event = new Event(eventID, eventName, dateTime, location, placeId,
                           eventDetails, yesCOVIDSafe, privacy, invitedAttendees, 
                           rsvpAttendees, creator);
       events.add(event);
@@ -104,6 +107,7 @@ public class EventServlet extends HttpServlet {
           JSONObject json, String startTime, String endTime) {
     String eventName = request.getParameter(Constants.EVENT_NAME_PARAM);
     String location = request.getParameter(Constants.LOCATION_PARAM);
+    String placeId = request.getParameter(Constants.PLACE_ID_PARAM);
     String eventDetails = request.getParameter(Constants.EVENT_DETAILS_PARAM);
     String yesCOVIDSafe = request.getParameter(Constants.COVID_SAFE_PARAM);
     String privacy = request.getParameter(Constants.PRIVACY_PARAM);
@@ -129,6 +133,7 @@ public class EventServlet extends HttpServlet {
     eventEntity.setProperty(Constants.EVENT_NAME_PARAM, eventName);
     eventEntity.setProperty(Constants.DATE_TIME_PARAM, dateTimeFormatted);
     eventEntity.setProperty(Constants.LOCATION_PARAM, location);
+    eventEntity.setProperty(Constants.PLACE_ID_PARAM, placeId);
     eventEntity.setProperty(Constants.EVENT_DETAILS_PARAM, eventDetails);
     eventEntity.setProperty(Constants.COVID_SAFE_PARAM, yesCOVIDSafe);
     eventEntity.setProperty(Constants.PRIVACY_PARAM, privacy);
