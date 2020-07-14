@@ -9,11 +9,12 @@
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBf5E9ymEYBv6mAi78mFBOn8oUVvO8sph4&callback=initMap&libraries=places"></script>
     <script src="profileScript.js"></script>
     <script src="mapScript.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   </head>
   <body onload="initialDisplay()">
     <div class="navbar">
-      <a href="map.html">Explore Map</a>
-      <a href="searchUsers.html">Search Users</a>
+      <p class="navbar-text" onclick="window.location.href = 'map.html'">Social Map</p>
+      <p class="navbar-text" onclick="window.location.href = 'searchUsers.html'">Search Users</p>
       <div id="user-navbar-section"></div>
     </div>
     <div class="row">

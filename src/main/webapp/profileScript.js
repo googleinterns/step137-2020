@@ -19,25 +19,27 @@ function navbarLoginDisplay() {
       // If the user is logged in, locally store their info, confirm they have a name, 
       // then add logout and profile buttons to the navbar.
       localStorage.setItem('userId', json['id']);
-      confirmUserName();
-      const logoutButton = document.createElement('button');
+      const personalProfileButton = document.createElement('p');
+      personalProfileButton.classList.add('navbar-text');
+      personalProfileButton.addEventListener('click', () => {
+        visitProfile(json['id']);
+      });
+      const logoutButton = document.createElement('p');
+      logoutButton.classList.add('navbar-text');
       logoutButton.innerText = 'Logout';
       logoutButton.addEventListener('click', () => {
         window.location.href = json['logoutUrl'];
       });
-      const personalProfileButton = document.createElement('button');
-      personalProfileButton.innerText = 'Your Profile';
-      personalProfileButton.addEventListener('click', () => {
-        visitProfile(json['id']);
-      });
-      userNavbarSection.appendChild(logoutButton);
+      confirmUserName(personalProfileButton);
       userNavbarSection.appendChild(personalProfileButton);
+      userNavbarSection.appendChild(logoutButton);
     } else {
       // If the user is logged out, clear the locally stored user data 
       // and add a login button to the navbar.
-      const loginButton = document.createElement('button');
       localStorage.removeItem('userId');
       localStorage.removeItem('userName');
+      const loginButton = document.createElement('p');
+      loginButton.classList.add('navbar-text');
       loginButton.innerText = 'Login';
       loginButton.addEventListener('click', () => {
         sessionStorage.setItem('loadProfile', 'justLoggedIn');
@@ -51,17 +53,29 @@ function navbarLoginDisplay() {
 /*
  * Checks whether the user does not yet have a display name.
  */
-function confirmUserName() {
-  const promise = fetch('/user-name').then(response => response.text()).then((name) => {
-    if (name.localeCompare('\n') == 0) {
-      showNameForm();
-    } else {
-      localStorage.setItem('userName', name);
-      if (window.location.pathname.localeCompare('/profile.html') == 0) {
-        displayProfileContent();
+function confirmUserName(personalProfileButton) {
+  const currentName = localStorage.getItem('userName');
+  if (currentName == null) {
+    const promise = fetch('/user-name').then(response => response.text()).then((name) => {
+      if (name.localeCompare('\n') == 0) {
+        // If the user has not yet set their name, display the form.
+        showNameForm();
+      } else {
+        // If the user's name is not yet in local storage, store it and display the page.
+        localStorage.setItem('userName', name);
+        personalProfileButton.innerText = name;
+        if (window.location.pathname.localeCompare('/profile.html') == 0) {
+          displayProfileContent();
+        }
       }
+    });
+  } else {
+    // If the user's name is in local storage, display the page.
+    personalProfileButton.innerText = currentName;
+    if (window.location.pathname.localeCompare('/profile.html') == 0) {
+      displayProfileContent();
     }
-  });
+  }
 }
 
 /*
@@ -99,12 +113,13 @@ function displayProfileContent() {
  * Displays the basic info of the specified user.
  */
 function displayBasicInfo(user) {
-  const basicInfoContainer = document.getElementById('basic-info');
-  basicInfoContainer.innerHTML = '';
+  const nameContainer = document.getElementById('name-container');
+  nameContainer.innerHTML = '';
 
   const name = document.createElement('h1');
   name.innerText = user.name;
-  basicInfoContainer.appendChild(name);
+  name.style = 'padding-left: 10px';
+  nameContainer.appendChild(name);
 }
 
 /*
@@ -148,7 +163,7 @@ function displayAttendingEvents(user) {
 
   fetch('/events').then(response => response.json()).then((events) => {
     for (let i = 0; i < events.length; i ++) {
-      if (events[i].attendees.includes(user.id)) {
+      if (events[i].rsvpAttendees.includes(user.id) || events[i].invitedAttendees.includes(user.id)) {
         eventsContainer.appendChild(createEvent(events[i]));
       }
     }
@@ -167,6 +182,7 @@ function createEvent(event) {
   eventDetails.innerText = event.eventDetails;
 
   const eventElement = document.createElement('div');
+  eventElement.className =  "card";
   eventElement.append(eventName);
   eventElement.append(eventLocation);
   eventElement.append(eventDetails);
@@ -198,9 +214,9 @@ function additionalDisplay(user) {
  */
 function personalDisplay() {
   // Add an option for the current user to change their display name.
-  const changeNameButton = document.createElement('button');
-  changeNameButton.innerText = 'Change name';
-  changeNameButton.addEventListener('click', () => {
+  const editNameButton = document.createElement('i');
+  editNameButton.className = 'fa fa-edit';
+  editNameButton.addEventListener('click', () => {
     showNameForm();
   });
 
@@ -226,8 +242,9 @@ function personalDisplay() {
     });
   });
 
+  const nameContainer = document.getElementById('name-container');
+  nameContainer.appendChild(editNameButton);
   const basicInfoContainer = document.getElementById('basic-info');
-  basicInfoContainer.appendChild(changeNameButton);
   basicInfoContainer.appendChild(buddiesList);
 }
 
