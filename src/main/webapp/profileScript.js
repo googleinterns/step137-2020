@@ -46,6 +46,7 @@ function navbarLoginDisplay() {
         window.location.href = json['loginUrl'];
       });
       userNavbarSection.appendChild(loginButton);
+      displayProfileContent();
     }
   });
 }
