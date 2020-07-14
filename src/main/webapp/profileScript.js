@@ -46,6 +46,9 @@ function navbarLoginDisplay() {
         window.location.href = json['loginUrl'];
       });
       userNavbarSection.appendChild(loginButton);
+      if (window.location.pathname.localeCompare('/profile.html') == 0) {
+        displayProfileContent();
+      }
     }
   });
 }
@@ -182,9 +185,15 @@ function createEvent(event) {
   eventDetails.innerText = event.eventDetails;
 
   const eventElement = document.createElement('div');
+  eventElement.className =  "card";
   eventElement.append(eventName);
   eventElement.append(eventLocation);
   eventElement.append(eventDetails);
+  console.log(event.placeId);
+  eventElement.addEventListener('click', () => {
+    sessionStorage.setItem('currentLocationId', event.placeId);
+    window.location.href = 'map.html';
+  });
   return eventElement;
 }
 
@@ -243,8 +252,9 @@ function personalDisplay() {
 
   const nameContainer = document.getElementById('name-container');
   nameContainer.appendChild(editNameButton);
-  const basicInfoContainer = document.getElementById('basic-info');
-  basicInfoContainer.appendChild(buddiesList);
+  const buddyContainer = document.getElementById('buddy-container');
+  buddyContainer.innerHTML = '';
+  buddyContainer.appendChild(buddiesList);
 }
 
 /*
@@ -259,8 +269,9 @@ function buddyDisplay(user) {
     profileOnload();
   });
 
-  const basicInfoContainer = document.getElementById('basic-info');
-  basicInfoContainer.appendChild(removeBuddyButton);
+  const buddyContainer = document.getElementById('buddy-container');
+  buddyContainer.innerHTML = '';
+  buddyContainer.appendChild(removeBuddyButton);
 }
 
 /*
@@ -275,8 +286,9 @@ function strangerDisplay(user) {
     profileOnload();
   });
 
-  const basicInfoContainer = document.getElementById('basic-info');
-  basicInfoContainer.appendChild(addBuddyButton);
+  const buddyContainer = document.getElementById('buddy-container');
+  buddyContainer.innerHTML = '';
+  buddyContainer.appendChild(addBuddyButton);
 }
 
 /*

@@ -5,9 +5,9 @@ import java.util.Date;
 public final class Event {
   private long eventId;
   private String eventName;
-  private Date startDate;
-  private Date endDate;
+  private String dateTime;
   private String location;
+  private String placeId;
   private String eventDetails;
   private String yesCOVIDSafe;
   private String privacy;
@@ -15,16 +15,16 @@ public final class Event {
   private List<String> rsvpAttendees;
   private String creator;
 
-  public Event(long eventId, String eventName, Date startDate, Date endDate, 
-              String location, String eventDetails, String yesCOVIDSafe, 
-              String privacy, List<String> invitedAttendees, 
+  public Event(long eventId, String eventName, String dateTime,
+              String location, String placeId, String eventDetails, 
+              String yesCOVIDSafe, String privacy, List<String> invitedAttendees,
               List<String> rsvpAttendees, String creator) {
 
     this.eventId = eventId;
     this.eventName = eventName;
-    this.startDate = startDate;
-    this.endDate = endDate;
+    this.dateTime = dateTime;
     this.location = location;
+    this.placeId = placeId;
     this.eventDetails = eventDetails;
     this.yesCOVIDSafe = yesCOVIDSafe;
     this.privacy = privacy;
