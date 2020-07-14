@@ -68,10 +68,8 @@ public class EventServlet extends HttpServlet {
       long eventID = entity.getKey().getId();
       String eventName = 
           (String) entity.getProperty(Constants.EVENT_NAME_PARAM);
-      Date startDate = 
-          (Date) entity.getProperty(Constants.START_DATE_PARAM);
-      Date endDate = 
-          (Date) entity.getProperty(Constants.END_DATE_PARAM);
+      String dateTime = 
+          (String) entity.getProperty(Constants.DATE_TIME_PARAM);
       String location = 
           (String) entity.getProperty(Constants.LOCATION_PARAM);
       String eventDetails = 
@@ -87,7 +85,7 @@ public class EventServlet extends HttpServlet {
       String creator = 
           (String) entity.getProperty(Constants.CREATOR_PARAM);
 
-      Event event = new Event(eventID, eventName, startDate, endDate, location, 
+      Event event = new Event(eventID, eventName, dateTime, location, 
                           eventDetails, yesCOVIDSafe, privacy, invitedAttendees, 
                           rsvpAttendees, creator);
       events.add(event);
@@ -99,16 +97,9 @@ public class EventServlet extends HttpServlet {
 
   }
 
-  private Date createDate(String year, String month, String day) {
-    String dateString = month + "-" + day + "-" + year;
-    SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");  
-    Date date = new Date();
-    try {  
-      date = formatter.parse(dateString);  
-    } catch (ParseException e) {e.printStackTrace();}  
-    return date;
-  } 
-
+/**
+  creates an event entity in datastore 
+*/
   private void createEntity(HttpServletRequest request, Date endDate, Date startDate, 
           JSONObject json, String startTime, String endTime) {
     String eventName = request.getParameter(Constants.EVENT_NAME_PARAM);
@@ -126,12 +117,17 @@ public class EventServlet extends HttpServlet {
     List<String> rsvpAttendees = new ArrayList<>();
     rsvpAttendees.add(currentUserID);
 
+    //get formatted start and end times
+    String startTimeFormatted = getStartTimeDisplay(startTime);
+    String endTimeFormatted = getEndTimeDisplay(endTime);
+
+    //get formatted dates and times for display 
+    String dateTimeFormatted = createDateTime(startDate, startTimeFormatted, 
+          endDate, endTimeFormatted);
+
     Entity eventEntity = new Entity(Constants.EVENT_ENTITY_PARAM);
     eventEntity.setProperty(Constants.EVENT_NAME_PARAM, eventName);
-    eventEntity.setProperty(Constants.START_DATE_PARAM, startDate);
-    eventEntity.setProperty(Constants.START_TIME_PARAM, startTime);
-    eventEntity.setProperty(Constants.END_DATE_PARAM, endDate);
-    eventEntity.setProperty(Constants.END_TIME_PARAM, endTime);
+    eventEntity.setProperty(Constants.DATE_TIME_PARAM, dateTimeFormatted);
     eventEntity.setProperty(Constants.LOCATION_PARAM, location);
     eventEntity.setProperty(Constants.EVENT_DETAILS_PARAM, eventDetails);
     eventEntity.setProperty(Constants.COVID_SAFE_PARAM, yesCOVIDSafe);
@@ -147,14 +143,55 @@ public class EventServlet extends HttpServlet {
     json.put("bad-time", "false");
   }
 
+/**
+  turns inputted strings into date
+*/
+  private Date createDate(String year, String month, String day) {
+    String dateString = month + "-" + day + "-" + year;
+    SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");  
+    Date date = new Date();
+    try {  
+      date = formatter.parse(dateString);  
+    } catch (ParseException e) {e.printStackTrace();}  
+    return date;
+  } 
+
+/**
+  if event is finished in one day, date display should be:
+      EEE MMM dd, yyyy, startTime - endTime
+  if the event ends on a different day than it starts:
+      EEE MM Mdd, yyyy, startTime - EEE MMM dd, yyyy, endTime
+
+*/
+  private String createDateTime(Date startDate, String startTime, Date endDate,
+                                String endTime) {
+    String dateTime = "";
+    String dateString;
+    SimpleDateFormat formatter = new SimpleDateFormat("EEE MMM dd, yyyy"); 
+
+    if (startDate.equals(endDate)) {
+      dateString = formatter.format(startDate);
+      dateTime += dateString + ", " + startTime + " - " + endTime;
+    }
+    else {
+      String startDateString = formatter.format(startDate);
+      String endDateString = formatter.format(endDate);
+      dateTime += startDateString + ", " + startTime + " - " + endDateString;
+      dateTime += ", " + endTime;
+    }
+
+    return dateTime;
+  }
+
+/**
+  make sure the inputted dates and times are valid
+*/
   private boolean verifyDateTimes (String startTime, String endTime, Date startDate,
                             Date endDate, JSONObject json) {
 
     //collet hour and minute of requested times for comparison
     String oldHourStart;
     String oldHourEnd;
-    int correctedStartHour;
-    int correctedEndHour;
     int hourStart;
     int hourEnd;
     int hourStartForDisplay;
@@ -204,5 +241,85 @@ public class EventServlet extends HttpServlet {
       }
     }
     return true;  
+  }
+
+/**
+  Gets start and end times for display purposes -- converts times after 12 to standard
+  as opposed to military (i.e 13 to 1)
+*/
+  private String getStartTimeDisplay(String startTime) {
+    String oldHourStart;
+    int hourStart;
+    String hourStartForDisplay;
+    String period;
+    int firstChar = Integer.parseInt(startTime.substring(0, 1));
+    int firstTwoChars = Integer.parseInt(startTime.substring(0, 2));
+
+    if (firstChar == 0 && firstTwoChars != 00) {
+      hourStartForDisplay = startTime.substring(1, 2);
+      period = "am";
+    }
+    else if (firstTwoChars == 00) {
+      hourStartForDisplay = "12";
+      period = "am";
+    }
+    else if (firstTwoChars == 10 || firstTwoChars == 11) {
+      hourStartForDisplay = String.valueOf(firstTwoChars);
+      period = "am";
+    }
+    else if (firstTwoChars == 12) {
+      hourStartForDisplay = String.valueOf(firstTwoChars);
+      period = "pm";
+    }
+    else {
+      oldHourStart = startTime.substring(0, 2);
+      hourStart = Integer.parseInt(oldHourStart);
+      int hourStartForDisplayInt = hourStart - 12;
+      hourStartForDisplay = String.valueOf(hourStartForDisplayInt);
+      period = "pm";
+    }
+
+    String startMin = startTime.substring(3);
+    hourStartForDisplay += ":" + startMin + period;
+
+    return hourStartForDisplay;
+  }
+
+  private String getEndTimeDisplay(String endTime) {
+    String oldHourEnd;
+    int hourEnd;
+    String hourEndForDisplay;
+    String period;
+    int firstChar = Integer.parseInt(endTime.substring(0, 1));
+    int firstTwoChars = Integer.parseInt(endTime.substring(0, 2));
+
+    if (firstChar == 0 && firstTwoChars != 00) {
+      hourEndForDisplay = endTime.substring(1, 2);
+      period = "am";
+    }
+    else if (firstTwoChars == 00) {
+      hourEndForDisplay = "12";
+      period = "am";
+    }
+    else if (firstTwoChars == 10 || firstTwoChars == 11) {
+      hourEndForDisplay = String.valueOf(firstTwoChars);
+      period = "am";
+    }
+    else if (firstTwoChars == 12) {
+      hourEndForDisplay = String.valueOf(firstTwoChars);
+      period = "pm";
+    }
+    else {
+      oldHourEnd = endTime.substring(0, 2);
+      hourEnd = Integer.parseInt(oldHourEnd);
+      int hourEndForDisplayInt = hourEnd - 12;
+      hourEndForDisplay = String.valueOf(hourEndForDisplayInt);
+      period = "pm";
+    }
+
+    String endMin = endTime.substring(3);
+    hourEndForDisplay += ":" + endMin + period;
+
+    return hourEndForDisplay;
   }
 }
