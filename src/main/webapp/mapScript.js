@@ -20,8 +20,18 @@ function initMap() {
   
   var map = new google.maps.Map(document.getElementById('map'), {
     center: mapCenter,
-    zoom: 14
-  })
+    zoom: 14,
+    mapTypeId: 'terrain',
+    styles: [ 
+      {elementType: 'labels.text.fill', stylers: [{color: '#002b54'}]},
+      {
+        featureType: 'road',
+        elementType: 'labels.text',
+        stylers: [{visibility: 'off'}]
+      }
+    ]
+  });
+
   
   // Checks to see if location was clicked from users saved interests.
   if (newCenterId) {
@@ -123,29 +133,32 @@ function fetchPlaceInformation(place_id, map, where) {
         eventsDivElement.innerHTML = '';
         
         nameElement = document.createElement('h2');
-        ratingElement = document.createElement('p');
+        ratingElement = document.createElement('span');
+        ratingElement.id = 'stars';
         addressElement = document.createElement('p');
-        websiteElement = document.createElement('a');
         createEventElement = document.createElement('a');
-        businessStatusElement = document.createElement('p');
         interestButtonElement = document.createElement('button');
         deleteEventsButtonElement = document.createElement('button');
         
         nameElement.innerText = place.name;
-        ratingElement.innerText = 'Rating: ' + place.rating;
+        if (place.rating) {
+          ratingElement.innerHTML = getStars(place.rating) +
+           ' ' + place.rating + '<br></br>';
+        }
         addressElement.innerText = 'Address: ' + place.formatted_address;
         if (place.website) {
+          websiteElement = document.createElement('a');
           websiteElement.innerText = place.website;
           websiteElement.href = place.website;
-        }
-        else {
-          websiteElement.innerText = ' ';
         }
         // function to create tab and return tab div element
         tabDivElement = createTabElement();
         createEventElement.innerText = 'Create an Event';
         createEventElement.href = 'CreateAnEvent.html';
-        businessStatusElement.innerText = 'Business Status: ' + place.business_status;
+        if (place.business_status) {
+          businessStatusElement = document.createElement('p');
+          businessStatusElement.innerText = 'Business Status: ' + place.business_status;
+        }
         interestButtonElement.addEventListener('click', () => {
           saveOrRemoveInterest(place.name, place_id, interestButtonElement);
         });
@@ -223,6 +236,34 @@ function openTab(evt, tabName) {
   evt.currentTarget.id += 'open';
 }
 
+/** Converts place rating to stars. */
+function getStars(rating) {
+  // Round to the nearest half.
+  rating = Math.round(rating *2) / 2;
+  let output = [];
+  
+  // Append all the filled whole stars
+  for (var i = rating; i >= 1; i--) {
+    output.push(
+      '<i class="fa fa-star" aria-hidden="true" style="color: gold;"></i>&nbsp;'
+      );
+  }
+
+  // Appending half a star if it exists.
+  if (i == .5) {
+    output.push(
+      '<i class="fa fa-star-half-o" aria-hidden="true" style="color: gold;"></i>&nbsp;'
+      );
+  }
+
+  //Fill the empty stars.
+  for (let i = (5 - rating); i >= 1; i--) {
+    output.push(
+      '<i class="fa fa-star-o aria-hidden="true" style="color: gold;"></i>&nbsp;'
+    );
+  }
+  return output.join('');
+}
 /** Makes place_id and location name of a place available. */
 function getLocationInfo() {
   locationInputElement = document.getElementById('location');
