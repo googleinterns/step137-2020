@@ -14,7 +14,7 @@ function initialDisplay() {
 /** Initializes map and displays it. */
 function initMap() {
   newCenterId = sessionStorage.getItem('currentLocationId');
-  mapCenter = { lat: -34.937, lng: 150.644 };
+  mapCenter = { lat: 37.4220, lng: 122.0841 };
   infoWindow = new google.maps.InfoWindow;
   var marker = new google.maps.Marker;
   
