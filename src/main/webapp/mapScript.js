@@ -136,9 +136,7 @@ function fetchPlaceInformation(place_id, map, where) {
         ratingElement = document.createElement('span');
         ratingElement.id = 'stars';
         addressElement = document.createElement('p');
-        websiteElement = document.createElement('a');
         createEventElement = document.createElement('a');
-        businessStatusElement = document.createElement('p');
         interestButtonElement = document.createElement('button');
         
         nameElement.innerText = place.name;
@@ -148,17 +146,18 @@ function fetchPlaceInformation(place_id, map, where) {
         }
         addressElement.innerText = 'Address: ' + place.formatted_address;
         if (place.website) {
+          websiteElement = document.createElement('a');
           websiteElement.innerText = place.website;
           websiteElement.href = place.website;
-        }
-        else {
-          websiteElement.innerText = ' ';
         }
         // function to create tab and return tab div element
         tabDivElement = createTabElement();
         createEventElement.innerText = 'Create an Event';
         createEventElement.href = 'CreateAnEvent.html';
-        businessStatusElement.innerText = 'Business Status: ' + place.business_status;
+        if (place.business_status) {
+          businessStatusElement = document.createElement('p');
+          businessStatusElement.innerText = 'Business Status: ' + place.business_status;
+        }
         interestButtonElement.addEventListener('click', () => {
           saveOrRemoveInterest(place.name, place_id, interestButtonElement);
         });
