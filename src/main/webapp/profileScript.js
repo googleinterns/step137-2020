@@ -46,7 +46,9 @@ function navbarLoginDisplay() {
         window.location.href = json['loginUrl'];
       });
       userNavbarSection.appendChild(loginButton);
-      displayProfileContent();
+      if (window.location.pathname.localeCompare('/profile.html') == 0) {
+        displayProfileContent();
+      }
     }
   });
 }
