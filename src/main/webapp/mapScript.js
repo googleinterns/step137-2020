@@ -129,6 +129,7 @@ function fetchPlaceInformation(place_id, map, where) {
         createEventElement = document.createElement('a');
         businessStatusElement = document.createElement('p');
         interestButtonElement = document.createElement('button');
+        deleteEventsButtonElement = document.createElement('button');
         
         nameElement.innerText = place.name;
         ratingElement.innerText = 'Rating: ' + place.rating;
@@ -148,12 +149,16 @@ function fetchPlaceInformation(place_id, map, where) {
         interestButtonElement.addEventListener('click', () => {
           saveOrRemoveInterest(place.name, place_id, interestButtonElement);
         });
+        deleteEventsButtonElement.addEventListener('click', () => {
+          deleteAllEvents();
+        })
 
         infoDivElement.appendChild(nameElement);
         infoDivElement.appendChild(websiteElement);
         infoDivElement.appendChild(addressElement);
         infoDivElement.appendChild(businessStatusElement);
         infoDivElement.appendChild(ratingElement); 
+        infoDivElement.appendChild(deleteEventsButtonElement);
         if (localStorage.getItem('loginStatus').localeCompare('true') == 0) {
           let userId = localStorage.getItem('userId');
           setInterestButtonText(interestButtonElement, place_id, userId);
@@ -328,11 +333,20 @@ function getAvailableEvents(userID) {
 }
 
 function createEventPublic(event) {
-  const eventName = document.createElement('h3');
+  const eventName = document.createElement('h2');
+  eventName.id = "name-display";
   eventName.innerText = event.eventName;
+
+  const eventDate = document.createElement('p');
+  eventDate.id = "date-display";
+  eventDate.innerText = event.dateTime;
+
   const eventLocation = document.createElement('p');
+  eventName.id = "location-display";
   eventLocation.innerText = event.location;
+
   const eventDetails = document.createElement('p'); 
+  eventDetails.id = "details-display";
   eventDetails.innerText = event.eventDetails;
 
   const eventElement = document.createElement('div');
@@ -341,6 +355,7 @@ function createEventPublic(event) {
   eventContents.className = "contents";
   eventElement.append(eventContents);
   eventElement.append(eventName);
+  eventElement.append(eventDate);
   eventElement.append(eventLocation);
   eventElement.append(eventDetails);
   return eventElement;
@@ -352,11 +367,20 @@ function createEventAttendees(event, userID, going) {
   const eventContents = document.createElement('div');
   eventContents.className = "contents";
 
-  const eventName = document.createElement('h3');
+  const eventName = document.createElement('h1');
+  eventName.className = "name-display";
   eventName.innerText = event.eventName;
+
+  const eventDate = document.createElement('p');
+  eventDate.className = "date-display";
+  eventDate.innerText = event.dateTime;
+
   const eventLocation = document.createElement('p');
+  eventName.className = "location-display";
   eventLocation.innerText = event.location;
+
   const eventDetails = document.createElement('p'); 
+  eventDetails.className = "details-display";
   eventDetails.innerText = event.eventDetails;
   const rsvpButton = document.createElement('button');
   if (going === "true") {
@@ -373,6 +397,7 @@ function createEventAttendees(event, userID, going) {
 
   eventElement.append(eventContents);
   eventElement.append(eventName);
+  eventElement.append(eventDate);
   eventElement.append(eventLocation);
   eventElement.append(eventDetails);
   eventElement.append(rsvpButton);
@@ -440,4 +465,9 @@ function setInterestButtonText(interestButtonElement, placeId, userId) {
       interestButtonElement.innerText = 'Save as interest';
     }
   });
+}
+
+function deleteAllEvents() {
+  const request = new Request('/delete-events', {method: 'POST'});
+    fetch(request);
 }

@@ -71,7 +71,6 @@ html, body {
   justify-content: right;
 }
 
-
 #attendees-wrap {
   display: none;
 }
@@ -104,6 +103,31 @@ html, body {
   height: 50px;
 }
 
+.name-display {
+  font-size: 30px;
+  font-family: Helvetica;
+  margin-bottom: 0;
+  padding: 0;
+  margin-top: 5%;
+}
+
+.date-display {
+  font-size: 14px;
+  font-family: Helvetica;
+  color: rgba(128, 128, 128, 0.726);
+  margin-top: .5%;
+}
+
+.location-display {
+  font-size: 15px;
+  font-family: Helvetica;
+}
+
+.details-display {
+  font-size: 20px;
+  font-weight: bold;
+  font-family: Helvetica;
+}
 
 /**map styling */
 .row {
