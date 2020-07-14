@@ -163,7 +163,7 @@ function displayAttendingEvents(user) {
 
   fetch('/events').then(response => response.json()).then((events) => {
     for (let i = 0; i < events.length; i ++) {
-      if (events[i].attendees.includes(user.id)) {
+      if (events[i].rsvpAttendees.includes(user.id) || events[i].invitedAttendees.includes(user.id)) {
         eventsContainer.appendChild(createEvent(events[i]));
       }
     }
@@ -182,6 +182,7 @@ function createEvent(event) {
   eventDetails.innerText = event.eventDetails;
 
   const eventElement = document.createElement('div');
+  eventElement.className =  "card";
   eventElement.append(eventName);
   eventElement.append(eventLocation);
   eventElement.append(eventDetails);

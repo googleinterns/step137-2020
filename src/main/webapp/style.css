@@ -1,5 +1,6 @@
 :root {
   --gray-icon-color: #808080;
+  --form-background: rgba(0,0,0,0.2);
 }
 
 * {
@@ -34,13 +35,49 @@ html, body {
   margin-left: auto;
 }
 
+.card {
+  /* Add shadows to create the "card" effect */
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+  transition: 0.3s;
+}
+
+/* On mouse-over, add a deeper shadow */
+.card:hover {
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+}
+
+.contents {
+  padding: 2px 16px;
+}
+
 /*events styling */
+#events-title {
+  font-family: Helvetica;
+  font-size: 40px;
+  margin: 1.5% 3% 1.5% 1%; 
+  text-align: center;
+}
+#event-body {
+  display: flex;
+}
+
+.shaded-box {
+  padding: 4%;
+  background-color: var(--form-background);
+}
+
+#event-form {
+  flex: 2;
+  justify-content: right;
+}
+
 #attendees-wrap {
   display: none;
 }
 
-#attendee-ID-list {
-  display: none;
+#loaded-users {
+  height: 100px;
+  overflow-y: auto;
 }
 
 #COVID-notice h3 {
@@ -61,6 +98,38 @@ html, body {
   color: red;
 }
 
+#invited-attendee-list {
+  width: 200px;
+  height: 50px;
+}
+
+.name-display {
+  font-size: 30px;
+  font-family: Helvetica;
+  margin-bottom: 0;
+  padding: 0;
+  margin-top: 5%;
+}
+
+.date-display {
+  font-size: 14px;
+  font-family: Helvetica;
+  color: rgba(128, 128, 128, 0.726);
+  margin-top: .5%;
+}
+
+.location-display {
+  font-size: 15px;
+  font-family: Helvetica;
+}
+
+.details-display {
+  font-size: 20px;
+  font-weight: bold;
+  font-family: Helvetica;
+}
+
+/**map styling */
 .row {
   height: 95%;
   display: flex;
@@ -79,8 +148,9 @@ html, body {
 }
 
 #map-snippet {
-  height: 400px;
+  height: 700px;
   width: 400px;
+  flex: 4;
 }
 
 .main {
