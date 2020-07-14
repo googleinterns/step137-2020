@@ -118,8 +118,8 @@ public class EventServlet extends HttpServlet {
     rsvpAttendees.add(currentUserID);
 
     //get formatted start and end times
-    String startTimeFormatted = getStartTimeDisplay(startTime);
-    String endTimeFormatted = getEndTimeDisplay(endTime);
+    String startTimeFormatted = getTimeDisplay(startTime);
+    String endTimeFormatted = getTimeDisplay(endTime);
 
     //get formatted dates and times for display 
     String dateTimeFormatted = createDateTime(startDate, startTimeFormatted, 
@@ -247,79 +247,41 @@ public class EventServlet extends HttpServlet {
   Gets start and end times for display purposes -- converts times after 12 to standard
   as opposed to military (i.e 13 to 1)
 */
-  private String getStartTimeDisplay(String startTime) {
-    String oldHourStart;
-    int hourStart;
-    String hourStartForDisplay;
+  private String getTimeDisplay(String time) {
+    String oldHour
+    int hour;
+    String hourForDisplay;
     String period;
-    int firstChar = Integer.parseInt(startTime.substring(0, 1));
-    int firstTwoChars = Integer.parseInt(startTime.substring(0, 2));
+    int firstChar = Integer.parseInt(time.substring(0, 1));
+    int firstTwoChars = Integer.parseInt(time.substring(0, 2));
 
     if (firstChar == 0 && firstTwoChars != 00) {
-      hourStartForDisplay = startTime.substring(1, 2);
+      hourForDisplay = time.substring(1, 2);
       period = "am";
     }
     else if (firstTwoChars == 00) {
-      hourStartForDisplay = "12";
+      hourForDisplay = "12";
       period = "am";
     }
     else if (firstTwoChars == 10 || firstTwoChars == 11) {
-      hourStartForDisplay = String.valueOf(firstTwoChars);
+      hourForDisplay = String.valueOf(firstTwoChars);
       period = "am";
     }
     else if (firstTwoChars == 12) {
-      hourStartForDisplay = String.valueOf(firstTwoChars);
+      hourForDisplay = String.valueOf(firstTwoChars);
       period = "pm";
     }
     else {
-      oldHourStart = startTime.substring(0, 2);
-      hourStart = Integer.parseInt(oldHourStart);
-      int hourStartForDisplayInt = hourStart - 12;
-      hourStartForDisplay = String.valueOf(hourStartForDisplayInt);
+      oldHour = time.substring(0, 2);
+      hour = Integer.parseInt(oldHour);
+      int hourForDisplayInt = hour - 12;
+      hourForDisplay = String.valueOf(hourForDisplayInt);
       period = "pm";
     }
 
-    String startMin = startTime.substring(3);
-    hourStartForDisplay += ":" + startMin + period;
+    String min = time.substring(3);
+    hourForDisplay += ":" + min + period;
 
-    return hourStartForDisplay;
-  }
-
-  private String getEndTimeDisplay(String endTime) {
-    String oldHourEnd;
-    int hourEnd;
-    String hourEndForDisplay;
-    String period;
-    int firstChar = Integer.parseInt(endTime.substring(0, 1));
-    int firstTwoChars = Integer.parseInt(endTime.substring(0, 2));
-
-    if (firstChar == 0 && firstTwoChars != 00) {
-      hourEndForDisplay = endTime.substring(1, 2);
-      period = "am";
-    }
-    else if (firstTwoChars == 00) {
-      hourEndForDisplay = "12";
-      period = "am";
-    }
-    else if (firstTwoChars == 10 || firstTwoChars == 11) {
-      hourEndForDisplay = String.valueOf(firstTwoChars);
-      period = "am";
-    }
-    else if (firstTwoChars == 12) {
-      hourEndForDisplay = String.valueOf(firstTwoChars);
-      period = "pm";
-    }
-    else {
-      oldHourEnd = endTime.substring(0, 2);
-      hourEnd = Integer.parseInt(oldHourEnd);
-      int hourEndForDisplayInt = hourEnd - 12;
-      hourEndForDisplay = String.valueOf(hourEndForDisplayInt);
-      period = "pm";
-    }
-
-    String endMin = endTime.substring(3);
-    hourEndForDisplay += ":" + endMin + period;
-
-    return hourEndForDisplay;
+    return hourForDisplay;
   }
 }
