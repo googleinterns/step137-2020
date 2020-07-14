@@ -244,8 +244,9 @@ function personalDisplay() {
 
   const nameContainer = document.getElementById('name-container');
   nameContainer.appendChild(editNameButton);
-  const basicInfoContainer = document.getElementById('basic-info');
-  basicInfoContainer.appendChild(buddiesList);
+  const buddyContainer = document.getElementById('buddy-container');
+  buddyContainer.innerHTML = '';
+  buddyContainer.appendChild(buddiesList);
 }
 
 /*
@@ -260,8 +261,9 @@ function buddyDisplay(user) {
     profileOnload();
   });
 
-  const basicInfoContainer = document.getElementById('basic-info');
-  basicInfoContainer.appendChild(removeBuddyButton);
+  const buddyContainer = document.getElementById('buddy-container');
+  buddyContainer.innerHTML = '';
+  buddyContainer.appendChild(removeBuddyButton);
 }
 
 /*
@@ -276,8 +278,9 @@ function strangerDisplay(user) {
     profileOnload();
   });
 
-  const basicInfoContainer = document.getElementById('basic-info');
-  basicInfoContainer.appendChild(addBuddyButton);
+  const buddyContainer = document.getElementById('buddy-container');
+  buddyContainer.innerHTML = '';
+  buddyContainer.appendChild(addBuddyButton);
 }
 
 /*
