@@ -163,7 +163,7 @@ function displayAttendingEvents(user) {
 
   fetch('/events').then(response => response.json()).then((events) => {
     for (let i = 0; i < events.length; i ++) {
-      if (events[i].rsvpAttendees.includes(user.id) || events[i].invitedAttendees.includes(user.id)) {
+      if (events[i].rsvpAttendees.includes(user.id)) {
         eventsContainer.appendChild(createEvent(events[i]));
       }
     }
@@ -186,6 +186,11 @@ function createEvent(event) {
   eventElement.append(eventName);
   eventElement.append(eventLocation);
   eventElement.append(eventDetails);
+  console.log(event.placeId);
+  eventElement.addEventListener('click', () => {
+    sessionStorage.setItem('currentLocationId', event.placeId);
+    window.location.href = 'map.html';
+  });
   return eventElement;
 }
 

@@ -87,6 +87,7 @@ function submitForm() {
     params.append("end-date", document.getElementById("end-date").value);
     params.append("end-time", document.getElementById("end-time").value);
     params.append("location", document.getElementById("location").value);
+    params.append("place-id", document.getElementById("place-id").value);
     params.append("event-details", document.getElementById("event-details").value);
     params.append("privacy", document.getElementById("privacy").value);
     params.append("invited-attendee-ID-list", document.getElementById("invited-attendee-ID-list").value);

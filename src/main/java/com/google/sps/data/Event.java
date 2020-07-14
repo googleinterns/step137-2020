@@ -7,6 +7,7 @@ public final class Event {
   private String eventName;
   private String dateTime;
   private String location;
+  private String placeId;
   private String eventDetails;
   private String yesCOVIDSafe;
   private String privacy;
@@ -15,14 +16,15 @@ public final class Event {
   private String creator;
 
   public Event(long eventId, String eventName, String dateTime,
-              String location, String eventDetails, String yesCOVIDSafe, 
-              String privacy, List<String> invitedAttendees, 
+              String location, String placeId, String eventDetails, 
+              String yesCOVIDSafe, String privacy, List<String> invitedAttendees,
               List<String> rsvpAttendees, String creator) {
 
     this.eventId = eventId;
     this.eventName = eventName;
     this.dateTime = dateTime;
     this.location = location;
+    this.placeId = placeId;
     this.eventDetails = eventDetails;
     this.yesCOVIDSafe = yesCOVIDSafe;
     this.privacy = privacy;
