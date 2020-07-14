@@ -546,27 +546,3 @@ function deleteAllEvents() {
   const request = new Request('/delete-events', {method: 'POST'});
     fetch(request);
 }
-
-/** Searches for events nearby */
-function findNearbyEvents() {
-  // get current location from local storage
-  var currentLocation = localStorage.getItem('currentLocation');
-  // get map object from local storage
-  var currentMap = localStorage.getItem('currentMap');
-  // use this location to make an API call
-  var request = {
-    location: currentLocation,
-    radius: '500',
-    type: ['restaurant']
-  };
-  service = new google.maps.places.PlacesService(currentMap);
-  service.nearbySearch(request, callback);
-  // output response of API call to console
-  function callback(results, status) {
-    if (status == google.maps.places.PlacesServiceStatus.OK) {
-      console.log(results);
-    }
-  }
-  // link this function to nearme page
-  // test
-}
