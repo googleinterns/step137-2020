@@ -252,11 +252,24 @@ public class EventServlet extends HttpServlet {
     int hourStart;
     String hourStartForDisplay;
     String period;
+    int firstChar = Integer.parseInt(startTime.substring(0, 1));
+    int firstTwoChars = Integer.parseInt(startTime.substring(0, 2));
 
-    
-    if (startTime.charAt(0) == 0) {
+    if (firstChar == 0 && firstTwoChars != 00) {
       hourStartForDisplay = startTime.substring(1, 2);
       period = "am";
+    }
+    else if (firstTwoChars == 00) {
+      hourStartForDisplay = "12";
+      period = "am";
+    }
+    else if (firstTwoChars == 10 || firstTwoChars == 11) {
+      hourStartForDisplay = String.valueOf(firstTwoChars);
+      period = "am";
+    }
+    else if (firstTwoChars == 12) {
+      hourStartForDisplay = String.valueOf(firstTwoChars);
+      period = "pm";
     }
     else {
       oldHourStart = startTime.substring(0, 2);
@@ -277,10 +290,24 @@ public class EventServlet extends HttpServlet {
     int hourEnd;
     String hourEndForDisplay;
     String period;
-    
-    if (endTime.charAt(0) == 0) {
+    int firstChar = Integer.parseInt(endTime.substring(0, 1));
+    int firstTwoChars = Integer.parseInt(endTime.substring(0, 2));
+
+    if (firstChar == 0 && firstTwoChars != 00) {
       hourEndForDisplay = endTime.substring(1, 2);
       period = "am";
+    }
+    else if (firstTwoChars == 00) {
+      hourEndForDisplay = "12";
+      period = "am";
+    }
+    else if (firstTwoChars == 10 || firstTwoChars == 11) {
+      hourEndForDisplay = String.valueOf(firstTwoChars);
+      period = "am";
+    }
+    else if (firstTwoChars == 12) {
+      hourEndForDisplay = String.valueOf(firstTwoChars);
+      period = "pm";
     }
     else {
       oldHourEnd = endTime.substring(0, 2);
