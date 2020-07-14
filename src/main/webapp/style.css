@@ -1,14 +1,11 @@
 :root {
   --gray-icon-color: #808080;
   --form-background: rgba(0,0,0,0.2);
+  --navbar-color: #002b54;
 }
 
 * {
   box-sizing: border-box;
-}
-
-:root {
-  --navbar-color: #002b54;
 }
 
 html, body {
@@ -128,6 +125,12 @@ html, body {
   font-size: 20px;
   font-weight: bold;
   font-family: Helvetica;
+}
+
+.icon-button {
+  font-size: 14px;
+  padding: 3px 6px;
+  margin: 2px;
 }
 
 /**map styling */
