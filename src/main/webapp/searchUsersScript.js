@@ -12,6 +12,7 @@ function searchUsersOnload() {
 function displayUsers() {
   const loadedUsers = document.getElementById('loaded-users');
   loadedUsers.innerHTML = '';
+  loadedUsers.style = 'height: 100%';
   
   fetch('/user').then(response => response.json()).then((users) => {
     for (let i = 0; i < users.length; i ++) {
