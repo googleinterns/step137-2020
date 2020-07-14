@@ -73,7 +73,6 @@ function buddiesOnly() {
       }
       document.getElementById("invited-attendee-ID-list").value = "";
       document.getElementById("invited-attendee-ID-list").value = buddyIds;
-      console.log(document.getElementById("invited-attendee-ID-list").value);
     });
 }
 

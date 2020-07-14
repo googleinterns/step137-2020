@@ -364,6 +364,7 @@ function createEventPublic(event) {
 function createEventAttendees(event, userID, going) {
   const eventElement = document.createElement('div');
   eventElement.className = "card";
+
   const eventContents = document.createElement('div');
   eventContents.className = "contents";
 
@@ -382,6 +383,19 @@ function createEventAttendees(event, userID, going) {
   const eventDetails = document.createElement('p'); 
   eventDetails.className = "details-display";
   eventDetails.innerText = event.eventDetails;
+
+  const bottomCard = document.createElement('div');
+  bottomCard.id = "bottom-event-wrapper";
+
+  const deleteButton = document.createElement('button');
+  deleteButton.className = "icon-button";
+  const deleteIcon = document.createElement('i');
+  deleteIcon.className = 'fa fa-trash-o';
+  deleteButton.appendChild(deleteIcon);
+  deleteButton.addEventListener('click', () => {
+    deleteSingleEvent(event, eventElement);
+  });
+  
   const rsvpButton = document.createElement('button');
   if (going === "true") {
     rsvpButton.innerText = "Not Going";
@@ -394,23 +408,33 @@ function createEventAttendees(event, userID, going) {
     addRemoveAttendee(event, userID, rsvpButton);
   }); 
 
+  bottomCard.append(rsvpButton);
+  bottomCard.append(deleteButton);
 
   eventElement.append(eventContents);
   eventElement.append(eventName);
   eventElement.append(eventDate);
   eventElement.append(eventLocation);
   eventElement.append(eventDetails);
-  eventElement.append(rsvpButton);
+  eventElement.append(bottomCard);
   return eventElement;
 }
 
 function addRemoveAttendee(event, userID, rsvpButton) {
-  const params = new URLSearchParams()
+  const params = new URLSearchParams();
   params.append('userID', userID);
   params.append('eventId', event.eventId);
   fetch('/add-remove-attendee', {
     method: 'POST', body: params
   }).then(switchRSVPButtonText(rsvpButton));
+}
+
+function deleteSingleEvent(event, eventElement) {
+  const params = new URLSearchParams();
+  params.append('id', event.eventId);
+  fetch('/delete-single-event', {
+    method: 'POST', body: params
+  }).then(eventElement.style.display = "none");
 }
 
 function switchRSVPButtonText(rsvpButton) {
