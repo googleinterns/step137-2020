@@ -67,6 +67,8 @@ html, body {
 #event-form {
   flex: 2;
   justify-content: right;
+  font-family: Helvetica;
+  font-size: 15px;
 }
 
 #attendees-wrap {
