@@ -364,7 +364,7 @@ function getAvailableEvents(userID) {
           if (rsvpAttendees.includes(userID)) {
             eventDivElement.appendChild(createEventAttendees(events[i], userID, "true"));
           }
-          else(invitedAttendees.includes(userID)) {
+          else if (invitedAttendees.includes(userID)) {
             eventDivElement.appendChild(createEventAttendees(events[i], userID, "false"));
           }
         }
