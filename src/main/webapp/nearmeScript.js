@@ -26,6 +26,7 @@ function initializeMap() {
 /** Displays events nearby */
 function findNearbyEvents(map, currentLocation) {
   eventsDivElement = document.getElementById('nearbyEvents');
+  eventsDivElement.innerHTML = '';
   var geocoder = new google.maps.Geocoder();
   // This is the circle within which we search for events.
   var locationCircle = new google.maps.Circle({ 
@@ -54,6 +55,36 @@ function findNearbyEvents(map, currentLocation) {
       });
     }
   });
+}
+
+/** Creates a display element for an event. */
+function createEvent(event) {
+  const eventName = document.createElement('h2');
+  eventName.id = "name-display";
+  eventName.innerText = event.eventName;
+
+  const eventDate = document.createElement('p');
+  eventDate.id = "date-display";
+  eventDate.innerText = event.dateTime;
+
+  const eventLocation = document.createElement('p');
+  eventName.id = "location-display";
+  eventLocation.innerText = event.location;
+
+  const eventDetails = document.createElement('p'); 
+  eventDetails.id = "details-display";
+  eventDetails.innerText = event.eventDetails;
+
+  const eventElement = document.createElement('div');
+  eventElement.className = "card";
+  const eventContents = document.createElement('div');
+  eventContents.className = "contents";
+  eventContents.append(eventName);
+  eventContents.append(eventDate);
+  eventContents.append(eventLocation);
+  eventContents.append(eventDetails);
+  eventElement.append(eventContents);
+  return eventElement;
 }
 
 // TODO: Decide if this will be useful for map page (filtering locations)
