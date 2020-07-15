@@ -45,8 +45,12 @@ function findNearbyEvents(map, currentLocation) {
           eventLatLng = results[0].geometry.location;
           var isNearby = locationCircle.getBounds().contains(eventLatLng)
           if (isNearby) {
-            eventsDivElement.appendChild(createEvent(currentEvent));
-            
+            eventElement = createEvent(currentEvent);
+            eventElement.addEventListener('click', () => {
+              sessionStorage.setItem('currentLocationId', currentEvent.placeId);
+              window.location.href = 'map.html';
+            });
+            eventsDivElement.appendChild(eventElement);
           }
         }
         else {
