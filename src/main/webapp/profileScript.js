@@ -1,8 +1,17 @@
+const LOCAL_STORAGE_STATUS = 'loginStatus';
+const LOCAL_STORAGE_ID = 'userId';
+const LOCAL_STORAGE_NAME = 'userName';
+const PROFILE_VIEWER_LOGOUT = 'logged-out';
+const PROFILE_VIEWER_STRANGER = 'stranger';
+const PROFILE_VIEWER_BUDDY = 'buddy';
+const PROFILE_VIEWER_PERSONAL = 'personal';
+
 /*
  * Displays the page's content as soon as the page is laoded.
  */
 function profileOnload() {
   navbarLoginDisplay();
+  displayProfileContent();
 }
 
 /*
@@ -19,20 +28,25 @@ function navbarLoginDisplay() {
       // If the user is logged in, locally store their info, confirm they have a name, 
       // then add logout and profile buttons to the navbar.
       localStorage.setItem('userId', json['id']);
-      const personalProfileButton = document.createElement('p');
-      personalProfileButton.classList.add('navbar-text');
-      personalProfileButton.addEventListener('click', () => {
-        visitProfile(json['id']);
-      });
-      const logoutButton = document.createElement('p');
-      logoutButton.classList.add('navbar-text');
-      logoutButton.innerText = 'Logout';
-      logoutButton.addEventListener('click', () => {
-        window.location.href = json['logoutUrl'];
-      });
-      confirmUserName(personalProfileButton);
-      userNavbarSection.appendChild(personalProfileButton);
-      userNavbarSection.appendChild(logoutButton);
+      const name = localStorage.getItem(LOCAL_STORAGE_NAME);
+      if (name == null) {
+        confirmUserName();
+      } else {
+        const personalProfileButton = document.createElement('p');
+        personalProfileButton.classList.add('navbar-text');
+        personalProfileButton.innerText = name;
+        personalProfileButton.addEventListener('click', () => {
+          visitProfile(json['id']);
+        });
+        const logoutButton = document.createElement('p');
+        logoutButton.classList.add('navbar-text');
+        logoutButton.innerText = 'Logout';
+        logoutButton.addEventListener('click', () => {
+          window.location.href = json['logoutUrl'];
+        });
+        userNavbarSection.appendChild(personalProfileButton);
+        userNavbarSection.appendChild(logoutButton);
+        }
     } else {
       // If the user is logged out, clear the locally stored user data 
       // and add a login button to the navbar.
@@ -46,9 +60,6 @@ function navbarLoginDisplay() {
         window.location.href = json['loginUrl'];
       });
       userNavbarSection.appendChild(loginButton);
-      if (window.location.pathname.localeCompare('/profile.html') == 0) {
-        displayProfileContent();
-      }
     }
   });
 }
@@ -57,28 +68,16 @@ function navbarLoginDisplay() {
  * Checks whether the user does not yet have a display name.
  */
 function confirmUserName(personalProfileButton) {
-  const currentName = localStorage.getItem('userName');
-  if (currentName == null) {
-    const promise = fetch('/user-name').then(response => response.text()).then((name) => {
-      if (name.localeCompare('\n') == 0) {
-        // If the user has not yet set their name, display the form.
-        showNameForm();
-      } else {
-        // If the user's name is not yet in local storage, store it and display the page.
-        localStorage.setItem('userName', name);
-        personalProfileButton.innerText = name;
-        if (window.location.pathname.localeCompare('/profile.html') == 0) {
-          displayProfileContent();
-        }
-      }
-    });
-  } else {
-    // If the user's name is in local storage, display the page.
-    personalProfileButton.innerText = currentName;
-    if (window.location.pathname.localeCompare('/profile.html') == 0) {
-      displayProfileContent();
+  fetch('/user-name').then(response => response.text()).then((name) => {
+    if (name.localeCompare('\n') == 0) {
+    // If the user has not yet set their name, display the form.
+      showNameForm();
+    } else {
+      // If the user's name is not yet in local storage, store it.
+      localStorage.setItem('userName', name);
     }
-  }
+    profileOnload();
+  });
 }
 
 /*
@@ -93,19 +92,37 @@ function visitProfile(userId) {
  * Displays the profile content of the requested user.
  */
 function displayProfileContent() {
-  let id = sessionStorage.getItem('loadProfile');
-  if (id.localeCompare('justLoggedIn') == 0) {
-    // If just logged in, show personal profile.
-    id = localStorage.getItem('userId');
-    sessionStorage.setItem('loadProfile', id);
+  let profileId = sessionStorage.getItem('loadProfile');
+  if (profileId.localeCompare('justLoggedIn') == 0) {
+    // If user just logged in, show personal profile.
+    profileId = localStorage.getItem('userId');
+    sessionStorage.setItem('loadProfile', profileId);
   }
+  let loginStatus = localStorage.getItem(LOCAL_STORAGE_STATUS);
+  let currentId = localStorage.getItem(LOCAL_STORAGE_ID);
   fetch('/user').then(response => response.json()).then((users) => {
     for (let i = 0; i < users.length; i ++) {
-      if ((users[i].id).localeCompare(id) == 0) {
-        displayBasicInfo(users[i]);
-        displaySavedInterests(users[i]);
-        displayAttendingEvents(users[i]);
-        additionalDisplay(users[i]);
+      if ((users[i].id).localeCompare(profileId) == 0) {
+        if (loginStatus.localeCompare('false') == 0) {
+          // Display profile to logged out user.
+          displayBasicInfo(users[i], PROFILE_VIEWER_LOGOUT);
+          displaySavedInterests(users[i], PROFILE_VIEWER_LOGOUT);
+        }else if (profileId.localeCompare(currentId) == 0) {
+          // Display personal profile.
+          displayBasicInfo(users[i], PROFILE_VIEWER_PERSONAL);
+          displayBuddies(users[i], PROFILE_VIEWER_PERSONAL);
+          displaySavedInterests(users[i], PROFILE_VIEWER_PERSONAL);
+        } else if (users[i].buddies.includes(currentId)) {
+          // Display buddy's profile.
+          displayBasicInfo(users[i], PROFILE_VIEWER_BUDDY);
+          displayBuddies(users[i], PROFILE_VIEWER_BUDDY);
+          displaySavedInterests(users[i], PROFILE_VIEWER_BUDDY);
+        } else {
+          // Display stranger's profile.
+          displayBasicInfo(users[i], PROFILE_VIEWER_STRANGER);
+          displayBuddies(users[i], PROFILE_VIEWER_STRANGER);
+          displaySavedInterests(users[i], PROFILE_VIEWER_STRANGER);
+        }
         break;
       }
     }
@@ -113,32 +130,104 @@ function displayProfileContent() {
 }
 
 /*
- * Displays the basic info of the specified user.
+ * Displays basic info and options regarding the specified user.
  */
-function displayBasicInfo(user) {
+function displayBasicInfo(user, viewer) {
   const nameContainer = document.getElementById('name-container');
   nameContainer.innerHTML = '';
 
   const name = document.createElement('h1');
   name.innerText = user.name;
-  name.style = 'padding-left: 10px';
   nameContainer.appendChild(name);
+  
+  if (viewer === PROFILE_VIEWER_PERSONAL) {
+    // Add an option for the current user to change their display name.
+    const editNameButton = document.createElement('i');
+    editNameButton.className = 'fa fa-edit';
+    editNameButton.addEventListener('click', () => {
+      showNameForm();
+    });
+    nameContainer.append(editNameButton);
+  }
+}
+
+/*
+ * Displays buddies and buddy options of the specified user.
+ */
+function displayBuddies(user, viewer) {
+  const buddyContainer = document.getElementById('buddy-container');
+  buddyContainer.innerHTML = '';
+
+  if (viewer === PROFILE_VIEWER_PERSONAL) {
+    // Add the user's personal buddies list.
+    const buddiesHeading = document.createElement('h3');
+    buddiesHeading.innerText = 'Your buddies:';
+    buddyContainer.appendChild(buddiesHeading);
+    displayBuddiesList(user, buddyContainer);
+  } else if (viewer === PROFILE_VIEWER_BUDDY) {
+    // Add a remove buddy option.
+    const removeBuddyButton = document.createElement('button');
+    removeBuddyButton.innerText = 'Remove buddy';
+    removeBuddyButton.addEventListener('click', () => {
+      removeBuddy(user);
+    });
+    buddyContainer.appendChild(removeBuddyButton);
+    // Add the profile user's buddies list.
+    const buddiesHeading = document.createElement('h3');
+    buddiesHeading.innerText = user.name + '\'' + 's buddies:';
+    buddyContainer.appendChild(buddiesHeading);
+    displayBuddiesList(user, buddyContainer);
+  } else if (viewer === PROFILE_VIEWER_STRANGER) {
+    // Add an add buddy option. 
+    const addBuddyButton = document.createElement('button');
+    addBuddyButton.innerText = 'Add buddy';
+    addBuddyButton.addEventListener('click', () => {
+      addBuddy(user);
+    });
+    buddyContainer.appendChild(addBuddyButton);
+  }
+}
+
+function displayBuddiesList(user, buddyContainer) {
+  const buddiesList = document.createElement('div');
+  const buddyIds = user.buddies;
+  fetch('/user').then(response => response.json()).then((users) => {
+    for (let i = 0; i < users.length; i ++) {
+      if (buddyIds.includes(users[i].id)) {
+        // If the user's ID is in the list of the profile user's buddies,
+        // add their name (which links to their profile) to the page. 
+        const buddyElement = document.createElement('p');
+        buddyElement.innerText = users[i].name;
+        buddyElement.addEventListener('click', () => {
+          visitProfile(users[i].id);
+        });
+        buddiesList.appendChild(buddyElement);
+      }
+    }
+  });
+  buddyContainer.append(buddiesList);
 }
 
 /*
  * Displays the saved interests of the specified user.
  */
-function displaySavedInterests(user) {
+function displaySavedInterests(user, viewer) {
   const savedInterestsContainer = document.getElementById('interests-container');
   savedInterestsContainer.innerHTML = '';
 
-  fetch('/interest').then(response => response.json()).then((interests) => {
-    for (let i = 0; i < interests.length; i ++) {
-      if (interests[i].interestedUsers.includes(user.id)) {
-        savedInterestsContainer.appendChild(createInterest(interests[i]));
+  if (viewer === PROFILE_VIEWER_PERSONAL || viewer === PROFILE_VIEWER_BUDDY) {
+    fetch('/interest').then(response => response.json()).then((interests) => {
+      for (let i = 0; i < interests.length; i ++) {
+        if (interests[i].interestedUsers.includes(user.id)) {
+          savedInterestsContainer.appendChild(createInterest(interests[i]));
+        }
       }
-    }
-  });
+    });
+  } else if (viewer === PROFILE_VIEWER_STRANGER || viewer === PROFILE_VIEWER_LOGOUT) {
+    const interestMessage = document.createElement('p');
+    interestMessage.innerText = 'You cannot see this user\'s saved interests.';
+    savedInterestsContainer.appendChild(interestMessage);
+  }
 }
 
 /*
@@ -198,100 +287,6 @@ function createEvent(event) {
 }
 
 /*
- * Displays additional information and options for the user 
- * based on whose profile they are viewing.
- */
-function additionalDisplay(user) {
-  if (localStorage.getItem('loginStatus').localeCompare('true') == 0) {
-    if (localStorage.getItem('userId').localeCompare(user.id) == 0) {
-      personalDisplay();
-    } else {
-      fetch('/buddy').then(response => response.json()).then((buddies) => {
-        if (buddies.includes(user.id)) {
-          buddyDisplay(user);
-        } else {
-          strangerDisplay(user);
-        }
-      });
-    }
-  }
-}
-
-/*
- * Displays information and options for if the user is viewing their own profile.
- */
-function personalDisplay() {
-  // Add an option for the current user to change their display name.
-  const editNameButton = document.createElement('i');
-  editNameButton.className = 'fa fa-edit';
-  editNameButton.addEventListener('click', () => {
-    showNameForm();
-  });
-
-  // Add the list of the current user's buddies.
-  const buddiesList = document.createElement('div');
-  const buddiesHeading = document.createElement('h3');
-  buddiesHeading.innerText = 'Your buddies:';
-  buddiesList.appendChild(buddiesHeading);
-  fetch('/buddy').then(response => response.json()).then((buddies) => {
-    fetch('/user').then(response => response.json()).then((users) => {
-      for (let i = 0; i < users.length; i ++) {
-        if (buddies.includes(users[i].id)) {
-          // If the user's ID is in the list of the current user's buddies,
-          // add their name (which links to their profile) to the page. 
-          const buddyElement = document.createElement('p');
-          buddyElement.innerText = users[i].name;
-          buddyElement.addEventListener('click', () => {
-            visitProfile(users[i].id);
-          });
-          buddiesList.appendChild(buddyElement);
-        }
-      }
-    });
-  });
-
-  const nameContainer = document.getElementById('name-container');
-  nameContainer.appendChild(editNameButton);
-  const buddyContainer = document.getElementById('buddy-container');
-  buddyContainer.innerHTML = '';
-  buddyContainer.appendChild(buddiesList);
-}
-
-/*
- * Displays information and options for if the user is viewing a buddy's profile.
- */
-function buddyDisplay(user) {
-  // Add an option for the current user to remove this user as their buddy.
-  const removeBuddyButton = document.createElement('button');
-  removeBuddyButton.innerText = 'Remove buddy';
-  removeBuddyButton.addEventListener('click', () => {
-    removeBuddy(user);
-    profileOnload();
-  });
-
-  const buddyContainer = document.getElementById('buddy-container');
-  buddyContainer.innerHTML = '';
-  buddyContainer.appendChild(removeBuddyButton);
-}
-
-/*
- * Displays information and options for if the user is viewing a stranger's profile.
- */
-function strangerDisplay(user) {
-  // Add an option for the current user to add this user as their buddy.
-  const addBuddyButton = document.createElement('button');
-  addBuddyButton.innerText = 'Add buddy';
-  addBuddyButton.addEventListener('click', () => {
-    addBuddy(user);
-    profileOnload();
-  });
-
-  const buddyContainer = document.getElementById('buddy-container');
-  buddyContainer.innerHTML = '';
-  buddyContainer.appendChild(addBuddyButton);
-}
-
-/*
  * Removes the buddy connection between the current user and the specified user.
  */
 function removeBuddy(user) {
@@ -300,7 +295,7 @@ function removeBuddy(user) {
   params.append('action', 'remove');
   fetch('/buddy', {
     method: 'POST', body: params
-  });
+  }).then(displayProfileContent);
 }
 
 /*
@@ -312,7 +307,7 @@ function addBuddy(user) {
   params.append('action', 'add');
   fetch('/buddy', {
     method: 'POST', body: params
-  });
+  }).then(displayProfileContent);
 }
 
 /*

@@ -253,7 +253,7 @@ public class EventServlet extends HttpServlet {
   as opposed to military (i.e 13 to 1)
 */
   private String getTimeDisplay(String time) {
-    String oldHour
+    String oldHour;
     int hour;
     String hourForDisplay;
     String period;
