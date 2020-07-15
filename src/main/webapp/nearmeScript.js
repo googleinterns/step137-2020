@@ -13,9 +13,7 @@ function initializeMap() {
         lng: position.coords.longitude
       };
       map.setCenter(pos);
-
-      var service = new google.maps.places.PlacesService(map);
-      
+      findNearbyEvents(map, pos);      
       }, function() {
         handleLocationError(true, map.getCenter());
       });
@@ -27,6 +25,8 @@ function initializeMap() {
 
 /** Searches for events nearby */
 function findNearbyEvents(map, currentLocation) {
+  console.log(map);
+  console.log(currentLocation);
   var request = {
     location: currentLocation,
     radius: '500',
