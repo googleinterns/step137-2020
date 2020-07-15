@@ -107,21 +107,25 @@ function displayProfileContent() {
           // Display profile to logged out user.
           displayBasicInfo(users[i], PROFILE_VIEWER_LOGOUT);
           displaySavedInterests(users[i], PROFILE_VIEWER_LOGOUT);
+          displayEvents(users[i], PROFILE_VIEWER_LOGOUT);
         }else if (profileId.localeCompare(currentId) == 0) {
           // Display personal profile.
           displayBasicInfo(users[i], PROFILE_VIEWER_PERSONAL);
           displayBuddies(users[i], PROFILE_VIEWER_PERSONAL);
           displaySavedInterests(users[i], PROFILE_VIEWER_PERSONAL);
+          displayEvents(users[i], PROFILE_VIEWER_PERSONAL);
         } else if (users[i].buddies.includes(currentId)) {
           // Display buddy's profile.
           displayBasicInfo(users[i], PROFILE_VIEWER_BUDDY);
           displayBuddies(users[i], PROFILE_VIEWER_BUDDY);
           displaySavedInterests(users[i], PROFILE_VIEWER_BUDDY);
+          displayEvents(users[i], PROFILE_VIEWER_BUDDY);
         } else {
           // Display stranger's profile.
           displayBasicInfo(users[i], PROFILE_VIEWER_STRANGER);
           displayBuddies(users[i], PROFILE_VIEWER_STRANGER);
           displaySavedInterests(users[i], PROFILE_VIEWER_STRANGER);
+          displayEvents(users[i], PROFILE_VIEWER_STRANGER);
         }
         break;
       }
@@ -188,6 +192,9 @@ function displayBuddies(user, viewer) {
   }
 }
 
+/*
+ * Display the buddies list of the specified user.
+ */
 function displayBuddiesList(user, buddyContainer) {
   const buddiesList = document.createElement('div');
   const buddyIds = user.buddies;
@@ -247,40 +254,76 @@ function createInterest(interest) {
 }
 
 /*
- * Displays the events for which the specified user is on the attendees list.
+ * Displays the events of the specified user.
  */
-function displayAttendingEvents(user) {
+function displayEvents(user, viewer) {
   const eventsContainer = document.getElementById('events-container');
   eventsContainer.innerHTML = '';
 
-  fetch('/events').then(response => response.json()).then((events) => {
-    for (let i = 0; i < events.length; i ++) {
-      if (events[i].rsvpAttendees.includes(user.id)) {
-        eventsContainer.appendChild(createEvent(events[i]));
+  if (viewer === PROFILE_VIEWER_PERSONAL) {
+    // Display events the user is invited to or attending.
+    fetch('/events').then(response => response.json()).then((events) => {
+      for (let i = 0; i < events.length; i ++) {
+        if (events[i].rsvpAttendees.includes(user.id) || 
+            events[i].invitedAttendees.includes(user.id)) {
+          eventsContainer.appendChild(createEvent(events[i]));
+        }
       }
-    }
-  });
+    });
+  } else if (viewer === PROFILE_VIEWER_BUDDY) {
+    // Display events the user is invited to or attending and
+    // the current user has access to.
+    const currentId = localStorage.getItem(LOCAL_STORAGE_ID);
+    fetch('/events').then(response => response.json()).then((events) => {
+      for (let i = 0; i < events.length; i ++) {
+        if (events[i].rsvpAttendees.includes(user.id) || 
+            events[i].invitedAttendees.includes(user.id)) {
+          if (events[i].rsvpAttendees.includes(currentId) || 
+              events[i].invitedAttendees.includes(currentId) || 
+                  events[i].privacy === 'public') {
+            eventsContainer.appendChild(createEvent(events[i]));
+          }
+        }
+      }
+    });
+  } else if (viewer === PROFILE_VIEWER_STRANGER || viewer === PROFILE_VIEWER_LOGOUT) {
+    const eventMessage = document.createElement('p');
+    eventMessage.innerText = 'You cannot see this user\'s events.';
+    eventsContainer.appendChild(eventMessage);
+  }
 }
 
 /*
  * Returns a newly created event element to be displayed on the page.
  */
 function createEvent(event) {
-  const eventName = document.createElement('h3');
+  const eventName = document.createElement('h2');
+  eventName.id = "name-display";
   eventName.innerText = event.eventName;
+
+  const eventDate = document.createElement('p');
+  eventDate.id = "date-display";
+  eventDate.innerText = event.dateTime;
+
   const eventLocation = document.createElement('p');
+  eventName.id = "location-display";
   eventLocation.innerText = event.location;
+
   const eventDetails = document.createElement('p'); 
+  eventDetails.id = "details-display";
   eventDetails.innerText = event.eventDetails;
 
   const eventElement = document.createElement('div');
-  eventElement.className =  "card";
-  eventElement.append(eventName);
-  eventElement.append(eventLocation);
-  eventElement.append(eventDetails);
-  console.log(event.placeId);
+  eventElement.className = "card";
+  const eventContents = document.createElement('div');
+  eventContents.className = "contents";
+  eventContents.append(eventName);
+  eventContents.append(eventDate);
+  eventContents.append(eventLocation);
+  eventContents.append(eventDetails);
+  eventElement.append(eventContents);
   eventElement.addEventListener('click', () => {
-    sessionStorage.setItem('currentLocationId', event.placeId);
+  sessionStorage.setItem('currentLocationId', event.placeId);
     window.location.href = 'map.html';
   });
   return eventElement;
