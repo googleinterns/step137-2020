@@ -65,7 +65,7 @@ function navbarLoginDisplay() {
     }
   }).then(() => {
     if (window.location.pathname.localeCompare('/profile.html') == 0) {
-      displayProfileContent();
+      displayProfile();
     } 
   });
 }
@@ -95,9 +95,9 @@ function visitProfile(userId) {
 }
 
 /*
- * Displays the profile content of the requested user.
+ * Displays the profile of the requested user.
  */
-function displayProfileContent() {
+function displayProfile() {
   let profileId = sessionStorage.getItem(SESSION_STORAGE_PROFILE);
   if (profileId === 'justLoggedIn') {
     // If user just logged in, show personal profile.
@@ -111,36 +111,32 @@ function displayProfileContent() {
       if ((users[i].id) === profileId) {
         if (loginStatus === 'false') {
           // Display profile to logged out user.
-          displayBasicInfo(users[i], PROFILE_VIEWER_LOGOUT);
-          displaySavedInterests(users[i], PROFILE_VIEWER_LOGOUT);
-          displayEvents(users[i], PROFILE_VIEWER_LOGOUT);
-          displayPosts(users[i], PROFILE_VIEWER_LOGOUT);
+          displayContent(users[i], PROFILE_VIEWER_LOGOUT);
         }else if (profileId === currentId) {
           // Display personal profile.
-          displayBasicInfo(users[i], PROFILE_VIEWER_PERSONAL);
-          displayBuddies(users[i], PROFILE_VIEWER_PERSONAL);
-          displaySavedInterests(users[i], PROFILE_VIEWER_PERSONAL);
-          displayEvents(users[i], PROFILE_VIEWER_PERSONAL);
-          displayPosts(users[i], PROFILE_VIEWER_PERSONAL);
+          displayContent(users[i], PROFILE_VIEWER_PERSONAL);
         } else if (users[i].buddies.includes(currentId)) {
           // Display buddy's profile.
-          displayBasicInfo(users[i], PROFILE_VIEWER_BUDDY);
-          displayBuddies(users[i], PROFILE_VIEWER_BUDDY);
-          displaySavedInterests(users[i], PROFILE_VIEWER_BUDDY);
-          displayEvents(users[i], PROFILE_VIEWER_BUDDY);
-          displayPosts(users[i], PROFILE_VIEWER_BUDDY);
+          displayContent(users[i], PROFILE_VIEWER_BUDDY);
         } else {
           // Display stranger's profile.
-          displayBasicInfo(users[i], PROFILE_VIEWER_STRANGER);
-          displayBuddies(users[i], PROFILE_VIEWER_STRANGER);
-          displaySavedInterests(users[i], PROFILE_VIEWER_STRANGER);
-          displayEvents(users[i], PROFILE_VIEWER_STRANGER);
-          displayPosts(users[i], PROFILE_VIEWER_STRANGER);
+          displayContent(users[i], PROFILE_VIEWER_STRANGER);
         }
         break;
       }
     }
   });
+}
+
+/*
+ * Displays the user's profile content based on the viewer.
+ */
+function displayContent(user, viewer) {
+  displayBasicInfo(user, viewer);
+  displayBuddies(user, viewer);
+  displaySavedInterests(user, viewer);
+  displayEvents(user, viewer);
+  displayPosts(user, viewer);
 }
 
 /*
@@ -393,7 +389,7 @@ function removeBuddy(user) {
   params.append('action', 'remove');
   fetch('/buddy', {
     method: 'POST', body: params
-  }).then(displayProfileContent);
+  }).then(displayProfile);
 }
 
 /*
@@ -405,7 +401,7 @@ function addBuddy(user) {
   params.append('action', 'add');
   fetch('/buddy', {
     method: 'POST', body: params
-  }).then(displayProfileContent);
+  }).then(displayProfile);
 }
 
 /*
