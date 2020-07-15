@@ -1,3 +1,4 @@
+// Global Variables
 const LOCAL_STORAGE_STATUS = 'loginStatus';
 const LOCAL_STORAGE_ID = 'userId';
 const LOCAL_STORAGE_NAME = 'userName';
@@ -5,6 +6,8 @@ const PROFILE_VIEWER_LOGOUT = 'logged-out';
 const PROFILE_VIEWER_STRANGER = 'stranger';
 const PROFILE_VIEWER_BUDDY = 'buddy';
 const PROFILE_VIEWER_PERSONAL = 'personal';
+const SESSION_STORAGE_PROFILE = 'loadProfile';
+const SESSION_STORAGE_CURRENT_LOCATION = 'currentLocationId';
 
 /*
  * Displays the page's content as soon as the page is laoded.
@@ -23,11 +26,11 @@ function navbarLoginDisplay() {
   userNavbarSection.innerHTML = '';
 
   fetch('/login').then(response => response.json()).then((json) => {
-    localStorage.setItem('loginStatus', json['loginStatus']);
-    if (json['loginStatus'].localeCompare('true') == 0) {
+    localStorage.setItem(LOCAL_STORAGE_STATUS, json['loginStatus']);
+    if (json['loginStatus'] === 'true') {
       // If the user is logged in, locally store their info, confirm they have a name, 
       // then add logout and profile buttons to the navbar.
-      localStorage.setItem('userId', json['id']);
+      localStorage.setItem(LOCAL_STORAGE_ID, json['id']);
       const name = localStorage.getItem(LOCAL_STORAGE_NAME);
       if (name == null) {
         confirmUserName();
@@ -50,13 +53,13 @@ function navbarLoginDisplay() {
     } else {
       // If the user is logged out, clear the locally stored user data 
       // and add a login button to the navbar.
-      localStorage.removeItem('userId');
-      localStorage.removeItem('userName');
+      localStorage.removeItem(LOCAL_STORAGE_ID);
+      localStorage.removeItem(LOCAL_STORAGE_NAME);
       const loginButton = document.createElement('p');
       loginButton.classList.add('navbar-text');
       loginButton.innerText = 'Login';
       loginButton.addEventListener('click', () => {
-        sessionStorage.setItem('loadProfile', 'justLoggedIn');
+        sessionStorage.setItem(SESSION_STORAGE_PROFILE, 'justLoggedIn');
         window.location.href = json['loginUrl'];
       });
       userNavbarSection.appendChild(loginButton);
@@ -69,12 +72,12 @@ function navbarLoginDisplay() {
  */
 function confirmUserName(personalProfileButton) {
   fetch('/user-name').then(response => response.text()).then((name) => {
-    if (name.localeCompare('\n') == 0) {
+    if (name === '\n') {
     // If the user has not yet set their name, display the form.
       showNameForm();
     } else {
       // If the user's name is not yet in local storage, store it.
-      localStorage.setItem('userName', name);
+      localStorage.setItem(LOCAL_STORAGE_NAME, name);
     }
     profileOnload();
   });
@@ -84,7 +87,7 @@ function confirmUserName(personalProfileButton) {
  * Redirects the site to the clicked user's profile.
  */
 function visitProfile(userId) {
-  sessionStorage.setItem('loadProfile', userId);
+  sessionStorage.setItem(SESSION_STORAGE_PROFILE, userId);
   window.location.href = 'profile.html';
 }
 
@@ -92,23 +95,23 @@ function visitProfile(userId) {
  * Displays the profile content of the requested user.
  */
 function displayProfileContent() {
-  let profileId = sessionStorage.getItem('loadProfile');
-  if (profileId.localeCompare('justLoggedIn') == 0) {
+  let profileId = sessionStorage.getItem(SESSION_STORAGE_PROFILE);
+  if (profileId === 'justLoggedIn') {
     // If user just logged in, show personal profile.
-    profileId = localStorage.getItem('userId');
-    sessionStorage.setItem('loadProfile', profileId);
+    profileId = localStorage.getItem(LOCAL_STORAGE_ID);
+    sessionStorage.setItem(SESSION_STORAGE_PROFILE, profileId);
   }
   let loginStatus = localStorage.getItem(LOCAL_STORAGE_STATUS);
   let currentId = localStorage.getItem(LOCAL_STORAGE_ID);
   fetch('/user').then(response => response.json()).then((users) => {
     for (let i = 0; i < users.length; i ++) {
-      if ((users[i].id).localeCompare(profileId) == 0) {
-        if (loginStatus.localeCompare('false') == 0) {
+      if ((users[i].id) === profileId) {
+        if (loginStatus === 'false') {
           // Display profile to logged out user.
           displayBasicInfo(users[i], PROFILE_VIEWER_LOGOUT);
           displaySavedInterests(users[i], PROFILE_VIEWER_LOGOUT);
           displayEvents(users[i], PROFILE_VIEWER_LOGOUT);
-        }else if (profileId.localeCompare(currentId) == 0) {
+        }else if (profileId === currentId) {
           // Display personal profile.
           displayBasicInfo(users[i], PROFILE_VIEWER_PERSONAL);
           displayBuddies(users[i], PROFILE_VIEWER_PERSONAL);
@@ -244,7 +247,7 @@ function createInterest(interest) {
   const interestName = document.createElement('h3');
   interestName.innerText = interest.locationName;
   interestName.addEventListener('click', () => {
-    sessionStorage.setItem('currentLocationId', interest.placeId);
+    sessionStorage.setItem(SESSION_STORAGE_CURRENT_LOCATION, interest.placeId);
     window.location.href = 'map.html';
   });
 
@@ -323,7 +326,7 @@ function createEvent(event) {
   eventContents.append(eventDetails);
   eventElement.append(eventContents);
   eventElement.addEventListener('click', () => {
-  sessionStorage.setItem('currentLocationId', event.placeId);
+  sessionStorage.setItem(SESSION_STORAGE_CURRENT_LOCATION, event.placeId);
     window.location.href = 'map.html';
   });
   return eventElement;

@@ -13,7 +13,7 @@ function initialDisplay() {
 
 /** Initializes map and displays it. */
 function initMap() {
-  newCenterId = sessionStorage.getItem('currentLocationId');
+  newCenterId = sessionStorage.getItem(SESSION_STORAGE_CURRENT_LOCATION);
   mapCenter = { lat: 37.4220, lng: 122.0841 };
   infoWindow = new google.maps.InfoWindow;
   var marker = new google.maps.Marker;
@@ -45,7 +45,7 @@ function initMap() {
         marker.setMap(map);
 
         // Remove session storage variable until saved interest is clicked from profile page again.
-        sessionStorage.removeItem('currentLocationId');
+        sessionStorage.removeItem(SESSION_STORAGE_CURRENT_LOCATION);
       }
       else {
         alert('Geocode was not successful for the following reason: ' + status);
@@ -172,8 +172,8 @@ function fetchPlaceInformation(place_id, map, where) {
         infoDivElement.appendChild(businessStatusElement);
         infoDivElement.appendChild(ratingElement); 
         infoDivElement.appendChild(deleteEventsButtonElement);
-        if (localStorage.getItem('loginStatus').localeCompare('true') == 0) {
-          let userId = localStorage.getItem('userId');
+        if (localStorage.getItem(LOCAL_STORAGE_STATUS) === 'true') {
+          let userId = localStorage.getItem(LOCAL_STORAGE_ID);
           setInterestButtonText(interestButtonElement, place_id, userId);
           infoDivElement.appendChild(interestButtonElement);
           eventsDivElement.appendChild(createEventElement);
@@ -493,15 +493,6 @@ function switchRSVPButtonText(rsvpButton) {
   }
 }
 
-/** Checks to see if a user is logged in. */
-function userIsLoggedIn() {
-   return fetch('/login')
-  .then(response => response.json())
-  .then(json => { 
-    return [ json['loginStatus'], json['id'] ] 
-  });
-}
-
 /** Sends post request to store or remove saved interest. */
 function saveOrRemoveInterest(locationName, placeId, interestButtonElement) {
   const params = new URLSearchParams()
@@ -514,7 +505,7 @@ function saveOrRemoveInterest(locationName, placeId, interestButtonElement) {
 
 /** Switches the text of the interest button. */
 function switchInterestButtonText(interestButtonElement) {
-  if (interestButtonElement.innerText.localeCompare('Remove as interest') == 0) {
+  if (interestButtonElement.innerText === 'Remove as interest') {
     interestButtonElement.innerText = 'Save as interest';
   } else {
     interestButtonElement.innerText = 'Remove as interest';
@@ -526,7 +517,7 @@ function setInterestButtonText(interestButtonElement, placeId, userId) {
   alreadySaved = false;
   fetch('/interest').then(response => response.json()).then((interests) => {
     for (let i = 0; i < interests.length; i ++) {
-      if (interests[i].placeId.localeCompare(placeId) == 0 && 
+      if (interests[i].placeId === placeId && 
           interests[i].interestedUsers.includes(userId)) {
         alreadySaved = true;
         interestButtonElement.innerText = 'Remove as interest';
