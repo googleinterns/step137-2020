@@ -360,11 +360,20 @@ function getAvailableEvents(userID) {
     .then(events => {
       for (i = 0; i < events.length; i++) {
         if (events[i].location == locationName) {
+          invitedAttendees = events[i].invitedAttendees;
           rsvpAttendees = events[i].rsvpAttendees;
-          if (rsvpAttendees.includes(userID)) {
+          rsvpContains = rsvpAttendees.includes(userID);
+          //if event is public, user should be able to see it regardless of whether they plan 
+          //to attend
+          if (events[i].privacy == "public") {
+            if (!rsvpContains) {
+              eventDivElement.appendChild(createEventAttendees(events[i], userID, "false"));
+            }
+          }
+          else if (rsvpContains) {
             eventDivElement.appendChild(createEventAttendees(events[i], userID, "true"));
           }
-          else(invitedAttendees.includes(userID)) {
+          else if (invitedAttendees.includes(userID)) {
             eventDivElement.appendChild(createEventAttendees(events[i], userID, "false"));
           }
         }
