@@ -1,6 +1,5 @@
 package com.google.sps.data;
 import java.util.List;
-import java.util.Date;
 
 public final class Event {
   private long eventId;
