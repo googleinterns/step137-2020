@@ -364,7 +364,7 @@ function getAvailableEvents(userID) {
           if (rsvpAttendees.includes(userID)) {
             eventDivElement.appendChild(createEventAttendees(events[i], userID, "true"));
           }
-          else {
+          else(invitedAttendees.includes(userID)) {
             eventDivElement.appendChild(createEventAttendees(events[i], userID, "false"));
           }
         }
@@ -417,9 +417,15 @@ function createEventAttendees(event, userID, going) {
   eventDate.className = "date-display";
   eventDate.innerText = event.dateTime;
 
+  const locationDisplay = document.createElement('div');
+  locationDisplay.className = "location-display";
+  const locationIcon = document.createElement('i');
+  locationIcon.className = 'fa fa-map-marker';
   const eventLocation = document.createElement('p');
-  eventName.className = "location-display";
+  eventLocation.className = "location-name";
   eventLocation.innerText = event.location;
+  locationDisplay.append(locationIcon);
+  locationDisplay.append(eventLocation);
 
   const eventDetails = document.createElement('p'); 
   eventDetails.className = "details-display";
