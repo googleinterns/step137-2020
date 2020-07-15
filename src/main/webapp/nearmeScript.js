@@ -32,22 +32,22 @@ function findNearbyEvents(map, currentLocation) {
   var locationCircle = new google.maps.Circle({ 
     map: map,
     center: currentLocation,
-    radius: 500 
+    radius: 2000 
   });
   
   fetch('/events')
   .then(response => response.json())
   .then(events => {
     for (i = 0; i < events.length; i++) {
-      geocoder.geocode( {'placeId' : events[i].placeId}, function(results, status) {
+      var currentEvent = events[i];
+      geocoder.geocode( {'placeId' : currentEvent.placeId}, function(results, status) {
         if (status == "OK") {
           eventLatLng = results[0].geometry.location;
           var isNearby = locationCircle.getBounds().contains(eventLatLng)
           if (isNearby) {
-            eventsDivElement.appendChild(createEvent(events[i]));
+            eventsDivElement.appendChild(createEvent(currentEvent));
+            
           }
-          // ? console.log('Yes')
-          // : console.log('No')
         }
         else {
           alert('Geocode was not successful for the following reason: ' + status);
