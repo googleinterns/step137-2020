@@ -114,24 +114,28 @@ function displayProfileContent() {
           displayBasicInfo(users[i], PROFILE_VIEWER_LOGOUT);
           displaySavedInterests(users[i], PROFILE_VIEWER_LOGOUT);
           displayEvents(users[i], PROFILE_VIEWER_LOGOUT);
+          displayPosts(users[i], PROFILE_VIEWER_LOGOUT);
         }else if (profileId === currentId) {
           // Display personal profile.
           displayBasicInfo(users[i], PROFILE_VIEWER_PERSONAL);
           displayBuddies(users[i], PROFILE_VIEWER_PERSONAL);
           displaySavedInterests(users[i], PROFILE_VIEWER_PERSONAL);
           displayEvents(users[i], PROFILE_VIEWER_PERSONAL);
+          displayPosts(users[i], PROFILE_VIEWER_PERSONAL);
         } else if (users[i].buddies.includes(currentId)) {
           // Display buddy's profile.
           displayBasicInfo(users[i], PROFILE_VIEWER_BUDDY);
           displayBuddies(users[i], PROFILE_VIEWER_BUDDY);
           displaySavedInterests(users[i], PROFILE_VIEWER_BUDDY);
           displayEvents(users[i], PROFILE_VIEWER_BUDDY);
+          displayPosts(users[i], PROFILE_VIEWER_BUDDY);
         } else {
           // Display stranger's profile.
           displayBasicInfo(users[i], PROFILE_VIEWER_STRANGER);
           displayBuddies(users[i], PROFILE_VIEWER_STRANGER);
           displaySavedInterests(users[i], PROFILE_VIEWER_STRANGER);
           displayEvents(users[i], PROFILE_VIEWER_STRANGER);
+          displayPosts(users[i], PROFILE_VIEWER_STRANGER);
         }
         break;
       }
@@ -204,20 +208,26 @@ function displayBuddies(user, viewer) {
 function displayBuddiesList(user, buddyContainer) {
   const buddiesList = document.createElement('div');
   const buddyIds = user.buddies;
-  fetch('/user').then(response => response.json()).then((users) => {
-    for (let i = 0; i < users.length; i ++) {
-      if (buddyIds.includes(users[i].id)) {
-        // If the user's ID is in the list of the profile user's buddies,
-        // add their name (which links to their profile) to the page. 
-        const buddyElement = document.createElement('p');
-        buddyElement.innerText = users[i].name;
-        buddyElement.addEventListener('click', () => {
-          visitProfile(users[i].id);
-        });
-        buddiesList.appendChild(buddyElement);
+  if (buddyIds.length == 1) { // length of 1 due to empty placeholder
+    const buddyMessage = document.createElement('p');
+    buddyMessage.innerText = 'No buddies to show.';
+    buddyContainer.append(buddyMessage);
+  } else {
+    fetch('/user').then(response => response.json()).then((users) => {
+      for (let i = 0; i < users.length; i ++) {
+        if (buddyIds.includes(users[i].id)) {
+          // If the user's ID is in the list of the profile user's buddies,
+          // add their name (which links to their profile) to the page. 
+          const buddyElement = document.createElement('p');
+          buddyElement.innerText = users[i].name;
+          buddyElement.addEventListener('click', () => {
+            visitProfile(users[i].id);
+          });
+          buddiesList.appendChild(buddyElement);
+        }
       }
-    }
-  });
+    });
+  }
   buddyContainer.append(buddiesList);
 }
 
@@ -230,10 +240,17 @@ function displaySavedInterests(user, viewer) {
 
   if (viewer === PROFILE_VIEWER_PERSONAL || viewer === PROFILE_VIEWER_BUDDY) {
     fetch('/interest').then(response => response.json()).then((interests) => {
+      let interestCount = 0;
       for (let i = 0; i < interests.length; i ++) {
         if (interests[i].interestedUsers.includes(user.id)) {
           savedInterestsContainer.appendChild(createInterest(interests[i]));
+          interestCount ++;
         }
+      }
+      if (interestCount == 0) {
+        const interestMessage = document.createElement('p');
+        interestMessage.innerText = 'No interests to show.';
+        savedInterestsContainer.appendChild(interestMessage);
       }
     });
   } else if (viewer === PROFILE_VIEWER_STRANGER || viewer === PROFILE_VIEWER_LOGOUT) {
@@ -269,11 +286,18 @@ function displayEvents(user, viewer) {
   if (viewer === PROFILE_VIEWER_PERSONAL) {
     // Display events the user is invited to or attending.
     fetch('/events').then(response => response.json()).then((events) => {
+      let eventsCount = 0;
       for (let i = 0; i < events.length; i ++) {
         if (events[i].rsvpAttendees.includes(user.id) || 
             events[i].invitedAttendees.includes(user.id)) {
           eventsContainer.appendChild(createEvent(events[i]));
+          eventsCount ++;
         }
+      }
+      if (eventsCount == 0) {
+        const eventMessage = document.createElement('p');
+        eventMessage.innerText = 'No events to show.';
+        eventsContainer.appendChild(eventMessage);
       }
     });
   } else if (viewer === PROFILE_VIEWER_BUDDY) {
@@ -281,6 +305,7 @@ function displayEvents(user, viewer) {
     // the current user has access to.
     const currentId = localStorage.getItem(LOCAL_STORAGE_ID);
     fetch('/events').then(response => response.json()).then((events) => {
+      let eventsCount = 0;
       for (let i = 0; i < events.length; i ++) {
         if (events[i].rsvpAttendees.includes(user.id) || 
             events[i].invitedAttendees.includes(user.id)) {
@@ -288,8 +313,14 @@ function displayEvents(user, viewer) {
               events[i].invitedAttendees.includes(currentId) || 
                   events[i].privacy === 'public') {
             eventsContainer.appendChild(createEvent(events[i]));
+            eventsCount ++;
           }
         }
+      }
+      if (eventsCount == 0) {
+        const eventMessage = document.createElement('p');
+        eventMessage.innerText = 'No events to show.';
+        eventsContainer.appendChild(eventMessage);
       }
     });
   } else if (viewer === PROFILE_VIEWER_STRANGER || viewer === PROFILE_VIEWER_LOGOUT) {
@@ -333,6 +364,24 @@ function createEvent(event) {
     window.location.href = 'map.html';
   });
   return eventElement;
+}
+
+/*
+ * Displays the posts of the specified user.
+ */
+function displayPosts(user, viewer) {
+  const postsContainer = document.getElementById('posts-container');
+  postsContainer.innerHTML = '';
+
+  if (viewer === PROFILE_VIEWER_PERSONAL || viewer === PROFILE_VIEWER_BUDDY) {
+    const postMessage = document.createElement('p');
+    postMessage.innerText = 'No posts to show.';
+    postsContainer.appendChild(postMessage);
+  } else if (viewer === PROFILE_VIEWER_STRANGER || viewer === PROFILE_VIEWER_LOGOUT) {
+    const postMessage = document.createElement('p');
+    postMessage.innerText = 'You cannot see this user\'s posts.';
+    postsContainer.appendChild(postMessage);
+  }
 }
 
 /*
