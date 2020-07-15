@@ -12,14 +12,13 @@
       <p class="navbar-text" onclick="window.location.href = 'searchUsers.html'">Search Users</p>
       <div id="user-navbar-section"></div>
     </div>
+    <div id="search-users-container">
     <h1>Search Users</h1>
-    <div class="search-container">
-      <form>
-        <input type="text" placeholder="Search user name..." name="user-search">
-        <button type="submit">Submit</button>
-      </form>
-    </div>
-    <div id="loaded-users">
+    <form>
+      <input type="text" placeholder="Enter user name..." id="search-text" 
+          onkeyup="displaySearchedUsers()" autocomplete="off">
+    </form>
+    <div id="searched-users"></div>
     </div>
   </body>
 </html>
