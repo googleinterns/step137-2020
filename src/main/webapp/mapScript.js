@@ -363,17 +363,18 @@ function getAvailableEvents(userID) {
           invitedAttendees = events[i].invitedAttendees;
           rsvpAttendees = events[i].rsvpAttendees;
           rsvpContains = rsvpAttendees.includes(userID);
-          //if event is public, user should be able to see it regardless of whether they plan 
-          //to attend
           if (events[i].privacy == "public") {
+            // display public events even if user is not attending
             if (!rsvpContains) {
               eventDivElement.appendChild(createEventAttendees(events[i], userID, "false"));
             }
           }
-          else if (rsvpContains) {
+          if (rsvpContains) {
+            // display events the user is attending
             eventDivElement.appendChild(createEventAttendees(events[i], userID, "true"));
           }
           else if (invitedAttendees.includes(userID)) {
+            // display events the user is invited to
             eventDivElement.appendChild(createEventAttendees(events[i], userID, "false"));
           }
         }
