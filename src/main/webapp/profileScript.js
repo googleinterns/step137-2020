@@ -14,7 +14,6 @@ const SESSION_STORAGE_CURRENT_LOCATION = 'currentLocationId';
  */
 function profileOnload() {
   navbarLoginDisplay();
-  displayProfileContent();
 }
 
 /*
@@ -49,7 +48,7 @@ function navbarLoginDisplay() {
         });
         userNavbarSection.appendChild(personalProfileButton);
         userNavbarSection.appendChild(logoutButton);
-        }
+      }
     } else {
       // If the user is logged out, clear the locally stored user data 
       // and add a login button to the navbar.
@@ -64,6 +63,10 @@ function navbarLoginDisplay() {
       });
       userNavbarSection.appendChild(loginButton);
     }
+  }).then(() => {
+    if (window.location.pathname.localeCompare('/profile.html') == 0) {
+      displayProfileContent();
+    } 
   });
 }
 
