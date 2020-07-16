@@ -68,6 +68,8 @@ html, body {
 #event-form {
   flex: 2;
   justify-content: right;
+  font-family: Helvetica;
+  font-size: 15px;
 }
 
 #attendees-wrap {
@@ -118,8 +120,14 @@ html, body {
 }
 
 .location-display {
+  display: inline-flex;
+  align-items: center;
   font-size: 15px;
   font-family: Helvetica;
+}
+
+.fa-map-marker {
+  margin-right: 5px;
 }
 
 .details-display {
@@ -170,7 +178,7 @@ html, body {
   }
 }
 
-/* profile syling */
+/* Profile syling */
 .popup {
   display: none;
   position: fixed;
@@ -267,4 +275,9 @@ html, body {
 
 #side a {
   color: black;
+}
+
+/* Search Users styling */
+#search-users-container {
+  text-align: center;
 }

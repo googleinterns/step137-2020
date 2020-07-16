@@ -13,8 +13,8 @@ function initialDisplay() {
 
 /** Initializes map and displays it. */
 function initMap() {
-  newCenterId = sessionStorage.getItem('currentLocationId');
-  mapCenter = { lat: 122.0841, lng: 37.4220 };
+  newCenterId = sessionStorage.getItem(SESSION_STORAGE_CURRENT_LOCATION);
+  mapCenter = { lat: 37.4220, lng: -122.0841 };
   infoWindow = new google.maps.InfoWindow;
   var marker = new google.maps.Marker;
   
@@ -45,7 +45,7 @@ function initMap() {
         marker.setMap(map);
 
         // Remove session storage variable until saved interest is clicked from profile page again.
-        sessionStorage.removeItem('currentLocationId');
+        sessionStorage.removeItem(SESSION_STORAGE_CURRENT_LOCATION);
       }
       else {
         alert('Geocode was not successful for the following reason: ' + status);
@@ -176,8 +176,8 @@ function fetchPlaceInformation(place_id, map, where) {
         infoDivElement.appendChild(businessStatusElement);
         infoDivElement.appendChild(ratingElement); 
         infoDivElement.appendChild(deleteEventsButtonElement);
-        if (localStorage.getItem('loginStatus').localeCompare('true') == 0) {
-          let userId = localStorage.getItem('userId');
+        if (localStorage.getItem(LOCAL_STORAGE_STATUS) === 'true') {
+          let userId = localStorage.getItem(LOCAL_STORAGE_ID);
           setInterestButtonText(interestButtonElement, place_id, userId);
           infoDivElement.appendChild(interestButtonElement);
           eventsDivElement.appendChild(createEventElement);
@@ -344,7 +344,7 @@ function getPublicEvents() {
       for (i = 0; i < events.length; i++) {
         if (events[i].location == locationName 
             && events[i].privacy == "public") {
-            eventDivElement.appendChild(createEventPublic(events[i]));
+            eventDivElement.appendChild(createEventNoResponse(events[i]));
           }
         }
     });
@@ -364,12 +364,22 @@ function getAvailableEvents(userID) {
     .then(events => {
       for (i = 0; i < events.length; i++) {
         if (events[i].location == locationName) {
+          invitedAttendees = events[i].invitedAttendees;
           rsvpAttendees = events[i].rsvpAttendees;
-          if (rsvpAttendees.includes(userID)) {
-            eventDivElement.appendChild(createEventAttendees(events[i], userID, "true"));
+          rsvpContains = rsvpAttendees.includes(userID);
+          if (events[i].privacy == "public") {
+            // display public events even if user is not attending
+            if (!rsvpContains) {
+              eventDivElement.appendChild(createEventWithResponse(events[i], userID, "false"));
+            }
           }
-          else {
-            eventDivElement.appendChild(createEventAttendees(events[i], userID, "false"));
+          if (rsvpContains) {
+            // display events the user is attending
+            eventDivElement.appendChild(createEventWithResponse(events[i], userID, "true"));
+          }
+          else if (invitedAttendees.includes(userID)) {
+            // display events the user is invited to
+            eventDivElement.appendChild(createEventWithResponse(events[i], userID, "false"));
           }
         }
       }
@@ -377,43 +387,14 @@ function getAvailableEvents(userID) {
   return eventDivElement;
 }
 
-function createEventPublic(event) {
+function createEventNoResponse(event) {
+  const eventElement = document.createElement('div');
+  eventElement.className = "card";
+
+  const eventContents = document.createElement('div');
+  eventContents.className = "contents";
+
   const eventName = document.createElement('h2');
-  eventName.id = "name-display";
-  eventName.innerText = event.eventName;
-
-  const eventDate = document.createElement('p');
-  eventDate.id = "date-display";
-  eventDate.innerText = event.dateTime;
-
-  const eventLocation = document.createElement('p');
-  eventName.id = "location-display";
-  eventLocation.innerText = event.location;
-
-  const eventDetails = document.createElement('p'); 
-  eventDetails.id = "details-display";
-  eventDetails.innerText = event.eventDetails;
-
-  const eventElement = document.createElement('div');
-  eventElement.className = "card";
-  const eventContents = document.createElement('div');
-  eventContents.className = "contents";
-  eventContents.append(eventName);
-  eventContents.append(eventDate);
-  eventContents.append(eventLocation);
-  eventContents.append(eventDetails);
-  eventElement.append(eventContents);
-  return eventElement;
-}
-
-function createEventAttendees(event, userID, going) {
-  const eventElement = document.createElement('div');
-  eventElement.className = "card";
-
-  const eventContents = document.createElement('div');
-  eventContents.className = "contents";
-
-  const eventName = document.createElement('h1');
   eventName.className = "name-display";
   eventName.innerText = event.eventName;
 
@@ -421,13 +402,36 @@ function createEventAttendees(event, userID, going) {
   eventDate.className = "date-display";
   eventDate.innerText = event.dateTime;
 
+  const locationDisplay = document.createElement('div');
+  locationDisplay.className = "location-display";
+  const locationIcon = document.createElement('i');
+  locationIcon.className = 'fa fa-map-marker';
   const eventLocation = document.createElement('p');
-  eventName.className = "location-display";
+  eventLocation.className = "location-name";
   eventLocation.innerText = event.location;
+  locationDisplay.append(locationIcon);
+  locationDisplay.append(eventLocation);
+  if (window.location.pathname === '/profile.html') {
+    locationDisplay.addEventListener('click', () => {
+      sessionStorage.setItem(SESSION_STORAGE_CURRENT_LOCATION, event.placeId);
+      window.location.href = 'map.html';
+    });
+  }
 
   const eventDetails = document.createElement('p'); 
   eventDetails.className = "details-display";
   eventDetails.innerText = event.eventDetails;
+
+  eventElement.append(eventContents);
+  eventElement.append(eventName);
+  eventElement.append(eventDate);
+  eventElement.append(locationDisplay);
+  eventElement.append(eventDetails);
+  return eventElement;
+}
+
+function createEventWithResponse(event, userID, going) {
+  const eventElement = createEventNoResponse(event);
 
   const bottomCard = document.createElement('div');
   bottomCard.id = "bottom-event-wrapper";
@@ -453,12 +457,6 @@ function createEventAttendees(event, userID, going) {
   }); 
 
   bottomCard.append(rsvpButton);
-
-  eventElement.append(eventContents);
-  eventElement.append(eventName);
-  eventElement.append(eventDate);
-  eventElement.append(eventLocation);
-  eventElement.append(eventDetails);
   eventElement.append(bottomCard);
   return eventElement;
 }
@@ -495,15 +493,9 @@ function switchRSVPButtonText(rsvpButton) {
   else {
     rsvpButton.innerText = "Going";
   }
-}
-
-/** Checks to see if a user is logged in. */
-function userIsLoggedIn() {
-   return fetch('/login')
-  .then(response => response.json())
-  .then(json => { 
-    return [ json['loginStatus'], json['id'] ] 
-  });
+  if (window.location.pathname === '/profile.html') {
+    profileOnload();
+  }
 }
 
 /** Sends post request to store or remove saved interest. */
@@ -518,7 +510,7 @@ function saveOrRemoveInterest(locationName, placeId, interestButtonElement) {
 
 /** Switches the text of the interest button. */
 function switchInterestButtonText(interestButtonElement) {
-  if (interestButtonElement.innerText.localeCompare('Remove as interest') == 0) {
+  if (interestButtonElement.innerText === 'Remove as interest') {
     interestButtonElement.innerText = 'Save as interest';
   } else {
     interestButtonElement.innerText = 'Remove as interest';
@@ -530,7 +522,7 @@ function setInterestButtonText(interestButtonElement, placeId, userId) {
   alreadySaved = false;
   fetch('/interest').then(response => response.json()).then((interests) => {
     for (let i = 0; i < interests.length; i ++) {
-      if (interests[i].placeId.localeCompare(placeId) == 0 && 
+      if (interests[i].placeId === placeId && 
           interests[i].interestedUsers.includes(userId)) {
         alreadySaved = true;
         interestButtonElement.innerText = 'Remove as interest';

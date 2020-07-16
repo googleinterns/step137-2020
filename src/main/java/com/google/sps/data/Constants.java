@@ -42,4 +42,11 @@ public final class Constants {
   public static final String BUDDY_USER_PARAM = "user";
   public static final String BUDDY_ACTION_PARAM = "action";
   public static final String BUDDY_ADD_PARAM = "add";
+
+  //Post constants
+  public static final String POST_ENTITY_PARAM = "Post";
+  public static final String BLOB_KEY_PARAM = "blobkey";
+  public static final String IMAGE_URL_PARAM = "imageUrl";
+  public static final String IMAGE_INPUT_PARAM = "image";
+  public static final String CAPTION_PARAM = "caption";
 }

@@ -4,6 +4,8 @@ import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
 import java.io.IOException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -23,41 +25,42 @@ public class AddRemoveAttendeeServlet extends HttpServlet {
 
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    String currentUserId = request.getParameter("userId");
-    long rsvpEvent = Long.parseLong(request.getParameter("eventId"));
-    
-    response.getWriter().print(currentUserId);
+    UserService userService = UserServiceFactory.getUserService();
+    String currentUserId = userService.getCurrentUser().getUserId();
+    long eventId = Long.parseLong(request.getParameter("eventId"));
 
     Query query = new Query(Constants.EVENT_ENTITY_PARAM);
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     PreparedQuery results = datastore.prepare(query);
 
     for (Entity entity : results.asIterable()) {
-      if (entity.getKey().getId() == rsvpEvent) {
+      if (entity.getKey().getId() == eventId) {
         //get rsvp attendees
-        List<String> entityRSVPAttendees = 
+        List<String> rsvpAttendees = 
             (List<String>) entity.getProperty(Constants.RSVP_ATTENDEES_PARAM);
-        List<String> rsvpAttendees = new ArrayList<>(entityRSVPAttendees);
         
         //get invited attendees
-        List<String> entityInvitedAttendees = 
+        List<String> invitedAttendees = 
             (List<String>) entity.getProperty(Constants.INVITED_ATTENDEES_PARAM);
-        List<String> invitedAttendees = new ArrayList<>(entityInvitedAttendees);
         
         //get privacy 
         String privacy = (String) entity.getProperty(Constants.PRIVACY_PARAM);
 
         if (rsvpAttendees.contains(currentUserId)) {
           rsvpAttendees.remove(currentUserId);
-          if(privacy == "attendees" || privacy == "buddies-only") {
+          if(privacy.equals("attendees") || privacy.equals("buddies-only")) {
             invitedAttendees.add(currentUserId);
           }
         }
         else {
           rsvpAttendees.add(currentUserId);
+          if(privacy.equals("attendees") || privacy.equals("buddies-only")) {
+            invitedAttendees.remove(currentUserId);
+          }
         }
 
         entity.setProperty(Constants.RSVP_ATTENDEES_PARAM, rsvpAttendees);
+        entity.setProperty(Constants.INVITED_ATTENDEES_PARAM, invitedAttendees);
         datastore.put(entity);
 
         break;
@@ -65,4 +68,3 @@ public class AddRemoveAttendeeServlet extends HttpServlet {
     }
   }
 }
-

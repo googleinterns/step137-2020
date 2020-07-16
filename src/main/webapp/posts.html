@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Posts</title>
+    <script src="postScript.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+      /* Form is hidden by default. */
+      .hidden {
+        display: none;
+      }
+    </style>
+  </head>
+  <body onload="fetchBlobstoreUrlAndShowForm()">
+    <h1>Make a Post</h1>
+    <p>Type a message and click submit:</p>
+
+    <form id="post" class="hidden" method="POST" enctype="multipart/form-data">
+      <p>Upload an image:</p>
+      <input type="file" name="image">
+      <br/>
+      <p>Enter a caption:</p>
+      <textarea name="caption"></textarea>
+      <br/><br/>
+      <button>Submit</button>
+      <br><br>
+    </form>
+    <button onclick="getPosts()">Get Posts</button>
+    <div id="posts"></div>
+    <image>
+  </body>
+</html>
