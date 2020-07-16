@@ -1,3 +1,9 @@
+/** First function to be called onload */
+function onLoad() {
+  navbarLoginDisplay();
+  initializeMap();
+}
+
 /** Initializes map and displays it. */
 function initializeMap() {
   mapCenter = { lat: 122.0841, lng: 37.4220 };
@@ -23,26 +29,93 @@ function initializeMap() {
   }
 }
 
-/** Searches for events nearby */
+/** Displays events nearby */
 function findNearbyEvents(map, currentLocation) {
-  console.log(map);
-  console.log(currentLocation);
-  var request = {
-    location: currentLocation,
-    radius: '500',
-    type: ['restaurant']
-  };
-  service = new google.maps.places.PlacesService(map);
-  service.nearbySearch(request, callback);
-  // output response of API call to console
-  function callback(results, status) {
-    if (status == google.maps.places.PlacesServiceStatus.OK) {
-      console.log(results);
+  eventsDivElement = document.getElementById('nearbyEvents');
+  eventsDivElement.innerHTML = '';
+  var geocoder = new google.maps.Geocoder();
+  // This is the circle within which we search for events.
+  var locationCircle = new google.maps.Circle({ 
+    map: map,
+    center: currentLocation,
+    radius: 2000 
+  });
+  
+  fetch('/events')
+  .then(response => response.json())
+  .then(events => {
+    // When user is logged in, get all public events and events user is attending.
+    if (localStorage.getItem('loginStatus').localeCompare('true') == 0) {
+      var userId = localStorage.getItem('userId');
+      for (var i = 0; i < events.length; i++) {
+        var currentEvent = events[i];
+        isNearby(geocoder, currentEvent, locationCircle, userId);
+      }
     }
+    // When user is not logged in, get only public events.
     else {
-      alert(status);
+      for (var i = 0; i < events.length; i++) {
+        var currentEvent = events[i];
+        isNearby(geocoder, currentEvent, locationCircle, '');
+      }
     }
-  }
-  // link this function to nearme page
-  // test
+  });
 }
+
+/** Checks to see if an event is nearby */
+function isNearby(geocoder, event, locationCircle, userId) {
+  geocoder.geocode( {'placeId' : event.placeId}, function(results, status) {
+    if (status !== google.maps.GeocoderStatus.OK) {
+      alert('Geocode was not successful for the following reason: ' + status);
+      return;
+    }
+    eventLatLng = results[0].geometry.location;
+    var isNearby = locationCircle.getBounds().contains(eventLatLng)
+    if (isNearby) {
+      if (userId) {
+        if (event.rsvpAttendees.includes(userId) ||
+          event.invitedAttendees.includes(userId) || 
+          event.privacy == 'public') { 
+          eventElement = createEventNoResponse(event);
+          eventElement.addEventListener('click', () => {
+            sessionStorage.setItem('currentLocationId', event.placeId);
+            window.location.href = 'map.html';
+          });
+           eventsDivElement.appendChild(eventElement);
+        }
+      }
+      else {
+        if (event.privacy == 'public'){
+          eventElement = createEventNoResponse(event);
+          eventElement.addEventListener('click', () => {
+            sessionStorage.setItem('currentLocationId', event.placeId);
+            window.location.href = 'map.html';
+          });
+          eventsDivElement.appendChild(eventElement);
+        }
+      } 
+      
+    }
+  });
+}
+
+// TODO: Decide if this will be useful for map page (filtering locations)
+ /** Searches for events nearby */
+// function findNearbyEvents(map, currentLocation) {
+//   var request = {
+//     location: currentLocation,
+//     radius: '500',
+//     type: ['restaurant']
+//   };
+//   service = new google.maps.places.PlacesService(map);
+//   service.nearbySearch(request, callback);
+//   // output response of API call to console
+//   function callback(results, status) {
+//     if (status == google.maps.places.PlacesServiceStatus.OK) {
+//       console.log(results[0].name);
+//     }
+//     else {
+//       alert(status);
+//     }
+//   } 
+// }
