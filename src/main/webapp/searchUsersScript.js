@@ -37,6 +37,6 @@ function loadUser(user) {
  * Redirects the site to the clicked user's profile.
  */
 function visitProfile(userId) {
-  sessionStorage.setItem("loadProfile", userId);
+  sessionStorage.setItem(SESSION_STORAGE_PROFILE, userId);
   window.location.href = 'profile.html';
 }
