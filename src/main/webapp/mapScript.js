@@ -384,35 +384,6 @@ function getAvailableEvents(userID) {
 }
 
 function createEventNoResponse(event) {
-  const eventName = document.createElement('h2');
-  eventName.id = "name-display";
-  eventName.innerText = event.eventName;
-
-  const eventDate = document.createElement('p');
-  eventDate.id = "date-display";
-  eventDate.innerText = event.dateTime;
-
-  const eventLocation = document.createElement('p');
-  eventName.id = "location-display";
-  eventLocation.innerText = event.location;
-
-  const eventDetails = document.createElement('p'); 
-  eventDetails.id = "details-display";
-  eventDetails.innerText = event.eventDetails;
-
-  const eventElement = document.createElement('div');
-  eventElement.className = "card";
-  const eventContents = document.createElement('div');
-  eventContents.className = "contents";
-  eventContents.append(eventName);
-  eventContents.append(eventDate);
-  eventContents.append(eventLocation);
-  eventContents.append(eventDetails);
-  eventElement.append(eventContents);
-  return eventElement;
-}
-
-function createEventWithResponse(event, userID, going) {
   const eventElement = document.createElement('div');
   eventElement.className = "card";
 
@@ -441,6 +412,23 @@ function createEventWithResponse(event, userID, going) {
   eventDetails.className = "details-display";
   eventDetails.innerText = event.eventDetails;
 
+  eventElement.append(eventContents);
+  eventElement.append(eventName);
+  eventElement.append(eventDate);
+  eventElement.append(eventLocation);
+  eventElement.append(eventDetails);
+  if (window.location.pathname === '/profile.html') {
+    eventElement.addEventListener('click', () => {
+      sessionStorage.setItem(SESSION_STORAGE_CURRENT_LOCATION, event.placeId);
+      window.location.href = 'map.html';
+    });
+  }
+  return eventElement;
+}
+
+function createEventWithResponse(event, userID, going) {
+  const eventElement = createEventNoResponse(event);
+
   const bottomCard = document.createElement('div');
   bottomCard.id = "bottom-event-wrapper";
 
@@ -465,12 +453,6 @@ function createEventWithResponse(event, userID, going) {
   }); 
 
   bottomCard.append(rsvpButton);
-
-  eventElement.append(eventContents);
-  eventElement.append(eventName);
-  eventElement.append(eventDate);
-  eventElement.append(eventLocation);
-  eventElement.append(eventDetails);
   eventElement.append(bottomCard);
   return eventElement;
 }

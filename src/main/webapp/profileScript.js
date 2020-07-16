@@ -64,7 +64,7 @@ function navbarLoginDisplay() {
       userNavbarSection.appendChild(loginButton);
     }
   }).then(() => {
-    if (window.location.pathname.localeCompare('/profile.html') == 0) {
+    if (window.location.pathname === '/profile.html') {
       displayProfile();
     } 
   });
@@ -337,42 +337,6 @@ function displayBuddyEvents(user, eventsContainer) {
       eventsContainer.appendChild(eventMessage);
     }
   });
-}
-
-/*
- * Returns a newly created event element to be displayed on the page.
- */
-function createEvent(event) {
-  const eventName = document.createElement('h2');
-  eventName.id = "name-display";
-  eventName.innerText = event.eventName;
-
-  const eventDate = document.createElement('p');
-  eventDate.id = "date-display";
-  eventDate.innerText = event.dateTime;
-
-  const eventLocation = document.createElement('p');
-  eventName.id = "location-display";
-  eventLocation.innerText = event.location;
-
-  const eventDetails = document.createElement('p'); 
-  eventDetails.id = "details-display";
-  eventDetails.innerText = event.eventDetails;
-
-  const eventElement = document.createElement('div');
-  eventElement.className = "card";
-  const eventContents = document.createElement('div');
-  eventContents.className = "contents";
-  eventContents.append(eventName);
-  eventContents.append(eventDate);
-  eventContents.append(eventLocation);
-  eventContents.append(eventDetails);
-  eventElement.append(eventContents);
-  eventElement.addEventListener('click', () => {
-  sessionStorage.setItem(SESSION_STORAGE_CURRENT_LOCATION, event.placeId);
-    window.location.href = 'map.html';
-  });
-  return eventElement;
 }
 
 /*
