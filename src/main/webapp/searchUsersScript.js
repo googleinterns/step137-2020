@@ -3,22 +3,36 @@
  */
 function searchUsersOnload() {
   navbarLoginDisplay();
-  displayUsers();
 }
 
 /*
- * Displays all of the site's users (placeholder until actual search feature).
+ * Displays the found users from the current user's search.
  */
-function displayUsers() {
-  const loadedUsers = document.getElementById('loaded-users');
-  loadedUsers.innerHTML = '';
-  loadedUsers.style = 'height: 100%';
-  
-  fetch('/user').then(response => response.json()).then((users) => {
-    for (let i = 0; i < users.length; i ++) {
-      loadedUsers.appendChild(loadUser(users[i]));
-    }
-  });
+function displaySearchedUsers() {
+  const searchedUsers = document.getElementById('searched-users');
+  searchedUsers.style = 'height: 100%';
+  const searchText = document.getElementById('search-text').value;
+  if (searchText === '') {
+    // Don't return results for an empty search.
+    searchedUsers.innerHTML = '';
+  } else {
+    fetch('/user').then(response => response.json()).then((users) => {
+      searchedUsers.innerHTML = '';
+      let userCount = 0;
+      for (let i = 0; i < users.length; i ++) {
+        if (users[i].name.includes(searchText)) {
+          // Display any users whose name contains the search text.
+          searchedUsers.appendChild(loadUser(users[i]));
+          userCount ++;
+        }
+      }
+      if (userCount == 0) {
+        const searchMessage = document.createElement('p');
+        searchMessage.innerText = 'No users with that name could be found.';
+        searchedUsers.appendChild(searchMessage);
+      }
+    });
+  }
 }
 
 /*

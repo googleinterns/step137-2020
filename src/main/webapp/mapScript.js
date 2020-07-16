@@ -59,6 +59,8 @@ function initMap() {
         lat: position.coords.latitude,
         lng: position.coords.longitude
       };
+      // For use on Nearme page
+      localStorage.setItem('currentLocation', pos);
 
       infoWindow.setPosition(pos);
       infoWindow.setContent('Your current location has been found.');
@@ -78,6 +80,8 @@ function initMap() {
     marker.setPosition(e.latLng);
     marker.setMap(map);
   });
+  // For use on Nearme page
+  localStorage.setItem('currentMap', map);
 }
 
 /** Handles any errors that have to do with geolocation. */
