@@ -294,22 +294,40 @@ function displayEvents(user, viewer) {
  * Displays events the user is invited to or attending on their personal profile.
  */
 function displayPersonalEvents(user, eventsContainer) {
+  const invitedEvents = document.createElement('div');
+  invitedEvents.className = 'tabcontent';
+  invitedEvents.id = 'invited-events';
+  const attendingEvents = document.createElement('div');
+  attendingEvents.className = 'tabcontent';
+  attendingEvents.id = 'attending-events';
+  const tabContainer = createEventsTab();
+
   fetch('/events').then(response => response.json()).then((events) => {
-    let eventsCount = 0;
+    let invitedEventsCount = 0;
+    let attendingEventsCount = 0;
     for (let i = 0; i < events.length; i ++) {
-      if (events[i].rsvpAttendees.includes(user.id)) {
-        eventsContainer.appendChild(createEventWithResponse(events[i], user.id, "true"));
-        eventsCount ++;
-      } else if (events[i].invitedAttendees.includes(user.id)) {
-        eventsContainer.appendChild(createEventWithResponse(events[i], user.id, "false"));
-        eventsCount ++;
+      if (events[i].invitedAttendees.includes(user.id)) {
+        invitedEvents.appendChild(createEventWithResponse(events[i], user.id, "false"));
+        invitedEventsCount ++;
+      } else if (events[i].rsvpAttendees.includes(user.id)) {
+        attendingEvents.appendChild(createEventWithResponse(events[i], user.id, "true"));
+        attendingEventsCount ++;
       }
     }
-    if (eventsCount == 0) {
-      const eventMessage = document.createElement('p');
-      eventMessage.innerText = 'No events to show.';
-      eventsContainer.appendChild(eventMessage);
+    if (invitedEventsCount == 0) {
+      const invitedEventMessage = document.createElement('p');
+      invitedEventMessage.innerText = 'No events to show.';
+      invitedEvents.appendChild(invitedEventMessage);
     }
+    if (attendingEventsCount == 0) {
+      const attendingEventMessage = document.createElement('p');
+      attendingEventMessage.innerText = 'No events to show.';
+      attendingEvents.appendChild(attendingEventMessage);
+    }
+    eventsContainer.append(tabContainer);
+    eventsContainer.append(invitedEvents);
+    eventsContainer.append(attendingEvents);
+    document.getElementById('open').click();
   });
 }
 
@@ -337,6 +355,34 @@ function displayBuddyEvents(user, eventsContainer) {
       eventsContainer.appendChild(eventMessage);
     }
   });
+}
+
+/*
+ * 
+ */
+function createEventsTab() {
+  tabContainer = document.createElement('div');
+  tabContainer.className = 'tab';
+  tabContainer.innerHTML = '';
+
+  invitedButton = document.createElement('button');
+  invitedButton.innerText = 'Invited';
+  invitedButton.className = 'tablinks active';
+  invitedButton.id = 'open';
+  invitedButton.addEventListener('click', function(e) {
+    openTab(e, 'invited-events');
+  })
+
+  attendingButton = document.createElement('button');
+  attendingButton.innerText = 'Attending';
+  attendingButton.className = 'tablinks';
+  attendingButton.addEventListener('click', function(e) {
+    openTab(e, 'attending-events');
+  })
+
+  tabContainer.appendChild(invitedButton);
+  tabContainer.appendChild(attendingButton);
+  return tabContainer;
 }
 
 /*

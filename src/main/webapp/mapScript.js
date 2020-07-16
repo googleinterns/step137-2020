@@ -489,6 +489,9 @@ function switchRSVPButtonText(rsvpButton) {
   else {
     rsvpButton.innerText = "Going";
   }
+  if (window.location.pathname === '/profile.html') {
+    profileOnload();
+  }
 }
 
 /** Sends post request to store or remove saved interest. */
