@@ -44,6 +44,7 @@ public final class Constants {
   public static final String BUDDY_ACTION_PARAM = "action";
   public static final String BUDDY_ADD_PARAM = "add";
   public static final String BUDDY_REQUEST_SEND_PARAM = "send";
+  public static final String BUDDY_REQUEST_UNSEND_PARAM = "unsend";
 
   //Post constants
   public static final String POST_ENTITY_PARAM = "Post";

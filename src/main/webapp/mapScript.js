@@ -494,7 +494,7 @@ function switchRSVPButtonText(rsvpButton) {
     rsvpButton.innerText = "Going";
   }
   if (window.location.pathname === '/profile.html') {
-    profileOnload();
+    displayProfile();
   }
 }
 

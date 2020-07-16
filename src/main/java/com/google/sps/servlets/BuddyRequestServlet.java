@@ -24,19 +24,26 @@ public class BuddyRequestServlet extends HttpServlet {
     String otherUserId = request.getParameter(Constants.BUDDY_USER_PARAM);
     String action = request.getParameter(Constants.BUDDY_ACTION_PARAM);
 
+    Entity currentUserEntity = getUserEntity(currentUserId);
+    Entity otherUserEntity = getUserEntity(otherUserId);
+
+    List<String> currentUserBuddyRequests = (List<String>) currentUserEntity
+          .getProperty(Constants.USER_BUDDY_REQUESTS_PARAM);
+    List<String> otherUserBuddyRequests = (List<String>) otherUserEntity
+          .getProperty(Constants.USER_BUDDY_REQUESTS_PARAM);
+ 
     if (action.equals(Constants.BUDDY_REQUEST_SEND_PARAM)) {
       // Add the current user's ID to the other user's list of buddy requests.
-      Entity otherUserEntity = getUserEntity(otherUserId);
-      List<String> otherUserBuddyRequests = (List<String>) otherUserEntity
-          .getProperty(Constants.USER_BUDDY_REQUESTS_PARAM);
       otherUserBuddyRequests.add(currentUserId);
+      otherUserEntity.setProperty(Constants.USER_BUDDY_REQUESTS_PARAM, otherUserBuddyRequests);
+      datastore.put(otherUserEntity);
+    } else if (action.equals(Constants.BUDDY_REQUEST_UNSEND_PARAM)){
+      // Remove the current user's ID from the other user's list of buddy requests.
+      otherUserBuddyRequests.remove(currentUserId);
       otherUserEntity.setProperty(Constants.USER_BUDDY_REQUESTS_PARAM, otherUserBuddyRequests);
       datastore.put(otherUserEntity);
     } else {
       // Remove the other user's ID from the current user's list of buddy requests.
-      Entity currentUserEntity = getUserEntity(currentUserId);
-      List<String> currentUserBuddyRequests = (List<String>) currentUserEntity
-          .getProperty(Constants.USER_BUDDY_REQUESTS_PARAM);
       currentUserBuddyRequests.remove(otherUserId);
       currentUserEntity.setProperty(Constants.USER_BUDDY_REQUESTS_PARAM, currentUserBuddyRequests);
       datastore.put(currentUserEntity);

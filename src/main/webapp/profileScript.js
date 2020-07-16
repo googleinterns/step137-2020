@@ -6,6 +6,7 @@ const PROFILE_VIEWER_LOGOUT = 'logged-out';
 const PROFILE_VIEWER_STRANGER = 'stranger';
 const PROFILE_VIEWER_BUDDY = 'buddy';
 const PROFILE_VIEWER_PERSONAL = 'personal';
+const PROFILE_VIEWER_PENDING_BUDDY = 'pending-buddy';
 const SESSION_STORAGE_PROFILE = 'loadProfile';
 const SESSION_STORAGE_CURRENT_LOCATION = 'currentLocationId';
 
@@ -118,6 +119,9 @@ function displayProfile() {
         } else if (users[i].buddies.includes(currentId)) {
           // Display buddy's profile.
           displayContent(users[i], PROFILE_VIEWER_BUDDY);
+        } else if (users[i].buddyRequests.includes(currentId)) {
+          // Display pending buddy's profile.
+          displayContent(users[i], PROFILE_VIEWER_PENDING_BUDDY);
         } else {
           // Display stranger's profile.
           displayContent(users[i], PROFILE_VIEWER_STRANGER);
@@ -191,6 +195,14 @@ function displayBuddies(user, viewer) {
     buddiesHeading.innerText = user.name + '\'' + 's buddies:';
     buddyContainer.appendChild(buddiesHeading);
     displayBuddiesList(user, buddyContainer);
+  } else if (viewer === PROFILE_VIEWER_PENDING_BUDDY) {
+    // Add an option informing the user that a buddy request has been sent.
+    const requestSentButton = document.createElement('button');
+    requestSentButton.innerText = 'Buddy request sent';
+    requestSentButton.addEventListener('click', () => {
+      sendOrRemoveBuddyRequest(user, 'unsend');
+    });
+    buddyContainer.appendChild(requestSentButton);
   } else if (viewer === PROFILE_VIEWER_STRANGER) {
     // Add an add buddy option. 
     const addBuddyButton = document.createElement('button');
@@ -297,7 +309,8 @@ function displaySavedInterests(user, viewer) {
         savedInterestsContainer.appendChild(interestMessage);
       }
     });
-  } else if (viewer === PROFILE_VIEWER_STRANGER || viewer === PROFILE_VIEWER_LOGOUT) {
+  } else if (viewer === PROFILE_VIEWER_STRANGER || viewer === PROFILE_VIEWER_LOGOUT 
+      || viewer === PROFILE_VIEWER_PENDING_BUDDY) {
     const interestMessage = document.createElement('p');
     interestMessage.innerText = 'You cannot see this user\'s saved interests.';
     savedInterestsContainer.appendChild(interestMessage);
@@ -331,7 +344,8 @@ function displayEvents(user, viewer) {
     displayPersonalEvents(user, eventsContainer);
   } else if (viewer === PROFILE_VIEWER_BUDDY) {
     displayBuddyEvents(user, eventsContainer);
-  } else if (viewer === PROFILE_VIEWER_STRANGER || viewer === PROFILE_VIEWER_LOGOUT) {
+  } else if (viewer === PROFILE_VIEWER_STRANGER || viewer === PROFILE_VIEWER_LOGOUT 
+      || viewer === PROFILE_VIEWER_PENDING_BUDDY) {
     const eventMessage = document.createElement('p');
     eventMessage.innerText = 'You cannot see this user\'s events.';
     eventsContainer.appendChild(eventMessage);
@@ -444,7 +458,8 @@ function displayPosts(user, viewer) {
     const postMessage = document.createElement('p');
     postMessage.innerText = 'No posts to show.';
     postsContainer.appendChild(postMessage);
-  } else if (viewer === PROFILE_VIEWER_STRANGER || viewer === PROFILE_VIEWER_LOGOUT) {
+  } else if (viewer === PROFILE_VIEWER_STRANGER || viewer === PROFILE_VIEWER_LOGOUT
+      || viewer === PROFILE_VIEWER_PENDING_BUDDY) {
     const postMessage = document.createElement('p');
     postMessage.innerText = 'You cannot see this user\'s posts.';
     postsContainer.appendChild(postMessage);
