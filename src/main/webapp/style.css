@@ -170,7 +170,7 @@ html, body {
   }
 }
 
-/* profile syling */
+/* Profile syling */
 .popup {
   display: none;
   position: fixed;
@@ -267,4 +267,9 @@ html, body {
 
 #side a {
   color: black;
+}
+
+/* Search Users styling */
+#search-users-container {
+  text-align: center;
 }
