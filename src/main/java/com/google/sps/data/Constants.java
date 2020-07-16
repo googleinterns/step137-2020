@@ -20,6 +20,7 @@ public final class Constants {
   public static final String START_TIME_PARAM = "start-time";
   public static final String END_DATE_PARAM = "end-date";
   public static final String END_TIME_PARAM = "end-time";
+  public static final String TIME_ZONE_PARAM = "time-zone";
   public static final String DATE_TIME_PARAM = "date-time";
   public static final String LOCATION_PARAM = "location";
   public static final String PLACE_ID_PARAM = "place-id";
@@ -29,6 +30,7 @@ public final class Constants {
   public static final String INVITED_ATTENDEES_PARAM = "invited-attendee-ID-list";
   public static final String RSVP_ATTENDEES_PARAM = "rsvp-attendees";
   public static final String CREATOR_PARAM = "creator";
+  public static final String CURRENCY_PARAM = "currency";
 
   // Interest constants
   public static final String INTEREST_ENTITY_PARAM = "Interest";

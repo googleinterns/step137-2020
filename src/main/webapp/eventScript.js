@@ -86,6 +86,7 @@ function submitForm() {
     params.append("start-time", document.getElementById("start-time").value);
     params.append("end-date", document.getElementById("end-date").value);
     params.append("end-time", document.getElementById("end-time").value);
+    params.append("time-zone", document.getElementById("time-zone").value);
     params.append("location", document.getElementById("location").value);
     params.append("place-id", document.getElementById("place-id").value);
     params.append("event-details", document.getElementById("event-details").value);
