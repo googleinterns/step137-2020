@@ -118,8 +118,14 @@ html, body {
 }
 
 .location-display {
+  display: inline-flex;
+  align-items: center;
   font-size: 15px;
   font-family: Helvetica;
+}
+
+.fa-map-marker {
+  margin-right: 5px;
 }
 
 .details-display {

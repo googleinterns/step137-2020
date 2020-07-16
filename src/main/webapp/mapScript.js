@@ -390,7 +390,7 @@ function createEventNoResponse(event) {
   const eventContents = document.createElement('div');
   eventContents.className = "contents";
 
-  const eventName = document.createElement('h1');
+  const eventName = document.createElement('h2');
   eventName.className = "name-display";
   eventName.innerText = event.eventName;
 
@@ -407,6 +407,12 @@ function createEventNoResponse(event) {
   eventLocation.innerText = event.location;
   locationDisplay.append(locationIcon);
   locationDisplay.append(eventLocation);
+  if (window.location.pathname === '/profile.html') {
+    locationDisplay.addEventListener('click', () => {
+      sessionStorage.setItem(SESSION_STORAGE_CURRENT_LOCATION, event.placeId);
+      window.location.href = 'map.html';
+    });
+  }
 
   const eventDetails = document.createElement('p'); 
   eventDetails.className = "details-display";
@@ -415,14 +421,8 @@ function createEventNoResponse(event) {
   eventElement.append(eventContents);
   eventElement.append(eventName);
   eventElement.append(eventDate);
-  eventElement.append(eventLocation);
+  eventElement.append(locationDisplay);
   eventElement.append(eventDetails);
-  if (window.location.pathname === '/profile.html') {
-    eventElement.addEventListener('click', () => {
-      sessionStorage.setItem(SESSION_STORAGE_CURRENT_LOCATION, event.placeId);
-      window.location.href = 'map.html';
-    });
-  }
   return eventElement;
 }
 
