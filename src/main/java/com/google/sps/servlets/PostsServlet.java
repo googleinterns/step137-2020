@@ -85,20 +85,12 @@ public class PostsServlet extends HttpServlet {
     BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
     Map<String, List<BlobKey>> blobs = blobstoreService.getUploads(request);
     List<BlobKey> blobKeys = blobs.get(formInputElementName);
- 
-    // User submitted form without selecting a file, so we can't get a URL. (dev server)
+
     if (blobKeys == null || blobKeys.isEmpty()) {
       return null;
+    } 
+    else {
+      return blobKeys.get(0);
     }
- 
-    // Form only contains a single file input, so get the first index.
-    BlobKey blobKey = blobKeys.get(0);
-
-    BlobInfo blobInfo = new BlobInfoFactory().loadBlobInfo(blobKey);
-    if (blobInfo.getSize() == 0) {
-      blobstoreService.delete(blobKey);
-      return null;
-    }
-    return blobKey;
-  }
+  } 
 }
