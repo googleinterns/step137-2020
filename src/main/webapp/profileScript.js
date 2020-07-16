@@ -169,6 +169,10 @@ function displayBuddies(user, viewer) {
   buddyContainer.innerHTML = '';
 
   if (viewer === PROFILE_VIEWER_PERSONAL) {
+    const requestHeading = document.createElement('h3');
+    requestHeading.innerText = 'Your buddy requests';
+    buddyContainer.appendChild(requestHeading);
+    displayBuddyRequests(user, buddyContainer);
     // Add the user's personal buddies list.
     const buddiesHeading = document.createElement('h3');
     buddiesHeading.innerText = 'Your buddies:';
@@ -179,7 +183,7 @@ function displayBuddies(user, viewer) {
     const removeBuddyButton = document.createElement('button');
     removeBuddyButton.innerText = 'Remove buddy';
     removeBuddyButton.addEventListener('click', () => {
-      removeBuddy(user);
+      addOrRemoveBuddy(user, 'remove');
     });
     buddyContainer.appendChild(removeBuddyButton);
     // Add the profile user's buddies list.
@@ -192,14 +196,58 @@ function displayBuddies(user, viewer) {
     const addBuddyButton = document.createElement('button');
     addBuddyButton.innerText = 'Add buddy';
     addBuddyButton.addEventListener('click', () => {
-      addBuddy(user);
+      sendOrRemoveBuddyRequest(user, 'send');
     });
     buddyContainer.appendChild(addBuddyButton);
   }
 }
 
 /*
- * Display the buddies list of the specified user.
+ * Displays the buddy requests of the specified user.
+ */
+function displayBuddyRequests(user, buddyContainer) {
+  const buddyRequests = document.createElement('div');
+  const requestIds = user.buddyRequests;
+  if (requestIds.length == 1) { // length of 1 due to empty placeholder
+    const requestMessage = document.createElement('p');
+    requestMessage.innerText = 'No buddy requests to show.';
+    buddyContainer.append(requestMessage);
+  } else {
+    fetch('/user').then(response => response.json()).then((users) => {
+      for (let i = 0; i < users.length; i ++) {
+        if (requestIds.includes(users[i].id)) {
+          // If the user's ID is in the list of the profile user's buddy requests,
+          // add a request element (which includes the user's name and link to 
+          // their profile, an approve button, and a remove button) to the page.
+          const requestElement = document.createElement('div');
+          const userElement = document.createElement('p');
+          userElement.innerText = users[i].name;
+          userElement.addEventListener('click', () => {
+            visitProfile(users[i].id);
+          });
+          const approveButton = document.createElement('button');
+          approveButton.innerText = 'Approve';
+          approveButton.addEventListener('click', () => {
+            addOrRemoveBuddy(users[i], 'add');
+          });
+          const removeButton = document.createElement('button');
+          removeButton.innerText = 'Remove';
+          removeButton.addEventListener('click', () => {
+            sendOrRemoveBuddyRequest(users[i], 'remove');
+          });
+          requestElement.appendChild(userElement);
+          requestElement.appendChild(approveButton);
+          requestElement.appendChild(removeButton);
+          buddyRequests.appendChild(requestElement);
+        }
+      }
+    });
+  }
+  buddyContainer.append(buddyRequests);
+}
+
+/*
+ * Displays the buddies list of the specified user.
  */
 function displayBuddiesList(user, buddyContainer) {
   const buddiesList = document.createElement('div');
@@ -404,27 +452,28 @@ function displayPosts(user, viewer) {
 }
 
 /*
- * Removes the buddy connection between the current user and the specified user.
+ * Adds or removes a buddy connection between the current user and the specified user.
  */
-function removeBuddy(user) {
+function addOrRemoveBuddy(user, action) {
   const params = new URLSearchParams();
   params.append('user', user.id);
-  params.append('action', 'remove');
+  params.append('action', action);
   fetch('/buddy', {
     method: 'POST', body: params
   }).then(displayProfile);
 }
 
 /*
- * Adds the buddy connection between the current user and the specified user.
+ * Sends or a buddy request from the current user to the specified user or 
+ * removes a buddy request to the current user from the specified user.
  */
-function addBuddy(user) {
+function sendOrRemoveBuddyRequest(user, action) {
   const params = new URLSearchParams();
   params.append('user', user.id);
-  params.append('action', 'add');
-  fetch('/buddy', {
+  params.append('action', action);
+  fetch('buddy-request', {
     method: 'POST', body: params
-  }).then(displayProfile);
+  }).then(displayProfile)
 }
 
 /*

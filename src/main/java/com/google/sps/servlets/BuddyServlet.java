@@ -36,6 +36,11 @@ public class BuddyServlet extends HttpServlet {
     if (action.equals(Constants.BUDDY_ADD_PARAM)) {
       currentUserBuddies.add(otherUserId);
       otherUserBuddies.add(currentUserId);
+      // Remove the other user's ID from the current user's buddy requests.
+      List<String> currentUserBuddyRequests = (List<String>) currentUserEntity
+          .getProperty(Constants.USER_BUDDY_REQUESTS_PARAM);
+      currentUserBuddyRequests.remove(otherUserId);
+      currentUserEntity.setProperty(Constants.USER_BUDDY_REQUESTS_PARAM, currentUserBuddyRequests);
     } else {
       currentUserBuddies.remove(otherUserId);
       otherUserBuddies.remove(currentUserId);
