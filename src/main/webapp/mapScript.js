@@ -344,7 +344,7 @@ function getPublicEvents() {
       for (i = 0; i < events.length; i++) {
         if (events[i].location == locationName 
             && events[i].privacy == "public") {
-            eventDivElement.appendChild(createEventPublic(events[i]));
+            eventDivElement.appendChild(createEventNoResponse(events[i]));
           }
         }
     });
@@ -367,18 +367,19 @@ function getAvailableEvents(userID) {
           invitedAttendees = events[i].invitedAttendees;
           rsvpAttendees = events[i].rsvpAttendees;
           rsvpContains = rsvpAttendees.includes(userID);
-          //if event is public, user should be able to see it regardless of whether they plan 
-          //to attend
           if (events[i].privacy == "public") {
+            // display public events even if user is not attending
             if (!rsvpContains) {
-              eventDivElement.appendChild(createEventAttendees(events[i], userID, "false"));
+              eventDivElement.appendChild(createEventWithResponse(events[i], userID, "false"));
             }
           }
-          else if (rsvpContains) {
-            eventDivElement.appendChild(createEventAttendees(events[i], userID, "true"));
+          if (rsvpContains) {
+            // display events the user is attending
+            eventDivElement.appendChild(createEventWithResponse(events[i], userID, "true"));
           }
           else if (invitedAttendees.includes(userID)) {
-            eventDivElement.appendChild(createEventAttendees(events[i], userID, "false"));
+            // display events the user is invited to
+            eventDivElement.appendChild(createEventWithResponse(events[i], userID, "false"));
           }
         }
       }
@@ -386,43 +387,14 @@ function getAvailableEvents(userID) {
   return eventDivElement;
 }
 
-function createEventPublic(event) {
+function createEventNoResponse(event) {
+  const eventElement = document.createElement('div');
+  eventElement.className = "card";
+
+  const eventContents = document.createElement('div');
+  eventContents.className = "contents";
+
   const eventName = document.createElement('h2');
-  eventName.id = "name-display";
-  eventName.innerText = event.eventName;
-
-  const eventDate = document.createElement('p');
-  eventDate.id = "date-display";
-  eventDate.innerText = event.dateTime;
-
-  const eventLocation = document.createElement('p');
-  eventName.id = "location-display";
-  eventLocation.innerText = event.location;
-
-  const eventDetails = document.createElement('p'); 
-  eventDetails.id = "details-display";
-  eventDetails.innerText = event.eventDetails;
-
-  const eventElement = document.createElement('div');
-  eventElement.className = "card";
-  const eventContents = document.createElement('div');
-  eventContents.className = "contents";
-  eventContents.append(eventName);
-  eventContents.append(eventDate);
-  eventContents.append(eventLocation);
-  eventContents.append(eventDetails);
-  eventElement.append(eventContents);
-  return eventElement;
-}
-
-function createEventAttendees(event, userID, going) {
-  const eventElement = document.createElement('div');
-  eventElement.className = "card";
-
-  const eventContents = document.createElement('div');
-  eventContents.className = "contents";
-
-  const eventName = document.createElement('h1');
   eventName.className = "name-display";
   eventName.innerText = event.eventName;
 
@@ -439,10 +411,27 @@ function createEventAttendees(event, userID, going) {
   eventLocation.innerText = event.location;
   locationDisplay.append(locationIcon);
   locationDisplay.append(eventLocation);
+  if (window.location.pathname === '/profile.html') {
+    locationDisplay.addEventListener('click', () => {
+      sessionStorage.setItem(SESSION_STORAGE_CURRENT_LOCATION, event.placeId);
+      window.location.href = 'map.html';
+    });
+  }
 
   const eventDetails = document.createElement('p'); 
   eventDetails.className = "details-display";
   eventDetails.innerText = event.eventDetails;
+
+  eventElement.append(eventContents);
+  eventElement.append(eventName);
+  eventElement.append(eventDate);
+  eventElement.append(locationDisplay);
+  eventElement.append(eventDetails);
+  return eventElement;
+}
+
+function createEventWithResponse(event, userID, going) {
+  const eventElement = createEventNoResponse(event);
 
   const bottomCard = document.createElement('div');
   bottomCard.id = "bottom-event-wrapper";
@@ -468,12 +457,6 @@ function createEventAttendees(event, userID, going) {
   }); 
 
   bottomCard.append(rsvpButton);
-
-  eventElement.append(eventContents);
-  eventElement.append(eventName);
-  eventElement.append(eventDate);
-  eventElement.append(eventLocation);
-  eventElement.append(eventDetails);
   eventElement.append(bottomCard);
   return eventElement;
 }
@@ -509,6 +492,9 @@ function switchRSVPButtonText(rsvpButton) {
   }
   else {
     rsvpButton.innerText = "Going";
+  }
+  if (window.location.pathname === '/profile.html') {
+    profileOnload();
   }
 }
 

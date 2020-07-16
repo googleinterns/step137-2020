@@ -64,7 +64,7 @@ function navbarLoginDisplay() {
       userNavbarSection.appendChild(loginButton);
     }
   }).then(() => {
-    if (window.location.pathname.localeCompare('/profile.html') == 0) {
+    if (window.location.pathname === '/profile.html') {
       displayProfile();
     } 
   });
@@ -280,45 +280,9 @@ function displayEvents(user, viewer) {
   eventsContainer.innerHTML = '';
 
   if (viewer === PROFILE_VIEWER_PERSONAL) {
-    // Display events the user is invited to or attending.
-    fetch('/events').then(response => response.json()).then((events) => {
-      let eventsCount = 0;
-      for (let i = 0; i < events.length; i ++) {
-        if (events[i].rsvpAttendees.includes(user.id) || 
-            events[i].invitedAttendees.includes(user.id)) {
-          eventsContainer.appendChild(createEvent(events[i]));
-          eventsCount ++;
-        }
-      }
-      if (eventsCount == 0) {
-        const eventMessage = document.createElement('p');
-        eventMessage.innerText = 'No events to show.';
-        eventsContainer.appendChild(eventMessage);
-      }
-    });
+    displayPersonalEvents(user, eventsContainer);
   } else if (viewer === PROFILE_VIEWER_BUDDY) {
-    // Display events the user is invited to or attending and
-    // the current user has access to.
-    const currentId = localStorage.getItem(LOCAL_STORAGE_ID);
-    fetch('/events').then(response => response.json()).then((events) => {
-      let eventsCount = 0;
-      for (let i = 0; i < events.length; i ++) {
-        if (events[i].rsvpAttendees.includes(user.id) || 
-            events[i].invitedAttendees.includes(user.id)) {
-          if (events[i].rsvpAttendees.includes(currentId) || 
-              events[i].invitedAttendees.includes(currentId) || 
-                  events[i].privacy === 'public') {
-            eventsContainer.appendChild(createEvent(events[i]));
-            eventsCount ++;
-          }
-        }
-      }
-      if (eventsCount == 0) {
-        const eventMessage = document.createElement('p');
-        eventMessage.innerText = 'No events to show.';
-        eventsContainer.appendChild(eventMessage);
-      }
-    });
+    displayBuddyEvents(user, eventsContainer);
   } else if (viewer === PROFILE_VIEWER_STRANGER || viewer === PROFILE_VIEWER_LOGOUT) {
     const eventMessage = document.createElement('p');
     eventMessage.innerText = 'You cannot see this user\'s events.';
@@ -327,39 +291,98 @@ function displayEvents(user, viewer) {
 }
 
 /*
- * Returns a newly created event element to be displayed on the page.
+ * Displays events the user is invited to or attending on their personal profile.
  */
-function createEvent(event) {
-  const eventName = document.createElement('h2');
-  eventName.id = "name-display";
-  eventName.innerText = event.eventName;
+function displayPersonalEvents(user, eventsContainer) {
+  const invitedEvents = document.createElement('div');
+  invitedEvents.className = 'tabcontent';
+  invitedEvents.id = 'invited-events';
+  const attendingEvents = document.createElement('div');
+  attendingEvents.className = 'tabcontent';
+  attendingEvents.id = 'attending-events';
+  const tabContainer = createEventsTab();
 
-  const eventDate = document.createElement('p');
-  eventDate.id = "date-display";
-  eventDate.innerText = event.dateTime;
-
-  const eventLocation = document.createElement('p');
-  eventName.id = "location-display";
-  eventLocation.innerText = event.location;
-
-  const eventDetails = document.createElement('p'); 
-  eventDetails.id = "details-display";
-  eventDetails.innerText = event.eventDetails;
-
-  const eventElement = document.createElement('div');
-  eventElement.className = "card";
-  const eventContents = document.createElement('div');
-  eventContents.className = "contents";
-  eventContents.append(eventName);
-  eventContents.append(eventDate);
-  eventContents.append(eventLocation);
-  eventContents.append(eventDetails);
-  eventElement.append(eventContents);
-  eventElement.addEventListener('click', () => {
-  sessionStorage.setItem(SESSION_STORAGE_CURRENT_LOCATION, event.placeId);
-    window.location.href = 'map.html';
+  fetch('/events').then(response => response.json()).then((events) => {
+    let invitedEventsCount = 0;
+    let attendingEventsCount = 0;
+    for (let i = 0; i < events.length; i ++) {
+      if (events[i].invitedAttendees.includes(user.id)) {
+        invitedEvents.appendChild(createEventWithResponse(events[i], user.id, "false"));
+        invitedEventsCount ++;
+      } else if (events[i].rsvpAttendees.includes(user.id)) {
+        attendingEvents.appendChild(createEventWithResponse(events[i], user.id, "true"));
+        attendingEventsCount ++;
+      }
+    }
+    if (invitedEventsCount == 0) {
+      const invitedEventMessage = document.createElement('p');
+      invitedEventMessage.innerText = 'No events to show.';
+      invitedEvents.appendChild(invitedEventMessage);
+    }
+    if (attendingEventsCount == 0) {
+      const attendingEventMessage = document.createElement('p');
+      attendingEventMessage.innerText = 'No events to show.';
+      attendingEvents.appendChild(attendingEventMessage);
+    }
+    eventsContainer.append(tabContainer);
+    eventsContainer.append(invitedEvents);
+    eventsContainer.append(attendingEvents);
+    document.getElementById('open').click();
   });
-  return eventElement;
+}
+
+/*
+ * Displays events on a buddy's profile that they are attending and the current
+ * user can also view.
+ */
+function displayBuddyEvents(user, eventsContainer) {
+  const currentId = localStorage.getItem(LOCAL_STORAGE_ID);
+  fetch('/events').then(response => response.json()).then((events) => {
+    let eventsCount = 0;
+    for (let i = 0; i < events.length; i ++) {
+      if (events[i].rsvpAttendees.includes(user.id)) {
+        if (events[i].rsvpAttendees.includes(currentId) || 
+            events[i].invitedAttendees.includes(currentId) || 
+                events[i].privacy === 'public') {
+          eventsContainer.appendChild(createEventNoResponse(events[i]));
+          eventsCount ++;
+        }
+      }
+    }
+    if (eventsCount == 0) {
+      const eventMessage = document.createElement('p');
+      eventMessage.innerText = 'No events to show.';
+      eventsContainer.appendChild(eventMessage);
+    }
+  });
+}
+
+/*
+ * 
+ */
+function createEventsTab() {
+  tabContainer = document.createElement('div');
+  tabContainer.className = 'tab';
+  tabContainer.innerHTML = '';
+
+  invitedButton = document.createElement('button');
+  invitedButton.innerText = 'Invited';
+  invitedButton.className = 'tablinks active';
+  invitedButton.id = 'open';
+  invitedButton.addEventListener('click', function(e) {
+    openTab(e, 'invited-events');
+  })
+
+  attendingButton = document.createElement('button');
+  attendingButton.innerText = 'Attending';
+  attendingButton.className = 'tablinks';
+  attendingButton.addEventListener('click', function(e) {
+    openTab(e, 'attending-events');
+  })
+
+  tabContainer.appendChild(invitedButton);
+  tabContainer.appendChild(attendingButton);
+  return tabContainer;
 }
 
 /*
