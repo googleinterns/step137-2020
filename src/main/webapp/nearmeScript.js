@@ -1,3 +1,9 @@
+/** First function to be called onload */
+function onLoad() {
+  navbarLoginDisplay();
+  initializeMap();
+}
+
 /** Initializes map and displays it. */
 function initializeMap() {
   mapCenter = { lat: 122.0841, lng: 37.4220 };
@@ -38,31 +44,62 @@ function findNearbyEvents(map, currentLocation) {
   fetch('/events')
   .then(response => response.json())
   .then(events => {
-    for (i = 0; i < events.length; i++) {
-      var currentEvent = events[i];
-      geocoder.geocode( {'placeId' : currentEvent.placeId}, function(results, status) {
-        if (status == "OK") {
-          eventLatLng = results[0].geometry.location;
-          var isNearby = locationCircle.getBounds().contains(eventLatLng)
-          if (isNearby) {
-            eventElement = createEvent(currentEvent);
-            eventElement.addEventListener('click', () => {
-              sessionStorage.setItem('currentLocationId', currentEvent.placeId);
-              window.location.href = 'map.html';
-            });
-            eventsDivElement.appendChild(eventElement);
-          }
+    // When user is logged in, get all public events and events user is attending.
+    if (localStorage.getItem('loginStatus').localeCompare('true') == 0) {
+      var userId = localStorage.getItem('userId');
+      for (var i = 0; i < events.length; i++) {
+        var currentEvent = events[i];
+        isNearby(geocoder, currentEvent, locationCircle, userId);
+      }
+    }
+    // When user is not logged in, get only public events.
+    else {
+      for (var i = 0; i < events.length; i++) {
+        var currentEvent = events[i];
+        isNearby(geocoder, currentEvent, locationCircle, '');
+      }
+    }
+  });
+}
+
+/** Checks to see if an event is nearby */
+function isNearby(geocoder, event, locationCircle, userId) {
+  geocoder.geocode( {'placeId' : event.placeId}, function(results, status) {
+    if (status !== google.maps.GeocoderStatus.OK) {
+      alert('Geocode was not successful for the following reason: ' + status);
+      return;
+    }
+    eventLatLng = results[0].geometry.location;
+    var isNearby = locationCircle.getBounds().contains(eventLatLng)
+    if (isNearby) {
+      if (userId) {
+        if (event.rsvpAttendees.includes(userId) || 
+          event.privacy == 'public') { 
+          eventElement = createNearMeEvent(event);
+          eventElement.addEventListener('click', () => {
+            sessionStorage.setItem('currentLocationId', event.placeId);
+            window.location.href = 'map.html';
+          });
+           eventsDivElement.appendChild(eventElement);
         }
-        else {
-          alert('Geocode was not successful for the following reason: ' + status);
+      }
+      else {
+        if (event.privacy == 'public'){
+          eventElement = createNearMeEvent(event);
+          eventElement.addEventListener('click', () => {
+            sessionStorage.setItem('currentLocationId', event.placeId);
+            window.location.href = 'map.html';
+          });
+          eventsDivElement.appendChild(eventElement);
         }
-      });
+      } 
+      
     }
   });
 }
 
 /** Creates a display element for an event. */
-function createEvent(event) {
+function createNearMeEvent(event) {
   const eventName = document.createElement('h2');
   eventName.id = "name-display";
   eventName.innerText = event.eventName;
