@@ -145,36 +145,40 @@ function fetchPlaceInformation(place_id, map, where) {
         deleteEventsButtonElement = document.createElement('button');
         
         nameElement.innerText = place.name;
-        if (place.rating) {
-          ratingElement.innerHTML = getStars(place.rating) +
-           ' ' + place.rating + '<br></br>';
-        }
         addressElement.innerText = 'Address: ' + place.formatted_address;
-        if (place.website) {
-          websiteElement = document.createElement('a');
-          websiteElement.innerText = place.website;
-          websiteElement.href = place.website;
-        }
         // function to create tab and return tab div element
         tabDivElement = createTabElement();
         createEventElement.innerText = 'Create an Event';
         createEventElement.href = 'CreateAnEvent.html';
-        if (place.business_status) {
-          businessStatusElement = document.createElement('p');
-          businessStatusElement.innerText = 'Business Status: ' + place.business_status;
-        }
         interestButtonElement.addEventListener('click', () => {
           saveOrRemoveInterest(place.name, place_id, interestButtonElement);
         });
         deleteEventsButtonElement.addEventListener('click', () => {
           deleteAllEvents();
         })
-
         infoDivElement.appendChild(nameElement);
-        infoDivElement.appendChild(websiteElement);
+
+        if (place.website) {
+          websiteElement = document.createElement('a');
+          websiteElement.innerText = place.website;
+          websiteElement.href = place.website;
+          infoDivElement.appendChild(websiteElement);
+        }
+
         infoDivElement.appendChild(addressElement);
-        infoDivElement.appendChild(businessStatusElement);
-        infoDivElement.appendChild(ratingElement); 
+
+        if (place.business_status) {
+          businessStatusElement = document.createElement('p');
+          businessStatusElement.innerText = 'Business Status: ' + place.business_status;
+          infoDivElement.appendChild(businessStatusElement);
+        }
+
+        if (place.rating) {
+          ratingElement.innerHTML = getStars(place.rating) +
+           ' ' + place.rating + '<br></br>';
+          infoDivElement.appendChild(ratingElement); 
+        }
+        
         infoDivElement.appendChild(deleteEventsButtonElement);
         if (localStorage.getItem(LOCAL_STORAGE_STATUS) === 'true') {
           let userId = localStorage.getItem(LOCAL_STORAGE_ID);
