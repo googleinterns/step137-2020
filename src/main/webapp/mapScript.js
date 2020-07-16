@@ -340,7 +340,7 @@ function getPublicEvents() {
       for (i = 0; i < events.length; i++) {
         if (events[i].location == locationName 
             && events[i].privacy == "public") {
-            eventDivElement.appendChild(createEventPublic(events[i]));
+            eventDivElement.appendChild(createEventNoResponse(events[i]));
           }
         }
     });
@@ -366,16 +366,16 @@ function getAvailableEvents(userID) {
           if (events[i].privacy == "public") {
             // display public events even if user is not attending
             if (!rsvpContains) {
-              eventDivElement.appendChild(createEventAttendees(events[i], userID, "false"));
+              eventDivElement.appendChild(createEventWithResponse(events[i], userID, "false"));
             }
           }
           if (rsvpContains) {
             // display events the user is attending
-            eventDivElement.appendChild(createEventAttendees(events[i], userID, "true"));
+            eventDivElement.appendChild(createEventWithResponse(events[i], userID, "true"));
           }
           else if (invitedAttendees.includes(userID)) {
             // display events the user is invited to
-            eventDivElement.appendChild(createEventAttendees(events[i], userID, "false"));
+            eventDivElement.appendChild(createEventWithResponse(events[i], userID, "false"));
           }
         }
       }
@@ -383,7 +383,7 @@ function getAvailableEvents(userID) {
   return eventDivElement;
 }
 
-function createEventPublic(event) {
+function createEventNoResponse(event) {
   const eventName = document.createElement('h2');
   eventName.id = "name-display";
   eventName.innerText = event.eventName;
@@ -412,7 +412,7 @@ function createEventPublic(event) {
   return eventElement;
 }
 
-function createEventAttendees(event, userID, going) {
+function createEventWithResponse(event, userID, going) {
   const eventElement = document.createElement('div');
   eventElement.className = "card";
 

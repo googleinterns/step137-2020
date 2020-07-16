@@ -280,50 +280,63 @@ function displayEvents(user, viewer) {
   eventsContainer.innerHTML = '';
 
   if (viewer === PROFILE_VIEWER_PERSONAL) {
-    // Display events the user is invited to or attending.
-    fetch('/events').then(response => response.json()).then((events) => {
-      let eventsCount = 0;
-      for (let i = 0; i < events.length; i ++) {
-        if (events[i].rsvpAttendees.includes(user.id) || 
-            events[i].invitedAttendees.includes(user.id)) {
-          eventsContainer.appendChild(createEvent(events[i]));
-          eventsCount ++;
-        }
-      }
-      if (eventsCount == 0) {
-        const eventMessage = document.createElement('p');
-        eventMessage.innerText = 'No events to show.';
-        eventsContainer.appendChild(eventMessage);
-      }
-    });
+    displayPersonalEvents(user, eventsContainer);
   } else if (viewer === PROFILE_VIEWER_BUDDY) {
-    // Display events the user is invited to or attending and
-    // the current user has access to.
-    const currentId = localStorage.getItem(LOCAL_STORAGE_ID);
-    fetch('/events').then(response => response.json()).then((events) => {
-      let eventsCount = 0;
-      for (let i = 0; i < events.length; i ++) {
-        if (events[i].rsvpAttendees.includes(user.id) || 
-            events[i].invitedAttendees.includes(user.id)) {
-          if (events[i].rsvpAttendees.includes(currentId) || 
-              events[i].invitedAttendees.includes(currentId) || 
-                  events[i].privacy === 'public') {
-            eventsContainer.appendChild(createEvent(events[i]));
-            eventsCount ++;
-          }
-        }
-      }
-      if (eventsCount == 0) {
-        const eventMessage = document.createElement('p');
-        eventMessage.innerText = 'No events to show.';
-        eventsContainer.appendChild(eventMessage);
-      }
-    });
+    displayBuddyEvents(user, eventsContainer);
   } else if (viewer === PROFILE_VIEWER_STRANGER || viewer === PROFILE_VIEWER_LOGOUT) {
     const eventMessage = document.createElement('p');
     eventMessage.innerText = 'You cannot see this user\'s events.';
     eventsContainer.appendChild(eventMessage);
   }
+}
+
+/*
+ * Displays events the user is invited to or attending on their personal profile.
+ */
+function displayPersonalEvents(user, eventsContainer) {
+  fetch('/events').then(response => response.json()).then((events) => {
+    let eventsCount = 0;
+    for (let i = 0; i < events.length; i ++) {
+      if (events[i].rsvpAttendees.includes(user.id)) {
+        eventsContainer.appendChild(createEventWithResponse(events[i], user.id, "true"));
+        eventsCount ++;
+      } else if (events[i].invitedAttendees.includes(user.id)) {
+        eventsContainer.appendChild(createEventWithResponse(events[i], user.id, "false"));
+        eventsCount ++;
+      }
+    }
+    if (eventsCount == 0) {
+      const eventMessage = document.createElement('p');
+      eventMessage.innerText = 'No events to show.';
+      eventsContainer.appendChild(eventMessage);
+    }
+  });
+}
+
+/*
+ * Displays events on a buddy's profile that they are attending and the current
+ * user can also view.
+ */
+function displayBuddyEvents(user, eventsContainer) {
+  const currentId = localStorage.getItem(LOCAL_STORAGE_ID);
+  fetch('/events').then(response => response.json()).then((events) => {
+    let eventsCount = 0;
+    for (let i = 0; i < events.length; i ++) {
+      if (events[i].rsvpAttendees.includes(user.id)) {
+        if (events[i].rsvpAttendees.includes(currentId) || 
+            events[i].invitedAttendees.includes(currentId) || 
+                events[i].privacy === 'public') {
+          eventsContainer.appendChild(createEventNoResponse(events[i]));
+          eventsCount ++;
+        }
+      }
+    }
+    if (eventsCount == 0) {
+      const eventMessage = document.createElement('p');
+      eventMessage.innerText = 'No events to show.';
+      eventsContainer.appendChild(eventMessage);
+    }
+  });
 }
 
 /*
