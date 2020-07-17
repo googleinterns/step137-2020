@@ -488,7 +488,7 @@ function sendOrRemoveBuddyRequest(user, action) {
   params.append('action', action);
   fetch('buddy-request', {
     method: 'POST', body: params
-  }).then(displayProfile)
+  }).then(displayProfile);
 }
 
 /*
