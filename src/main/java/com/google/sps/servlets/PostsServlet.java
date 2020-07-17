@@ -64,7 +64,7 @@ public class PostsServlet extends HttpServlet {
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     PreparedQuery results = datastore.prepare(query);
  
-     //converting the list of entities to a list of events 
+     //converting the list of entities to a list of posts 
     List<Post> posts = new ArrayList<>();
     for (Entity entity : results.asIterable()) {
       String caption = (String) entity.getProperty(Constants.CAPTION_PARAM);

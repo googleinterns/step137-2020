@@ -14,7 +14,6 @@ function specifiedAttendees(value) {
   if (value == "attendees") {
     document.getElementById("attendees-wrap").style.display = "block";
     document.getElementById("invited-attendee-ID-list").style.display = "none";
-    userSearch();
   }
   else if (value == "buddies-only") {
     buddiesOnly();
@@ -25,15 +24,30 @@ function specifiedAttendees(value) {
   }
 }
 
-function userSearch() {
+function displayUsers() {
   const loadedUsers = document.getElementById('loaded-users');
-  loadedUsers.innerHTML = '';
-  
-  fetch('/user').then(response => response.json()).then((users) => {
-    for (let i = 0; i < users.length; i++) {
-      loadedUsers.appendChild(loadUser(users[i]));
-    }
-  });
+  const attendeeText = document.getElementById('attendee-text').value;
+  if (attendeeText === '') {
+    // Don't return results for an empty search.
+    loadedUsers.innerHTML = '';
+  } else {
+    fetch('/user').then(response => response.json()).then((users) => {
+      loadedUsers.innerHTML = '';
+      let userCount = 0;
+      for (let i = 0; i < users.length; i ++) {
+        if (users[i].name.includes(attendeeText)) {
+          // Display any users whose name contains the search text.
+          loadedUsers.appendChild(loadUser(users[i]));
+          userCount ++;
+        }
+      }
+      if (userCount == 0) {
+        const searchMessage = document.createElement('p');
+        searchMessage.innerText = 'No users with that name could be found.';
+        loadedUsers.appendChild(searchMessage);
+      }
+    });
+  }
 }
 
 var attendeeNames = new Array();
@@ -86,6 +100,7 @@ function submitForm() {
     params.append("start-time", document.getElementById("start-time").value);
     params.append("end-date", document.getElementById("end-date").value);
     params.append("end-time", document.getElementById("end-time").value);
+    params.append("time-zone", document.getElementById("time-zone").value);
     params.append("location", document.getElementById("location").value);
     params.append("place-id", document.getElementById("place-id").value);
     params.append("event-details", document.getElementById("event-details").value);
