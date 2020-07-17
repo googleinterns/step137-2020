@@ -74,8 +74,8 @@ function isNearby(geocoder, event, locationCircle, userId) {
     if (isNearby) {
       if (userId) {
         if (event.rsvpAttendees.includes(userId) ||
-          event.invitedAttendees.includes(userId) || 
-          event.privacy == 'public') { 
+        event.invitedAttendees.includes(userId) || 
+        event.privacy == 'public') { 
           eventElement = createEventNoResponse(event);
           eventElement.addEventListener('click', () => {
             sessionStorage.setItem('currentLocationId', event.placeId);

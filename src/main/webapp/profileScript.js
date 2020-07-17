@@ -6,6 +6,7 @@ const PROFILE_VIEWER_LOGOUT = 'logged-out';
 const PROFILE_VIEWER_STRANGER = 'stranger';
 const PROFILE_VIEWER_BUDDY = 'buddy';
 const PROFILE_VIEWER_PERSONAL = 'personal';
+const PROFILE_VIEWER_PENDING_BUDDY = 'pending-buddy';
 const SESSION_STORAGE_PROFILE = 'loadProfile';
 const SESSION_STORAGE_CURRENT_LOCATION = 'currentLocationId';
 
@@ -118,6 +119,9 @@ function displayProfile() {
         } else if (users[i].buddies.includes(currentId)) {
           // Display buddy's profile.
           displayContent(users[i], PROFILE_VIEWER_BUDDY);
+        } else if (users[i].buddyRequests.includes(currentId)) {
+          // Display pending buddy's profile.
+          displayContent(users[i], PROFILE_VIEWER_PENDING_BUDDY);
         } else {
           // Display stranger's profile.
           displayContent(users[i], PROFILE_VIEWER_STRANGER);
@@ -169,6 +173,10 @@ function displayBuddies(user, viewer) {
   buddyContainer.innerHTML = '';
 
   if (viewer === PROFILE_VIEWER_PERSONAL) {
+    const requestHeading = document.createElement('h3');
+    requestHeading.innerText = 'Your buddy requests';
+    buddyContainer.appendChild(requestHeading);
+    displayBuddyRequests(user, buddyContainer);
     // Add the user's personal buddies list.
     const buddiesHeading = document.createElement('h3');
     buddiesHeading.innerText = 'Your buddies:';
@@ -179,7 +187,7 @@ function displayBuddies(user, viewer) {
     const removeBuddyButton = document.createElement('button');
     removeBuddyButton.innerText = 'Remove buddy';
     removeBuddyButton.addEventListener('click', () => {
-      removeBuddy(user);
+      addOrRemoveBuddy(user, 'remove');
     });
     buddyContainer.appendChild(removeBuddyButton);
     // Add the profile user's buddies list.
@@ -187,19 +195,71 @@ function displayBuddies(user, viewer) {
     buddiesHeading.innerText = user.name + '\'' + 's buddies:';
     buddyContainer.appendChild(buddiesHeading);
     displayBuddiesList(user, buddyContainer);
+  } else if (viewer === PROFILE_VIEWER_PENDING_BUDDY) {
+    // Add an option informing the user that a buddy request has been sent.
+    const requestSentButton = document.createElement('button');
+    requestSentButton.innerText = 'Buddy request sent';
+    requestSentButton.addEventListener('click', () => {
+      sendOrRemoveBuddyRequest(user, 'unsend');
+    });
+    buddyContainer.appendChild(requestSentButton);
   } else if (viewer === PROFILE_VIEWER_STRANGER) {
     // Add an add buddy option. 
     const addBuddyButton = document.createElement('button');
     addBuddyButton.innerText = 'Add buddy';
     addBuddyButton.addEventListener('click', () => {
-      addBuddy(user);
+      sendOrRemoveBuddyRequest(user, 'send');
     });
     buddyContainer.appendChild(addBuddyButton);
   }
 }
 
 /*
- * Display the buddies list of the specified user.
+ * Displays the buddy requests of the specified user.
+ */
+function displayBuddyRequests(user, buddyContainer) {
+  const buddyRequests = document.createElement('div');
+  const requestIds = user.buddyRequests;
+  if (requestIds.length == 1) { // length of 1 due to empty placeholder
+    const requestMessage = document.createElement('p');
+    requestMessage.innerText = 'No buddy requests to show.';
+    buddyContainer.append(requestMessage);
+  } else {
+    fetch('/user').then(response => response.json()).then((users) => {
+      for (let i = 0; i < users.length; i ++) {
+        if (requestIds.includes(users[i].id)) {
+          // If the user's ID is in the list of the profile user's buddy requests,
+          // add a request element (which includes the user's name and link to 
+          // their profile, an approve button, and a remove button) to the page.
+          const requestElement = document.createElement('div');
+          const userElement = document.createElement('p');
+          userElement.innerText = users[i].name;
+          userElement.addEventListener('click', () => {
+            visitProfile(users[i].id);
+          });
+          const approveButton = document.createElement('button');
+          approveButton.innerText = 'Approve';
+          approveButton.addEventListener('click', () => {
+            addOrRemoveBuddy(users[i], 'add');
+          });
+          const removeButton = document.createElement('button');
+          removeButton.innerText = 'Remove';
+          removeButton.addEventListener('click', () => {
+            sendOrRemoveBuddyRequest(users[i], 'remove');
+          });
+          requestElement.appendChild(userElement);
+          requestElement.appendChild(approveButton);
+          requestElement.appendChild(removeButton);
+          buddyRequests.appendChild(requestElement);
+        }
+      }
+    });
+  }
+  buddyContainer.append(buddyRequests);
+}
+
+/*
+ * Displays the buddies list of the specified user.
  */
 function displayBuddiesList(user, buddyContainer) {
   const buddiesList = document.createElement('div');
@@ -249,7 +309,8 @@ function displaySavedInterests(user, viewer) {
         savedInterestsContainer.appendChild(interestMessage);
       }
     });
-  } else if (viewer === PROFILE_VIEWER_STRANGER || viewer === PROFILE_VIEWER_LOGOUT) {
+  } else if (viewer === PROFILE_VIEWER_STRANGER || viewer === PROFILE_VIEWER_LOGOUT 
+      || viewer === PROFILE_VIEWER_PENDING_BUDDY) {
     const interestMessage = document.createElement('p');
     interestMessage.innerText = 'You cannot see this user\'s saved interests.';
     savedInterestsContainer.appendChild(interestMessage);
@@ -283,7 +344,8 @@ function displayEvents(user, viewer) {
     displayPersonalEvents(user, eventsContainer);
   } else if (viewer === PROFILE_VIEWER_BUDDY) {
     displayBuddyEvents(user, eventsContainer);
-  } else if (viewer === PROFILE_VIEWER_STRANGER || viewer === PROFILE_VIEWER_LOGOUT) {
+  } else if (viewer === PROFILE_VIEWER_STRANGER || viewer === PROFILE_VIEWER_LOGOUT 
+      || viewer === PROFILE_VIEWER_PENDING_BUDDY) {
     const eventMessage = document.createElement('p');
     eventMessage.innerText = 'You cannot see this user\'s events.';
     eventsContainer.appendChild(eventMessage);
@@ -396,7 +458,8 @@ function displayPosts(user, viewer) {
     const postMessage = document.createElement('p');
     postMessage.innerText = 'No posts to show.';
     postsContainer.appendChild(postMessage);
-  } else if (viewer === PROFILE_VIEWER_STRANGER || viewer === PROFILE_VIEWER_LOGOUT) {
+  } else if (viewer === PROFILE_VIEWER_STRANGER || viewer === PROFILE_VIEWER_LOGOUT
+      || viewer === PROFILE_VIEWER_PENDING_BUDDY) {
     const postMessage = document.createElement('p');
     postMessage.innerText = 'You cannot see this user\'s posts.';
     postsContainer.appendChild(postMessage);
@@ -404,25 +467,26 @@ function displayPosts(user, viewer) {
 }
 
 /*
- * Removes the buddy connection between the current user and the specified user.
+ * Adds or removes a buddy connection between the current user and the specified user.
  */
-function removeBuddy(user) {
+function addOrRemoveBuddy(user, action) {
   const params = new URLSearchParams();
   params.append('user', user.id);
-  params.append('action', 'remove');
+  params.append('action', action);
   fetch('/buddy', {
     method: 'POST', body: params
   }).then(displayProfile);
 }
 
 /*
- * Adds the buddy connection between the current user and the specified user.
+ * Sends or a buddy request from the current user to the specified user or 
+ * removes a buddy request to the current user from the specified user.
  */
-function addBuddy(user) {
+function sendOrRemoveBuddyRequest(user, action) {
   const params = new URLSearchParams();
   params.append('user', user.id);
-  params.append('action', 'add');
-  fetch('/buddy', {
+  params.append('action', action);
+  fetch('buddy-request', {
     method: 'POST', body: params
   }).then(displayProfile);
 }
