@@ -13,8 +13,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@WebServlet("/buddy")
-public class BuddyServlet extends HttpServlet {
+@WebServlet("/buddy-request")
+public class BuddyRequestServlet extends HttpServlet {
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     UserService userService = UserServiceFactory.getUserService();
@@ -27,41 +27,27 @@ public class BuddyServlet extends HttpServlet {
     Entity currentUserEntity = getUserEntity(currentUserId);
     Entity otherUserEntity = getUserEntity(otherUserId);
 
-    List<String> currentUserBuddies = (List<String>) currentUserEntity
-        .getProperty(Constants.USER_BUDDIES_PARAM);
-    List<String> otherUserBuddies = (List<String>) otherUserEntity
-        .getProperty(Constants.USER_BUDDIES_PARAM);
-
-    // Based on the requested action, add or remove the buddy connection.
-    if (action.equals(Constants.BUDDY_ADD_PARAM)) {
-      currentUserBuddies.add(otherUserId);
-      otherUserBuddies.add(currentUserId);
-      // Remove the other user's ID from the current user's buddy requests.
-      List<String> currentUserBuddyRequests = (List<String>) currentUserEntity
+    List<String> currentUserBuddyRequests = (List<String>) currentUserEntity
           .getProperty(Constants.USER_BUDDY_REQUESTS_PARAM);
+    List<String> otherUserBuddyRequests = (List<String>) otherUserEntity
+          .getProperty(Constants.USER_BUDDY_REQUESTS_PARAM);
+ 
+    if (action.equals(Constants.BUDDY_REQUEST_SEND_PARAM)) {
+      // Add the current user's ID to the other user's list of buddy requests.
+      otherUserBuddyRequests.add(currentUserId);
+      otherUserEntity.setProperty(Constants.USER_BUDDY_REQUESTS_PARAM, otherUserBuddyRequests);
+      datastore.put(otherUserEntity);
+    } else if (action.equals(Constants.BUDDY_REQUEST_UNSEND_PARAM)){
+      // Remove the current user's ID from the other user's list of buddy requests.
+      otherUserBuddyRequests.remove(currentUserId);
+      otherUserEntity.setProperty(Constants.USER_BUDDY_REQUESTS_PARAM, otherUserBuddyRequests);
+      datastore.put(otherUserEntity);
+    } else {
+      // Remove the other user's ID from the current user's list of buddy requests.
       currentUserBuddyRequests.remove(otherUserId);
       currentUserEntity.setProperty(Constants.USER_BUDDY_REQUESTS_PARAM, currentUserBuddyRequests);
-    } else {
-      currentUserBuddies.remove(otherUserId);
-      otherUserBuddies.remove(currentUserId);
+      datastore.put(currentUserEntity);
     }
-
-    currentUserEntity.setProperty(Constants.USER_BUDDIES_PARAM, currentUserBuddies);
-    otherUserEntity.setProperty(Constants.USER_BUDDIES_PARAM, otherUserBuddies);
-    datastore.put(currentUserEntity);
-    datastore.put(otherUserEntity);
-  }
-
-  @Override
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    UserService userService = UserServiceFactory.getUserService();
-    String userId = userService.getCurrentUser().getUserId();
-    Entity userEntity = getUserEntity(userId);
-    List<String> buddies = (List<String>) userEntity.getProperty(Constants.USER_BUDDIES_PARAM);
-
-    Gson gson = new Gson();
-    response.setContentType("application/json");
-    response.getWriter().println(gson.toJson(buddies));
   }
 
   /** Returns the User entity with the specified ID, or null if one could not be found. */
