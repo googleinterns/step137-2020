@@ -36,13 +36,13 @@ function navbarLoginDisplay() {
         confirmUserName();
       } else {
         const personalProfileButton = document.createElement('p');
-        personalProfileButton.classList.add('navbar-text');
+        personalProfileButton.className = 'navbar-text';
         personalProfileButton.innerText = name;
         personalProfileButton.addEventListener('click', () => {
           visitProfile(json['id']);
         });
         const logoutButton = document.createElement('p');
-        logoutButton.classList.add('navbar-text');
+        logoutButton.className = 'navbar-text';
         logoutButton.innerText = 'Logout';
         logoutButton.addEventListener('click', () => {
           window.location.href = json['logoutUrl'];
@@ -56,7 +56,7 @@ function navbarLoginDisplay() {
       localStorage.removeItem(LOCAL_STORAGE_ID);
       localStorage.removeItem(LOCAL_STORAGE_NAME);
       const loginButton = document.createElement('p');
-      loginButton.classList.add('navbar-text');
+      loginButton.className = 'navbar-text';
       loginButton.innerText = 'Login';
       loginButton.addEventListener('click', () => {
         sessionStorage.setItem(SESSION_STORAGE_PROFILE, 'justLoggedIn');
@@ -173,10 +173,16 @@ function displayBuddies(user, viewer) {
   buddyContainer.innerHTML = '';
 
   if (viewer === PROFILE_VIEWER_PERSONAL) {
+    // Add a popup for the user's buddy requests.
     const requestHeading = document.createElement('h3');
-    requestHeading.innerText = 'Your buddy requests';
+    requestHeading.innerText = (user.buddyRequests.length - 1) + ' buddy requests';
+    requestHeading.addEventListener('click', () => {
+      displayBuddyRequests(user);
+    });
+    if (document.getElementById('requests-popup').style.display === 'block') {
+      displayBuddyRequests(user);
+    }
     buddyContainer.appendChild(requestHeading);
-    displayBuddyRequests(user, buddyContainer);
     // Add the user's personal buddies list.
     const buddiesHeading = document.createElement('h3');
     buddiesHeading.innerText = 'Your buddies:';
@@ -217,13 +223,25 @@ function displayBuddies(user, viewer) {
 /*
  * Displays the buddy requests of the specified user.
  */
-function displayBuddyRequests(user, buddyContainer) {
+function displayBuddyRequests(user) {
+  const requestsPopup = document.getElementById('requests-popup');
+  requestsPopup.innerHTML = '';
   const buddyRequests = document.createElement('div');
+  buddyRequests.className = 'popup-text';
+
+  const exitButton = document.createElement('button');
+  exitButton.innerText = 'X';
+  exitButton.addEventListener('click', () => {
+    requestsPopup.style.display = 'none';
+  });
+
   const requestIds = user.buddyRequests;
   if (requestIds.length == 1) { // length of 1 due to empty placeholder
     const requestMessage = document.createElement('p');
     requestMessage.innerText = 'No buddy requests to show.';
-    buddyContainer.append(requestMessage);
+    buddyRequests.append(requestMessage);
+    buddyRequests.append(exitButton);
+    requestsPopup.appendChild(buddyRequests);
   } else {
     fetch('/user').then(response => response.json()).then((users) => {
       for (let i = 0; i < users.length; i ++) {
@@ -253,9 +271,12 @@ function displayBuddyRequests(user, buddyContainer) {
           buddyRequests.appendChild(requestElement);
         }
       }
+    }).then(() => {
+      buddyRequests.append(exitButton);
+      requestsPopup.appendChild(buddyRequests);
     });
   }
-  buddyContainer.append(buddyRequests);
+  requestsPopup.style.display = 'block';
 }
 
 /*
