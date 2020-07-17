@@ -4,7 +4,7 @@ const CREATE_EVENT_PAGE = 'createEventPage';
 const EXPLORE_MAP_PAGE = 'exploreMapPage';
 const SESSION_STORE_LOCATION = 'locationName';
 const SESSION_STORE_PLACEID = 'placeId';
-
+var markers = [];
 /** Initial display of screen */
 function initialDisplay() {
   navbarLoginDisplay(); // This function is located in profileScript.js
@@ -17,6 +17,7 @@ function initMap() {
   mapCenter = { lat: 37.4220, lng: -122.0841 };
   infoWindow = new google.maps.InfoWindow;
   var marker = new google.maps.Marker;
+  marker.setIcon('/images/red-marker.png');
   var filterElements = document.getElementsByClassName('filter-button');
   
   var map = new google.maps.Map(document.getElementById('map'), {
@@ -113,6 +114,9 @@ function handleLocationError(browserHasGeolocation, pos) {
 
 /** Searches nearby for a type of location and places markers there. */
 function highlightNearbyLocation(map, placeType, currentLocation) {
+  setMapOnAll(null);
+  markers = [];
+  var image = '/images/blue-marker.png'
   var request = {
     location: currentLocation,
     radius: '1000',
@@ -129,14 +133,23 @@ function highlightNearbyLocation(map, placeType, currentLocation) {
       function createMarker(thisMap, location) {
         var marker = new google.maps.Marker({
           position: location,
-          map: thisMap
+          map: thisMap,
+          icon: image
         })
+        markers.push(marker);
       }
     }
     else {
       alert(status);
     }
   } 
+}
+
+/** Sets the map on all markers in the array. */
+function setMapOnAll(map) {
+  for (var i = 0; i < markers.length; i++) {
+    markers[i].setMap(map);
+  }
 }
 
 /** Fetches information about a place. */
