@@ -281,3 +281,22 @@ html, body {
 #search-users-container {
   text-align: center;
 }
+
+/* Styling for filter buttons. */
+.filter-button {
+  background-color: #ddd;
+  border: none;
+  color: black;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 16px;
+}
+
+.filter-button.active {
+  background-color: #002b54;
+  color: white;
+} 
