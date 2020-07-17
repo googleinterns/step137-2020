@@ -14,6 +14,7 @@
     <div class="navbar">
       <p class="navbar-text" onclick="window.location.href = 'map.html'">Social Map</p>
       <p class="navbar-text" onclick="window.location.href = 'searchUsers.html'">Search Users</p>
+      <p class="navbar-text" onclick="window.location.href = 'nearme.html'">Near Me</p>
       <div id="user-navbar-section"></div>
     </div>
     <div id="events-title">
@@ -80,6 +81,8 @@
           <div id="attendees-wrap">
             <p>Please select users you wish to invite from the list below:</p>
             <div id="warning" class="warning"></div>
+            <input type="text" placeholder="Enter user name..." id="attendee-text" 
+              onkeyup="displayUsers()" autocomplete="off">
             <div id="loaded-users"></div>
             <input type="text" id="invited-attendee-list" name="invited-attendee-list"> <br>
             <input type="text" id="invited-attendee-ID-list" name = "invited-attendee-ID-list">

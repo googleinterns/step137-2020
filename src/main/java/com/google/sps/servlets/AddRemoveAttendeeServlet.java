@@ -48,18 +48,19 @@ public class AddRemoveAttendeeServlet extends HttpServlet {
 
         if (rsvpAttendees.contains(currentUserId)) {
           rsvpAttendees.remove(currentUserId);
-          if(privacy == "attendees" || privacy == "buddies-only") {
+          if(privacy.equals("attendees") || privacy.equals("buddies-only")) {
             invitedAttendees.add(currentUserId);
           }
         }
         else {
           rsvpAttendees.add(currentUserId);
-          if(privacy == "attendees" || privacy == "buddies-only") {
+          if(privacy.equals("attendees") || privacy.equals("buddies-only")) {
             invitedAttendees.remove(currentUserId);
           }
         }
 
         entity.setProperty(Constants.RSVP_ATTENDEES_PARAM, rsvpAttendees);
+        entity.setProperty(Constants.INVITED_ATTENDEES_PARAM, invitedAttendees);
         datastore.put(entity);
 
         break;
@@ -67,4 +68,3 @@ public class AddRemoveAttendeeServlet extends HttpServlet {
     }
   }
 }
-
