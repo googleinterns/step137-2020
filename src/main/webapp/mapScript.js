@@ -73,7 +73,7 @@ function initMap() {
       localStorage.setItem('currentLocation', pos);
       for (var i = 0; i < filterElements.length; i++) {
         // Intentionally outsourced to separate function to solve looping bugs.
-        addEventToFilter(map, filterElements.item(i).id, mapCenter, filterElements.item(i));
+        addEventToFilter(map, filterElements.item(i).id, pos, filterElements.item(i));
       }
       function addEventToFilter (map, id, mapCenter, filterItem) {
         filterItem.addEventListener('click', () => {
@@ -113,10 +113,9 @@ function handleLocationError(browserHasGeolocation, pos) {
 
 /** Searches nearby for a type of location and places markers there. */
 function highlightNearbyLocation(map, placeType, currentLocation) {
-    console.log(placeType);
-    var request = {
+  var request = {
     location: currentLocation,
-    radius: '5000',
+    radius: '1000',
     type: [placeType]
   };
   service = new google.maps.places.PlacesService(map);
@@ -125,7 +124,13 @@ function highlightNearbyLocation(map, placeType, currentLocation) {
   function callback(results, status) {
     if (status == google.maps.places.PlacesServiceStatus.OK) {
       for (var i = 0; i < results.length; i++) {
-        console.log(results[i].name);
+        createMarker(map, results[i].geometry.location);
+      }
+      function createMarker(thisMap, location) {
+        var marker = new google.maps.Marker({
+          position: location,
+          map: thisMap
+        })
       }
     }
     else {
