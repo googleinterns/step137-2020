@@ -51,4 +51,5 @@ public final class Constants {
   public static final String IMAGE_URL_PARAM = "imageUrl";
   public static final String IMAGE_INPUT_PARAM = "image";
   public static final String CAPTION_PARAM = "caption";
+  public static final String POST_ID_PARAM = "id";
 }

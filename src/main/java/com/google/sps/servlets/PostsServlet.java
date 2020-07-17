@@ -44,12 +44,16 @@ public class PostsServlet extends HttpServlet {
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     String caption = request.getParameter(Constants.CAPTION_PARAM);
     BlobKey blobKey = getBlobKey(request, Constants.IMAGE_INPUT_PARAM);
+    String location = request.getParameter(Constants.LOCATION_PARAM);
+    String placeId = request.getParameter(Constants.PLACE_ID_PARAM);
     UserService userService = UserServiceFactory.getUserService();
     String creator = userService.getCurrentUser().getUserId();
  
     Entity postEntity = new Entity(Constants.POST_ENTITY_PARAM);
     postEntity.setProperty(Constants.CAPTION_PARAM, caption);
     postEntity.setProperty(Constants.BLOB_KEY_PARAM, blobKey);
+    postEntity.setProperty(Constants.LOCATION_PARAM, location);
+    postEntity.setProperty(Constants.PLACE_ID_PARAM, placeId);
     postEntity.setProperty(Constants.CREATOR_PARAM, creator);
  
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
@@ -67,11 +71,14 @@ public class PostsServlet extends HttpServlet {
      //converting the list of entities to a list of posts 
     List<Post> posts = new ArrayList<>();
     for (Entity entity : results.asIterable()) {
+      long id = entity.getKey().getId();
       String caption = (String) entity.getProperty(Constants.CAPTION_PARAM);
       BlobKey blobKey = (BlobKey) entity.getProperty(Constants.BLOB_KEY_PARAM);
+      String location = (String) entity.getProperty(Constants.LOCATION_PARAM);
+      String placeId = (String) entity.getProperty(Constants.PLACE_ID_PARAM);
       String creator = (String) entity.getProperty(Constants.CREATOR_PARAM);
 
-      Post post = new Post(caption, blobKey, creator);
+      Post post = new Post(id, caption, blobKey, creator, location, placeId);
       posts.add(post);
     }
 

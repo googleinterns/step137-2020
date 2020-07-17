@@ -141,8 +141,10 @@ function fetchPlaceInformation(place_id, map, where) {
         ratingElement.id = 'stars';
         addressElement = document.createElement('p');
         createEventElement = document.createElement('a');
+        createPostElement = document.createElement('a');
         interestButtonElement = document.createElement('button');
         deleteEventsButtonElement = document.createElement('button');
+        deletePostsButtonElement = document.createElement('button');
         
         nameElement.innerText = place.name;
         if (place.rating) {
@@ -159,6 +161,8 @@ function fetchPlaceInformation(place_id, map, where) {
         tabDivElement = createTabElement();
         createEventElement.innerText = 'Create an Event';
         createEventElement.href = 'CreateAnEvent.html';
+        createPostElement.innerText = "Create a Post";
+        createPostElement.href = 'posts.html';
         if (place.business_status) {
           businessStatusElement = document.createElement('p');
           businessStatusElement.innerText = 'Business Status: ' + place.business_status;
@@ -169,6 +173,11 @@ function fetchPlaceInformation(place_id, map, where) {
         deleteEventsButtonElement.addEventListener('click', () => {
           deleteAllEvents();
         })
+        deleteEventsButtonElement.innerText = "DO NOT PRESS: DELETE ALL EVENTS";
+        deletePostsButtonElement.innerText = "DO NOT PRESS: DELETE ALL POSTS";
+        deletePostsButtonElement.addEventListener('click', () => {
+          deleteAllPosts();
+        })
 
         infoDivElement.appendChild(nameElement);
         infoDivElement.appendChild(websiteElement);
@@ -176,13 +185,15 @@ function fetchPlaceInformation(place_id, map, where) {
         infoDivElement.appendChild(businessStatusElement);
         infoDivElement.appendChild(ratingElement); 
         infoDivElement.appendChild(deleteEventsButtonElement);
+        infoDivElement.appendChild(deletePostsButtonElement);
         if (localStorage.getItem(LOCAL_STORAGE_STATUS) === 'true') {
           let userId = localStorage.getItem(LOCAL_STORAGE_ID);
           setInterestButtonText(interestButtonElement, place_id, userId);
           infoDivElement.appendChild(interestButtonElement);
           eventsDivElement.appendChild(createEventElement);
-          eventsDivElement.appendChild(getAvailableEvents(userId));  
-          userPostsDivElement.appendChild(getUserPosts()); 
+          eventsDivElement.appendChild(getAvailableEvents(userId)); 
+          userPostsDivElement.appendChild(createPostElement); 
+          userPostsDivElement.appendChild(getPosts(userId)); 
         }
         else {
           eventsDivElement.appendChild(getPublicEvents());
@@ -311,23 +322,6 @@ function createMapSnippet() {
     marker.setPosition(e.latLng);
     marker.setMap(mapSnippet);
   });
-}
-
-/** Gets user posts. */
-function getUserPosts() {
-  const testPosts = [
-    "Test Post 1",
-    "Test Post 2",
-    "Test Post 3",
-    "Test Post 4"
-  ];
-  userPostDivElement = document.createElement('div');
-  for (i = 0; i < testPosts.length; i ++) {
-    userPostElement = document.createElement('p');
-    userPostElement.innerText = testPosts[i];
-    userPostDivElement.appendChild(userPostElement);
-  }
-  return userPostDivElement;
 }
 
 /**
