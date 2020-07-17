@@ -114,11 +114,13 @@ public class EventServlet extends HttpServlet {
     String invitedAttendeesString = request.getParameter(Constants.INVITED_ATTENDEES_PARAM);
     List<String> invitedAttendeesList = Arrays.asList(invitedAttendeesString.split("\\s*,\\s*"));
     ArrayList<String> invitedAttendees = new ArrayList<String>(invitedAttendeesList);
+    invitedAttendees.add(""); // placeholder entry to prevent empty list from becoming null
     UserService userService = UserServiceFactory.getUserService();
     String currentUserID = userService.getCurrentUser().getUserId();
 
     //list of people who said they will come. Creator is assumed to be attending
     List<String> rsvpAttendees = new ArrayList<>();
+    rsvpAttendees.add(""); // placeholder entry to prevent empty list from becoming null
     rsvpAttendees.add(currentUserID);
 
     //get formatted start and end times
