@@ -4,10 +4,6 @@ const CREATE_EVENT_PAGE = 'createEventPage';
 const EXPLORE_MAP_PAGE = 'exploreMapPage';
 const SESSION_STORE_LOCATION = 'locationName';
 const SESSION_STORE_PLACEID = 'placeId';
-const RESTAURANT_FILTER = 'restaurant';
-const PARK_FILTER = 'park';
-const TOURIST_ATTRACTION_FILTER = 'tourist_attraction';
-const SHOPPING_MALL_FILTER = 'shopping_mall';
 
 /** Initial display of screen */
 function initialDisplay() {
@@ -21,7 +17,7 @@ function initMap() {
   mapCenter = { lat: 37.4220, lng: -122.0841 };
   infoWindow = new google.maps.InfoWindow;
   var marker = new google.maps.Marker;
-  var restaurantFilterElement = document.getElementById('restaurant-filter');
+  var filterElements = document.getElementsByClassName('filter-button');
   
   var map = new google.maps.Map(document.getElementById('map'), {
     center: mapCenter,
@@ -45,9 +41,15 @@ function initMap() {
       if (status == "OK") {
         mapCenter = results[0].geometry.location;
         map.setCenter(mapCenter);
-        restaurantFilterElement.addEventListener('click', function(e) {
-          highlightNearbyLocation(map, 'restaurant', mapCenter);
-        });
+        for (var i = 0; i < filterElements.length; i++) {
+        // Intentionally outsourced to separate function to solve looping bugs.
+        addEventToFilter(map, filterElements.item(i).id, mapCenter, filterElements.item(i));
+        }
+        function addEventToFilter (map, id, mapCenter, filterItem) {
+          filterItem.addEventListener('click', () => {
+            highlightNearbyLocation(map, id, mapCenter);
+          });
+        }
         fetchPlaceInformation(newCenterId, map, EXPLORE_MAP_PAGE);
         marker.setPosition(mapCenter);
         marker.setMap(map);
@@ -69,9 +71,15 @@ function initMap() {
       };
       // For use on Nearme page
       localStorage.setItem('currentLocation', pos);
-      restaurantFilterElement.addEventListener('click', function(e) {
-        highlightNearbyLocation(map, 'hotel', pos);
-      });
+      for (var i = 0; i < filterElements.length; i++) {
+        // Intentionally outsourced to separate function to solve looping bugs.
+        addEventToFilter(map, filterElements.item(i).id, mapCenter, filterElements.item(i));
+      }
+      function addEventToFilter (map, id, mapCenter, filterItem) {
+        filterItem.addEventListener('click', () => {
+          highlightNearbyLocation(map, id, mapCenter);
+        });
+      }
       infoWindow.setPosition(pos);
       infoWindow.setContent('Your current location has been found.');
       infoWindow.open(map);
@@ -162,7 +170,6 @@ function fetchPlaceInformation(place_id, map, where) {
         sessionStorage.setItem(SESSION_STORE_LOCATION, place.name);
         sessionStorage.setItem(SESSION_STORE_PLACEID, place_id);
         sideBarElement = document.getElementById('side');
-        filterButtonsElement = document.getElementById('restaurant-filter');
         infoDivElement = document.getElementById('place-info');
         userPostsDivElement = document.getElementById('UserPosts');
         eventsDivElement = document.getElementById('Events');
@@ -229,9 +236,7 @@ function fetchPlaceInformation(place_id, map, where) {
         infoDivElement.appendChild(eventsDivElement);
         infoDivElement.appendChild(userPostsDivElement);
         document.getElementById('open').click();
-        sideBarElement.innerHTML = '<h1>Information Bar</h1>'
         sideBarElement.appendChild(infoDivElement);
-        sideBarElement.appendChild(filterButtonsElement);
         return sideBarElement;
       }
     }
