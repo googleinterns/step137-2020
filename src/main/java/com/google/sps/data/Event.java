@@ -13,11 +13,12 @@ public final class Event {
   private List<String> invitedAttendees;
   private List<String> rsvpAttendees;
   private String creator;
+  private String currency;
 
   public Event(long eventId, String eventName, String dateTime,
               String location, String placeId, String eventDetails, 
               String yesCOVIDSafe, String privacy, List<String> invitedAttendees,
-              List<String> rsvpAttendees, String creator) {
+              List<String> rsvpAttendees, String creator, String currency) {
 
     this.eventId = eventId;
     this.eventName = eventName;
@@ -30,5 +31,6 @@ public final class Event {
     this.invitedAttendees = invitedAttendees;
     this.rsvpAttendees = rsvpAttendees;
     this.creator = creator;
+    this.currency = currency;
   }
 }

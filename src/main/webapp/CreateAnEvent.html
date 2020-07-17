@@ -32,13 +32,33 @@
           <input type="date" id="start-date" name="start-date" required>
           <label for="start-time">Start Time*: </label>
           <input type="time" id="start-time" name="start-time" required>
-          <br><br>
+          <br>
 
           <div id="date-warning" class="warning"></div>
           <label for="end-date">End Date*: </label>
           <input type="date" id="end-date" name="end-date" required>
           <label for="end-time">End Time*: </label>
           <input type="time" id="end-time" name="end-time" required>
+          <label for="time-zone">Time Zone*: </label>
+          <select id="time-zone" name="time-zone" required>
+            <option value="AST">AST</option>
+            <option value="EST">EST</option>
+            <option value="EDT">EDT</option>
+            <option value="CST">CST</option>
+            <option value="CDT">CDT</option>
+            <option value="MST">MST</option>
+            <option value="MDT">MDT</option>
+            <option value="PST">PST</option>
+            <option value="PDT">PDT</option>
+            <option value="AKST">AKST</option>
+            <option value="AKDT">AKDT</option>
+            <option value="HST">HST</option>
+            <option value="HAST">HAST</option>
+            <option value="HADT">HADT</option>
+            <option value="SST">SST</option>
+            <option value="SDT">SDT</option>
+            <option value="CHST">CHST</option>
+          </select>
           <br><br>
 
           <label for="location">Location: </label>
