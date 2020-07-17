@@ -32,7 +32,7 @@ function navbarLoginDisplay() {
       // then add logout and profile buttons to the navbar.
       localStorage.setItem(LOCAL_STORAGE_ID, json['id']);
       const name = localStorage.getItem(LOCAL_STORAGE_NAME);
-      if (name == null) {
+      if (name == null || name === '' || name === 'justChanged') {
         confirmUserName();
       } else {
         const personalProfileButton = document.createElement('p');
@@ -80,10 +80,10 @@ function confirmUserName(personalProfileButton) {
     // If the user has not yet set their name, display the form.
       showNameForm();
     } else {
-      // If the user's name is not yet in local storage, store it.
+      // If the user's updated name is not yet in local storage, store it.
       localStorage.setItem(LOCAL_STORAGE_NAME, name);
+      profileOnload();
     }
-    profileOnload();
   });
 }
 
@@ -495,5 +495,6 @@ function sendOrRemoveBuddyRequest(user, action) {
  * Presents the user with a form to change their display name.
  */
 function showNameForm() {
+  localStorage.setItem(LOCAL_STORAGE_NAME, 'justChanged');
   document.getElementById('name-form-container').style.display = 'block';
 }
