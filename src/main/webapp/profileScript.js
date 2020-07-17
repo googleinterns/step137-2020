@@ -183,11 +183,16 @@ function displayBuddies(user, viewer) {
       displayBuddyRequests(user);
     }
     buddyContainer.appendChild(requestHeading);
-    // Add the user's personal buddies list.
+    // Add a popup for the user's buddies list.
     const buddiesHeading = document.createElement('h3');
-    buddiesHeading.innerText = 'Your buddies:';
+    buddiesHeading.innerText = (user.buddies.length - 1) + ' buddies';
+    buddiesHeading.addEventListener('click', () => {
+      displayBuddiesList(user);
+    });
+    if (document.getElementById('buddies-popup').style.display === 'block') {
+      displayBuddiesList(user);
+    }
     buddyContainer.appendChild(buddiesHeading);
-    displayBuddiesList(user, buddyContainer);
   } else if (viewer === PROFILE_VIEWER_BUDDY) {
     // Add a remove buddy option.
     const removeBuddyButton = document.createElement('button');
@@ -196,11 +201,16 @@ function displayBuddies(user, viewer) {
       addOrRemoveBuddy(user, 'remove');
     });
     buddyContainer.appendChild(removeBuddyButton);
-    // Add the profile user's buddies list.
+    // Add a popup for the profile user's buddies list.
     const buddiesHeading = document.createElement('h3');
-    buddiesHeading.innerText = user.name + '\'' + 's buddies:';
+    buddiesHeading.innerText = (user.buddies.length - 1) + ' buddies';
+    buddiesHeading.addEventListener('click', () => {
+      displayBuddiesList(user);
+    });
+    if (document.getElementById('buddies-popup').style.display === 'block') {
+      displayBuddiesList(user);
+    }
     buddyContainer.appendChild(buddiesHeading);
-    displayBuddiesList(user, buddyContainer);
   } else if (viewer === PROFILE_VIEWER_PENDING_BUDDY) {
     // Add an option informing the user that a buddy request has been sent.
     const requestSentButton = document.createElement('button');
@@ -224,11 +234,11 @@ function displayBuddies(user, viewer) {
  * Displays the buddy requests of the specified user.
  */
 function displayBuddyRequests(user) {
+  // Create an empty popup with an exit button.
   const requestsPopup = document.getElementById('requests-popup');
   requestsPopup.innerHTML = '';
   const buddyRequests = document.createElement('div');
   buddyRequests.className = 'popup-text';
-
   const exitButton = document.createElement('button');
   exitButton.innerText = 'X';
   exitButton.addEventListener('click', () => {
@@ -283,12 +293,24 @@ function displayBuddyRequests(user) {
  * Displays the buddies list of the specified user.
  */
 function displayBuddiesList(user, buddyContainer) {
+  // Create an empty popup with an exit button.
+  const buddiesPopup = document.getElementById('buddies-popup');
+  buddiesPopup.innerHTML = '';
   const buddiesList = document.createElement('div');
+  buddiesList.className = 'popup-text';
+  const exitButton = document.createElement('button');
+  exitButton.innerText = 'X';
+  exitButton.addEventListener('click', () => {
+    buddiesPopup.style.display = 'none';
+  });
+
   const buddyIds = user.buddies;
   if (buddyIds.length == 1) { // length of 1 due to empty placeholder
     const buddyMessage = document.createElement('p');
     buddyMessage.innerText = 'No buddies to show.';
-    buddyContainer.append(buddyMessage);
+    buddiesList.appendChild(buddyMessage);
+    buddiesList.appendChild(exitButton);
+    buddiesPopup.appendChild(buddiesList);
   } else {
     fetch('/user').then(response => response.json()).then((users) => {
       for (let i = 0; i < users.length; i ++) {
@@ -303,9 +325,12 @@ function displayBuddiesList(user, buddyContainer) {
           buddiesList.appendChild(buddyElement);
         }
       }
+    }).then(() => {
+      buddiesList.appendChild(exitButton);
+      buddiesPopup.appendChild(buddiesList);
     });
   }
-  buddyContainer.append(buddiesList);
+  buddiesPopup.style.display = 'block';
 }
 
 /*
