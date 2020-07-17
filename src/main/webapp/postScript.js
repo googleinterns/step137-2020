@@ -18,15 +18,22 @@ function fetchBlobstoreUrlAndShowForm() {
 function getPosts(userId) {
   locationName = sessionStorage.getItem(SESSION_STORE_LOCATION);
   postDivElement = document.createElement('div');
+  let count = 0;
   fetch('/post')
     .then(response => response.json())
     .then(posts => {
       for (let i = 0; i < posts.length; i ++) {
         if (locationName === posts[i].location) {
           postDivElement.appendChild(createPost(posts[i], userId));
+          count++;
         }
       }
     });
+  if (count === 0) {
+    noPostElement = document.createElement('p');
+    noPostElement.innerText = "No posts to show";
+    postDivElement.appendChild(noPostElement);
+  }
   return postDivElement;
 }
 
@@ -89,7 +96,6 @@ function deleteAllPosts() {
     .then(response => response.json())
     .then(posts => {
       for (i = 0; i < posts.length; i ++) {
-        console.log(posts[i].blobKey);
         deleteBlob(posts[i].blobKey);
       }
     })

@@ -455,9 +455,7 @@ function displayPosts(user, viewer) {
   postsContainer.innerHTML = '';
 
   if (viewer === PROFILE_VIEWER_PERSONAL || viewer === PROFILE_VIEWER_BUDDY) {
-    const postMessage = document.createElement('p');
-    postMessage.innerText = 'No posts to show.';
-    postsContainer.appendChild(postMessage);
+    postsContainer.appendChild(getPosts(user.id));
   } else if (viewer === PROFILE_VIEWER_STRANGER || viewer === PROFILE_VIEWER_LOGOUT
       || viewer === PROFILE_VIEWER_PENDING_BUDDY) {
     const postMessage = document.createElement('p');
