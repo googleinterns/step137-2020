@@ -49,7 +49,7 @@ function initMap() {
         function addEventToFilter (map, id, mapCenter, filterItem) {
           filterItem.addEventListener('click', function(e) {
             highlightNearbyLocation(map, id, mapCenter);
-            updateActiveStatus(filterElements, id, e);
+            updateActiveStatus(filterElements, e);
           });
         }
         fetchPlaceInformation(newCenterId, map, EXPLORE_MAP_PAGE);
@@ -80,7 +80,7 @@ function initMap() {
       function addEventToFilter (map, id, mapCenter, filterItem) {
         filterItem.addEventListener('click', function(e) {
           highlightNearbyLocation(map, id, mapCenter);
-          updateActiveStatus(filterElements, id, e);
+          updateActiveStatus(filterElements, e);
         });
       }
       infoWindow.setPosition(pos);
@@ -147,17 +147,18 @@ function highlightNearbyLocation(map, placeType, currentLocation) {
 }
 
 /** Updates active status of filter buttons.  */
-function updateActiveStatus(listOfElements, elementId, evt) {
+function updateActiveStatus(listOfElements, evt) {
   for (var i = 0; i < listOfElements.length; i++) {
     listOfElements[i].className = listOfElements[i].className.replace(' active', '');
   }
-  evt.currentTarget.className += ' active';
+  if (evt) { evt.currentTarget.className += ' active'; }
 }
 
 /** Deletes all markers on map. */
 function deleteAllMarkers() {
     setMapOnAll(null);
     markers = [];
+    updateActiveStatus(document.getElementsByClassName('filter-button'), null);
   }
 
 /** Sets the map on all markers in the array. */
