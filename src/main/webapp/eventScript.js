@@ -34,8 +34,9 @@ function displayUsers() {
     fetch('/user').then(response => response.json()).then((users) => {
       loadedUsers.innerHTML = '';
       let userCount = 0;
+      let userId = localStorage.getItem(LOCAL_STORAGE_ID);
       for (let i = 0; i < users.length; i ++) {
-        if (users[i].name.includes(attendeeText)) {
+        if (users[i].name.includes(attendeeText) && users[i].id != userId) {
           // Display any users whose name contains the search text.
           loadedUsers.appendChild(loadUser(users[i]));
           userCount ++;
@@ -124,6 +125,7 @@ function submitForm() {
           document.getElementById("date-warning").innerHTML = "";
           var placeId = document.getElementById('place-id').value;
           sessionStorage.setItem("currentLocationId", placeId);
+          document.getElementById("success").style.color = "black";
           document.getElementById("success").innerHTML = 
             "<p>Event created successfully. Click <a href=\"/map.html\">here</a>" +
             " to return to the map</p>";
@@ -131,8 +133,10 @@ function submitForm() {
       });
   }
 } 
+
 function checkFillIn() {
   var fillIn = "<p>Please fill our all sections with an * by them</p>";
+  document.getElementById("success").style.color = "red";
   if (document.getElementById("event-name").value === "") {
     document.getElementById("success").innerHTML = fillIn;
     return false;
@@ -164,4 +168,182 @@ function checkFillIn() {
   else {
     return true;
   }
+}
+
+/**
+  Get all public events to display on map page even when user isn't logged in.
+ */
+function getPublicEvents() {
+  eventDivElement = document.createElement("div");
+  eventDivElement.innerText = '';
+  locationName = sessionStorage.getItem(SESSION_STORE_LOCATION);
+
+  fetch("events")
+    .then(response => response.json())
+    .then(events => {
+      for (i = 0; i < events.length; i++) {
+        if (events[i].location == locationName 
+            && events[i].privacy == "public") {
+            eventDivElement.appendChild(createEventNoResponse(events[i]));
+          }
+        }
+    });
+  return eventDivElement;
+}
+
+/**
+  Gets events the user is allowed to see.
+*/
+function getAvailableEvents(userID) {
+  eventDivElement = document.createElement("div");
+  eventDivElement.innerText = '';
+  locationName = sessionStorage.getItem(SESSION_STORE_LOCATION);
+
+  fetch("events")
+    .then(response => response.json())
+    .then(events => {
+      for (i = 0; i < events.length; i++) {
+        if (events[i].location == locationName) {
+          invitedAttendees = events[i].invitedAttendees;
+          rsvpAttendees = events[i].rsvpAttendees;
+          rsvpContains = rsvpAttendees.includes(userID);
+          if (events[i].privacy == "public") {
+            // display public events even if user is not attending
+            if (!rsvpContains) {
+              eventDivElement.appendChild(createEventWithResponse(events[i], userID, "false"));
+            }
+          }
+          if (rsvpContains) {
+            // display events the user is attending
+            eventDivElement.appendChild(createEventWithResponse(events[i], userID, "true"));
+          }
+          else if (invitedAttendees.includes(userID)) {
+            // display events the user is invited to
+            eventDivElement.appendChild(createEventWithResponse(events[i], userID, "false"));
+          }
+        }
+      }
+    });
+  return eventDivElement;
+}
+
+function createEventNoResponse(event) {
+  const eventElement = document.createElement('div');
+  eventElement.className = "card";
+
+  const eventContents = document.createElement('div');
+  eventContents.className = "contents";
+
+  const eventName = document.createElement('h2');
+  eventName.className = "name-display";
+  eventName.innerText = event.eventName;
+
+  const eventDate = document.createElement('p');
+  eventDate.className = "date-display";
+  eventDate.innerText = event.dateTime;
+
+  const locationDisplay = document.createElement('div');
+  locationDisplay.className = "location-display";
+  const locationIcon = document.createElement('i');
+  locationIcon.className = 'fa fa-map-marker';
+  const eventLocation = document.createElement('p');
+  eventLocation.className = "location-name";
+  eventLocation.innerText = event.location;
+  locationDisplay.append(locationIcon);
+  locationDisplay.append(eventLocation);
+  if (window.location.pathname === '/profile.html') {
+    locationDisplay.addEventListener('click', () => {
+      sessionStorage.setItem(SESSION_STORAGE_CURRENT_LOCATION, event.placeId);
+      window.location.href = 'map.html';
+    });
+  }
+
+  const eventDetails = document.createElement('p'); 
+  eventDetails.className = "details-display";
+  eventDetails.innerText = event.eventDetails;
+
+  eventElement.append(eventContents);
+  eventElement.append(eventName);
+  eventElement.append(eventDate);
+  eventElement.append(locationDisplay);
+  eventElement.append(eventDetails);
+  return eventElement;
+}
+
+function createEventWithResponse(event, userID, going) {
+  const eventElement = createEventNoResponse(event);
+
+  const bottomCard = document.createElement('div');
+  bottomCard.id = "bottom-event-wrapper";
+
+  if (userID === event.creator) {
+    const deleteButton = document.createElement('button');
+    deleteButton.className = "button icon-button";
+    const deleteIcon = document.createElement('i');
+    deleteIcon.className = 'fa fa-trash-o';
+    deleteButton.appendChild(deleteIcon);
+    deleteButton.addEventListener('click', () => {
+      deleteSingleEvent(event, eventElement);
+    });
+
+    bottomCard.append(deleteButton);
+  }
+  
+  const rsvpButton = document.createElement('button');
+  rsvpButton.innerText = "Going";
+  setRSVPButtonColor(rsvpButton, going);
+
+  rsvpButton.addEventListener('click', () => {
+    addRemoveAttendee(event, rsvpButton);
+  }); 
+
+  bottomCard.append(rsvpButton);
+  eventElement.append(bottomCard);
+  return eventElement;
+}
+
+/**sets the color of the RSVP button on onload */
+function setRSVPButtonColor(rsvpButton, going) {
+  if (going === "true") {
+    rsvpButton.className = "button button-selected";
+  }
+  else {
+    rsvpButton.className = "button";
+  }
+}
+
+function addRemoveAttendee(event, rsvpButton) {
+  const params = new URLSearchParams();
+  params.append('eventId', event.eventId);
+  fetch('/add-remove-attendee', {
+    method: 'POST', body: params
+  }).then(switchRSVPButtonColor(rsvpButton));
+}
+
+/**change color in RSVP button when user clicks it */
+function switchRSVPButtonColor(rsvpButton) {
+  if (rsvpButton.className === "button") {
+    rsvpButton.className = " button button-selected";
+  }
+  else {
+    rsvpButton.className = "button";
+  }
+  if (window.location.pathname === '/profile.html') {
+    profileOnload();
+  }
+}
+
+/**Deleting a single event when trash button on event is clicked */
+function deleteSingleEvent(event, eventElement) {
+  const params = new URLSearchParams();
+  params.append('id', event.eventId);
+  fetch('/delete-single-event', {
+    method: 'POST', body: params
+  }).then(eventElement.style.display = "none");
+}
+
+/**deleting every single event -- TEMPORARY */
+function deleteAllEvents() {
+  const request = new Request('/delete-events', {method: 'POST'});
+    fetch(request);
 }

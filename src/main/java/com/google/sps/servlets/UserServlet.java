@@ -27,9 +27,10 @@ public class UserServlet extends HttpServlet {
       String id = (String) userEntity.getProperty(Constants.USER_ID_PARAM);
       String name = (String) userEntity.getProperty(Constants.USER_NAME_PARAM);
       List<String> buddies = (List<String>) userEntity.getProperty(Constants.USER_BUDDIES_PARAM);
+      List<String> buddyRequests = (List<String>) userEntity.getProperty(Constants.USER_BUDDY_REQUESTS_PARAM);
 
       // Create a User object with those attributes and add it to the list of users.
-      User user = new User(id, name, buddies);
+      User user = new User(id, name, buddies, buddyRequests);
       users.add(user);
     }
 
