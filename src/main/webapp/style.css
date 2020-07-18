@@ -296,7 +296,12 @@ html, body {
   border-radius: 16px;
 }
 
-.filter-button.active {
+.filter-button:hover {
   background-color: #002b54;
   color: white;
+} 
+
+.filter-button.active {
+  background-color: turquoise;
+  color: #002b54;
 } 
