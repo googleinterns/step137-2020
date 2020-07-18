@@ -47,8 +47,9 @@ function initMap() {
         addEventToFilter(map, filterElements.item(i).id, mapCenter, filterElements.item(i));
         }
         function addEventToFilter (map, id, mapCenter, filterItem) {
-          filterItem.addEventListener('click', () => {
+          filterItem.addEventListener('click', function(e) {
             highlightNearbyLocation(map, id, mapCenter);
+            updateActiveStatus(filterElements, id, e);
           });
         }
         fetchPlaceInformation(newCenterId, map, EXPLORE_MAP_PAGE);
@@ -77,8 +78,9 @@ function initMap() {
         addEventToFilter(map, filterElements.item(i).id, pos, filterElements.item(i));
       }
       function addEventToFilter (map, id, mapCenter, filterItem) {
-        filterItem.addEventListener('click', () => {
+        filterItem.addEventListener('click', function(e) {
           highlightNearbyLocation(map, id, mapCenter);
+          updateActiveStatus(filterElements, id, e);
         });
       }
       infoWindow.setPosition(pos);
@@ -114,9 +116,8 @@ function handleLocationError(browserHasGeolocation, pos) {
 
 /** Searches nearby for a type of location and places markers there. */
 function highlightNearbyLocation(map, placeType, currentLocation) {
-  setMapOnAll(null);
-  markers = [];
-  var image = '/images/blue-marker.png'
+  deleteAllMarkers();
+  var image = '/images/blue-marker.png';
   var request = {
     location: currentLocation,
     radius: '1000',
@@ -144,6 +145,20 @@ function highlightNearbyLocation(map, placeType, currentLocation) {
     }
   } 
 }
+
+/** Updates active status of filter buttons.  */
+function updateActiveStatus(listOfElements, elementId, evt) {
+  for (var i = 0; i < listOfElements.length; i++) {
+    listOfElements[i].className = listOfElements[i].className.replace(' active', '');
+  }
+  evt.currentTarget.className += ' active';
+}
+
+/** Deletes all markers on map. */
+function deleteAllMarkers() {
+    setMapOnAll(null);
+    markers = [];
+  }
 
 /** Sets the map on all markers in the array. */
 function setMapOnAll(map) {
