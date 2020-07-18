@@ -196,6 +196,7 @@ function displayBuddies(user, viewer) {
   } else if (viewer === PROFILE_VIEWER_BUDDY) {
     // Add a remove buddy option.
     const removeBuddyButton = document.createElement('button');
+    removeBuddyButton.className = 'button';
     removeBuddyButton.innerText = 'Remove buddy';
     removeBuddyButton.addEventListener('click', () => {
       addOrRemoveBuddy(user, 'remove');
@@ -214,6 +215,7 @@ function displayBuddies(user, viewer) {
   } else if (viewer === PROFILE_VIEWER_PENDING_BUDDY) {
     // Add an option informing the user that a buddy request has been sent.
     const requestSentButton = document.createElement('button');
+    requestSentButton.className = 'button';
     requestSentButton.innerText = 'Buddy request sent';
     requestSentButton.addEventListener('click', () => {
       sendOrRemoveBuddyRequest(user, 'unsend');
@@ -222,6 +224,7 @@ function displayBuddies(user, viewer) {
   } else if (viewer === PROFILE_VIEWER_STRANGER) {
     // Add an add buddy option. 
     const addBuddyButton = document.createElement('button');
+    addBuddyButton.className = 'button';
     addBuddyButton.innerText = 'Add buddy';
     addBuddyButton.addEventListener('click', () => {
       sendOrRemoveBuddyRequest(user, 'send');
@@ -239,8 +242,8 @@ function displayBuddyRequests(user) {
   requestsPopup.innerHTML = '';
   const buddyRequests = document.createElement('div');
   buddyRequests.className = 'popup-text';
-  const exitButton = document.createElement('button');
-  exitButton.innerText = 'X';
+  const exitButton = document.createElement('i');
+  exitButton.className = 'fa fa-close';
   exitButton.addEventListener('click', () => {
     requestsPopup.style.display = 'none';
   });
@@ -260,24 +263,30 @@ function displayBuddyRequests(user) {
           // add a request element (which includes the user's name and link to 
           // their profile, an approve button, and a remove button) to the page.
           const requestElement = document.createElement('div');
+          requestElement.className = 'request-element';
           const userElement = document.createElement('p');
           userElement.innerText = users[i].name;
           userElement.addEventListener('click', () => {
             visitProfile(users[i].id);
           });
+          const requestButtons = document.createElement('div');
+          requestButtons.className = 'request-buttons';
           const approveButton = document.createElement('button');
+          approveButton.className = 'button';
           approveButton.innerText = 'Approve';
           approveButton.addEventListener('click', () => {
             addOrRemoveBuddy(users[i], 'add');
           });
           const removeButton = document.createElement('button');
+          removeButton.className = 'button';
           removeButton.innerText = 'Remove';
           removeButton.addEventListener('click', () => {
             sendOrRemoveBuddyRequest(users[i], 'remove');
           });
+          requestButtons.appendChild(approveButton);
+          requestButtons.appendChild(removeButton);
           requestElement.appendChild(userElement);
-          requestElement.appendChild(approveButton);
-          requestElement.appendChild(removeButton);
+          requestElement.appendChild(requestButtons);
           buddyRequests.appendChild(requestElement);
         }
       }
@@ -298,8 +307,8 @@ function displayBuddiesList(user, buddyContainer) {
   buddiesPopup.innerHTML = '';
   const buddiesList = document.createElement('div');
   buddiesList.className = 'popup-text';
-  const exitButton = document.createElement('button');
-  exitButton.innerText = 'X';
+  const exitButton = document.createElement('i');
+  exitButton.className = 'fa fa-close';
   exitButton.addEventListener('click', () => {
     buddiesPopup.style.display = 'none';
   });
@@ -466,7 +475,7 @@ function displayBuddyEvents(user, eventsContainer) {
 }
 
 /*
- * 
+ * Creates the tab element that holds the invited and attending events tabs.
  */
 function createEventsTab() {
   tabContainer = document.createElement('div');

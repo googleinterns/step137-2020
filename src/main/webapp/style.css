@@ -39,7 +39,6 @@ html, body {
   background-color: var(--button-color);
   color: var(--side-bar);
   border: 1.5px solid var(--button-color);
-  outline: 1.5px solid var(--button-color);
   font-size: 16px;
   padding: 5px 10px;
   font-weight: 450;
@@ -228,6 +227,7 @@ html, body {
   width: 350px;
   background-color: white;
   padding: 20px;
+  position: relative;
 }
 
 #basic-info {
@@ -235,7 +235,7 @@ html, body {
 }
 
 #name-container {
-  display: inline-flex;
+display: inline-flex;
   align-items: center;
 }
 
@@ -253,6 +253,24 @@ html, body {
 
 .bottom-section {
   flex: 1;
+}
+
+.request-element {
+  display: inline-flex;
+  align-items: center;
+}
+
+.request-buttons {
+  margin-left: 10px;
+}
+
+.fa-close {
+  color: var(--gray-icon-color);
+  cursor: pointer;
+  display: block;
+  position: absolute;
+  top: 10px;
+  right: 10px;
 }
 
 /* Style the tab in sidebar */
