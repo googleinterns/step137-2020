@@ -305,3 +305,20 @@ html, body {
   background-color: turquoise;
   color: #002b54;
 } 
+
+.clear-button {
+  float: right;
+  background-color: #ddd;
+  border: none;
+  color: #002b54;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 16px;
+}
+
+.clear-button:hover {
+  background-color: plum;
+}
