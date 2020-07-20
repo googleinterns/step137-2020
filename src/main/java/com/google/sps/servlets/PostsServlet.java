@@ -68,7 +68,7 @@ public class PostsServlet extends HttpServlet {
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     PreparedQuery results = datastore.prepare(query);
  
-     //converting the list of entities to a list of posts 
+     // Converting the list of entities to a list of posts .
     List<Post> posts = new ArrayList<>();
     for (Entity entity : results.asIterable()) {
       long id = entity.getKey().getId();
@@ -78,7 +78,8 @@ public class PostsServlet extends HttpServlet {
       String placeId = (String) entity.getProperty(Constants.PLACE_ID_PARAM);
       String creator = (String) entity.getProperty(Constants.CREATOR_PARAM);
 
-      Post post = new Post(id, caption, blobKey, creator, location, placeId);
+      Post post = new Post.PostBuilder(id, caption, blobKey, creator, 
+          location, placeId).build();
       posts.add(post);
     }
 
