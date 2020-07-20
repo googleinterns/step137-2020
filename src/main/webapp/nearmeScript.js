@@ -9,7 +9,7 @@ function initializeMap() {
   mapCenter = { lat: 122.0841, lng: 37.4220 };
   var map = new google.maps.Map(document.getElementById('nearMeMap'), {
     center: mapCenter,
-    zoom: 14, 
+    zoom: 16, 
   });
   // Checks if browser supports geolocation.
   if (navigator.geolocation) {
@@ -44,6 +44,10 @@ function findNearbyEvents(map, currentLocation) {
   fetch('/events')
   .then(response => response.json())
   .then(events => {
+    if (events.length == 0) {
+      eventsDivElement.innerHTML = '<p>No nearby events to show.</p>';
+      return;
+    }
     // When user is logged in, get all public events and events user is attending.
     if (localStorage.getItem('loginStatus').localeCompare('true') == 0) {
       var userId = localStorage.getItem('userId');

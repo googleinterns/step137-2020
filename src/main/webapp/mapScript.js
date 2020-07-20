@@ -22,7 +22,7 @@ function initMap() {
   
   var map = new google.maps.Map(document.getElementById('map'), {
     center: mapCenter,
-    zoom: 14,
+    zoom: 15,
     mapTypeId: 'terrain',
     styles: [ 
       {elementType: 'labels.text.fill', stylers: [{color: '#002b54'}]},
@@ -120,7 +120,7 @@ function highlightNearbyLocation(map, placeType, currentLocation) {
   var image = '/images/blue-marker.png';
   var request = {
     location: currentLocation,
-    radius: '1000',
+    radius: '2000',
     type: [placeType]
   };
   service = new google.maps.places.PlacesService(map);
