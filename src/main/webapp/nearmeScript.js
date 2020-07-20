@@ -52,7 +52,6 @@ function findNearbyEvents(map, currentLocation) {
     if (localStorage.getItem('loginStatus').localeCompare('true') == 0) {
       var userId = localStorage.getItem('userId');
       for (var i = 0; i < events.length; i++) {
-        console.log(events[i].currency);
         if (events[i].currency === "current") {
           var currentEvent = events[i];
           isNearby(geocoder, currentEvent, locationCircle, userId);
@@ -62,7 +61,6 @@ function findNearbyEvents(map, currentLocation) {
     // When user is not logged in, get only public events.
     else {
       for (var i = 0; i < events.length; i++) {
-        console.log(events[i].currency);
         if (events[i].currency === "current") {
           var currentEvent = events[i];
           isNearby(geocoder, currentEvent, locationCircle, '');
