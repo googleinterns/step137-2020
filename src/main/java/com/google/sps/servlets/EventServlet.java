@@ -38,19 +38,25 @@ public class EventServlet extends HttpServlet {
     String requestEndTime = request.getParameter(Constants.END_TIME_PARAM);
     String timeZone = request.getParameter(Constants.TIME_ZONE_PARAM);
 
-    //create dates from input
-    Date startDate = createDateTime(requestStartDate.substring(0, 4),
+    //create dates with times from input for time verification
+    Date startDateTime = createDateTime(requestStartDate.substring(0, 4),
           requestStartDate.substring(5, 7), requestStartDate.substring(8), 
           requestStartTime, timeZone); 
-    Date endDate = createDateTime(requestEndDate.substring(0, 4), 
+    Date endDateTime = createDateTime(requestEndDate.substring(0, 4), 
           requestEndDate.substring(5, 7), requestEndDate.substring(8),
           requestEndTime, timeZone);
+
+    //create dates with no times for easier formatting
+    Date startDate = createDate(requestStartDate.substring(0, 4),
+          requestStartDate.substring(5, 7), requestStartDate.substring(8));
+    Date endDate = createDate(requestEndDate.substring(0, 4), 
+          requestEndDate.substring(5, 7), requestEndDate.substring(8));
     
     JSONObject json = new JSONObject();
-    boolean goodDateTimes = verifyDateTimes(startDate, endDate, json);
+    boolean goodDateTimes = verifyDateTimes(startDateTime, endDateTime, json);
     if (goodDateTimes) {
-      createEntity(request, endDate, startDate, json, requestStartTime,
-                   requestEndTime, timeZone);  
+      createEntity(request, endDateTime, startDateTime, startDate, endDate, 
+                   json, requestStartTime, requestEndTime, timeZone);  
     }
 
     response.setContentType("application/json;");
@@ -108,8 +114,9 @@ public class EventServlet extends HttpServlet {
 /**
   creates an event entity in datastore 
 */
-  private void createEntity(HttpServletRequest request, Date endDate, Date startDate, 
-          JSONObject json, String startTime, String endTime, String timeZone) {
+  private void createEntity(HttpServletRequest request, Date endDateTime, 
+          Date startDateTime, Date startDate, Date endDate, JSONObject json, 
+          String startTime, String endTime, String timeZone) {
     String eventName = request.getParameter(Constants.EVENT_NAME_PARAM);
     String location = request.getParameter(Constants.LOCATION_PARAM);
     String placeId = request.getParameter(Constants.PLACE_ID_PARAM);
@@ -140,7 +147,7 @@ public class EventServlet extends HttpServlet {
 
     Entity eventEntity = new Entity(Constants.EVENT_ENTITY_PARAM);
     eventEntity.setProperty(Constants.EVENT_NAME_PARAM, eventName);
-    eventEntity.setProperty(Constants.END_DATE_PARAM, endDate);
+    eventEntity.setProperty(Constants.END_DATE_PARAM, endDateTime);
     eventEntity.setProperty(Constants.TIME_ZONE_PARAM, timeZone);
     eventEntity.setProperty(Constants.DATE_TIME_PARAM, dateTimeFormatted);
     eventEntity.setProperty(Constants.LOCATION_PARAM, location);
@@ -160,9 +167,21 @@ public class EventServlet extends HttpServlet {
   }
 
 /**
-  turns inputted strings into date
+  turns inputted strings into a date
 */
+  private Date createDate(String year, String month, String day) {
+    String dateString = month + "-" + day + "-" + year;
+    SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
+    Date dateTime = new Date();
+    try {
+      dateTime = formatter.parse(dateString);
+    } catch (ParseException e) {e.printStackTrace();}
+    return dateTime;
+  }
 
+/**
+  turns inputted strings into date time
+*/
   private Date createDateTime(String year, String month, String day, 
             String time, String timeZone) {
     String dateString = month + "-" + day + "-" + year + " " + time + " " + timeZone;
@@ -190,7 +209,8 @@ public class EventServlet extends HttpServlet {
 
     if (startDate.equals(endDate)) {
       dateString = formatter.format(startDate);
-      dateTime += dateString + ", " + startTime + " - " + endTime;
+      dateTime += dateString + ", " + startTime + " - " + endTime + " " + 
+                  timeZone;
     }
     else {
       String startDateString = formatter.format(startDate);
@@ -258,7 +278,7 @@ public class EventServlet extends HttpServlet {
   /**
     determines if the event is current or past
   */
-  private String eventCurrency(Date endDate, String timeZone) {
+  private String eventCurrency(Date endDateTime, String timeZone) {
     SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy HH:mm z");
     formatter.setTimeZone(TimeZone.getTimeZone(timeZone));
     Date date = new Date();
@@ -267,7 +287,7 @@ public class EventServlet extends HttpServlet {
       String currentDateString = formatter.format(date);
       currentDate = formatter.parse(currentDateString);
     } catch (ParseException e) {e.printStackTrace();}
-    if (endDate.before(currentDate) || endDate.equals(currentDate)) {
+    if (endDateTime.before(currentDate) || endDateTime.equals(currentDate)) {
       return "past";
     }
     return "current";

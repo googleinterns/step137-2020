@@ -52,15 +52,21 @@ function findNearbyEvents(map, currentLocation) {
     if (localStorage.getItem('loginStatus').localeCompare('true') == 0) {
       var userId = localStorage.getItem('userId');
       for (var i = 0; i < events.length; i++) {
-        var currentEvent = events[i];
-        isNearby(geocoder, currentEvent, locationCircle, userId);
+        console.log(events[i].currency);
+        if (events[i].currency === "current") {
+          var currentEvent = events[i];
+          isNearby(geocoder, currentEvent, locationCircle, userId);
+        }
       }
     }
     // When user is not logged in, get only public events.
     else {
       for (var i = 0; i < events.length; i++) {
-        var currentEvent = events[i];
-        isNearby(geocoder, currentEvent, locationCircle, '');
+        console.log(events[i].currency);
+        if (events[i].currency === "current") {
+          var currentEvent = events[i];
+          isNearby(geocoder, currentEvent, locationCircle, '');
+        }
       }
     }
   });
