@@ -219,8 +219,6 @@ function fetchPlaceInformation(place_id, map, where) {
         createPostElement = document.createElement('a');
         interestButtonElement = document.createElement('button');
         interestButtonElement.className = "button";
-        deleteEventsButtonElement = document.createElement('button');
-        deletePostsButtonElement = document.createElement('button');
         
         nameElement.innerText = place.name;
         addressElement.innerText = 'Address: ' + place.formatted_address;
@@ -237,14 +235,6 @@ function fetchPlaceInformation(place_id, map, where) {
         interestButtonElement.addEventListener('click', () => {
           saveOrRemoveInterest(place.name, place_id, interestButtonElement);
         });
-        deleteEventsButtonElement.addEventListener('click', () => {
-          deleteAllEvents();
-        })
-        deleteEventsButtonElement.innerText = "DO NOT PRESS: DELETE ALL EVENTS";
-        deletePostsButtonElement.innerText = "DO NOT PRESS: DELETE ALL POSTS";
-        deletePostsButtonElement.addEventListener('click', () => {
-          deleteAllPosts();
-        })
 
         infoDivElement.appendChild(nameElement);
 
@@ -268,9 +258,7 @@ function fetchPlaceInformation(place_id, map, where) {
            ' ' + place.rating + '<br></br>';
           infoDivElement.appendChild(ratingElement); 
         }
-        
-        infoDivElement.appendChild(deleteEventsButtonElement);
-        infoDivElement.appendChild(deletePostsButtonElement);
+
         if (localStorage.getItem(LOCAL_STORAGE_STATUS) === 'true') {
           let userId = localStorage.getItem(LOCAL_STORAGE_ID);
           setInterestButtonText(interestButtonElement, place_id, userId);

@@ -466,11 +466,6 @@ function displayBuddyEvents(user, eventsContainer) {
         }
       }
     }
-    if (eventsCount == 0) {
-      const eventMessage = document.createElement('p');
-      eventMessage.innerText = 'No events to show.';
-      eventsContainer.appendChild(eventMessage);
-    }
   });
 }
 

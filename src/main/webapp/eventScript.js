@@ -181,12 +181,19 @@ function getPublicEvents() {
   fetch("events")
     .then(response => response.json())
     .then(events => {
-      for (i = 0; i < events.length; i++) {
-        if (events[i].location == locationName 
-            && events[i].privacy == "public") {
-            eventDivElement.appendChild(createEventNoResponse(events[i]));
-          }
+      if (events.length === 0) {
+        noEventElement = document.createElement('p');
+        noEventElement.innerText = "No events to show.";
+        eventDivElement.appendChild(noEventElement);
+      }
+      else {
+        for (i = 0; i < events.length; i++) {
+          if (events[i].location == locationName 
+              && events[i].privacy == "public") {
+              eventDivElement.appendChild(createEventNoResponse(events[i]));
+            }
         }
+      }
     });
   return eventDivElement;
 }
@@ -202,24 +209,30 @@ function getAvailableEvents(userID) {
   fetch("events")
     .then(response => response.json())
     .then(events => {
-      for (i = 0; i < events.length; i++) {
-        if (events[i].location == locationName) {
-          invitedAttendees = events[i].invitedAttendees;
-          rsvpAttendees = events[i].rsvpAttendees;
-          rsvpContains = rsvpAttendees.includes(userID);
-          if (events[i].privacy == "public") {
-            // display public events even if user is not attending
-            if (!rsvpContains) {
+      if (events.length === 0) {
+        noEventElement = document.createElement('p');
+        noEventElement.innerText = "No events to show.";
+        eventDivElement.appendChild(noEventElement);      }
+      else {
+        for (i = 0; i < events.length; i++) {
+          if (events[i].location == locationName) {
+            invitedAttendees = events[i].invitedAttendees;
+            rsvpAttendees = events[i].rsvpAttendees;
+            rsvpContains = rsvpAttendees.includes(userID);
+            if (events[i].privacy == "public") {
+              // display public events even if user is not attending
+              if (!rsvpContains) {
+                eventDivElement.appendChild(createEventWithResponse(events[i], userID, "false"));
+              }
+            }
+            if (rsvpContains) {
+              // display events the user is attending
+              eventDivElement.appendChild(createEventWithResponse(events[i], userID, "true"));
+            }
+            else if (invitedAttendees.includes(userID)) {
+              // display events the user is invited to
               eventDivElement.appendChild(createEventWithResponse(events[i], userID, "false"));
             }
-          }
-          if (rsvpContains) {
-            // display events the user is attending
-            eventDivElement.appendChild(createEventWithResponse(events[i], userID, "true"));
-          }
-          else if (invitedAttendees.includes(userID)) {
-            // display events the user is invited to
-            eventDivElement.appendChild(createEventWithResponse(events[i], userID, "false"));
           }
         }
       }
@@ -340,10 +353,4 @@ function deleteSingleEvent(event, eventElement) {
   fetch('/delete-single-event', {
     method: 'POST', body: params
   }).then(eventElement.style.display = "none");
-}
-
-/**deleting every single event -- TEMPORARY */
-function deleteAllEvents() {
-  const request = new Request('/delete-events', {method: 'POST'});
-    fetch(request);
 }

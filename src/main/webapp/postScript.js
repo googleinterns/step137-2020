@@ -18,22 +18,22 @@ function fetchBlobstoreUrlAndShowForm() {
 function getPosts(userId) {
   locationName = sessionStorage.getItem(SESSION_STORE_LOCATION);
   postDivElement = document.createElement('div');
-  let count = 0;
   fetch('/post')
     .then(response => response.json())
     .then(posts => {
-      for (let i = 0; i < posts.length; i ++) {
-        if (locationName === posts[i].location) {
-          postDivElement.appendChild(createPost(posts[i], userId));
-          count++;
+      if (posts.length === 0) {
+        noPostElement = document.createElement('p');
+        noPostElement.innerText = "No posts to show.";
+        postDivElement.appendChild(noPostElement);
+      }
+      else {
+        for (let i = 0; i < posts.length; i ++) {
+          if (locationName === posts[i].location) {
+            postDivElement.appendChild(createPost(posts[i], userId));
+          }
         }
       }
     });
-  if (count === 0) {
-    noPostElement = document.createElement('p');
-    noPostElement.innerText = "No posts to show";
-    postDivElement.appendChild(noPostElement);
-  }
   return postDivElement;
 }
 
@@ -88,20 +88,6 @@ function deleteSinglePost(post, postElement) {
   fetch('/delete-single-post', {
     method: 'POST', body: params
   }).then(postElement.style.display = "none")
-    .then(getPosts());
-}
-
-function deleteAllPosts() {
-  fetch('/post')
-    .then(response => response.json())
-    .then(posts => {
-      for (i = 0; i < posts.length; i ++) {
-        deleteBlob(posts[i].blobKey);
-      }
-    })
-    .then(fetch('/delete-all-posts', {
-      method: 'POST'
-    }))
     .then(getPosts());
 }
 
