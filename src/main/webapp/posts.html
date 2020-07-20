@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <title>Posts</title>
+    <script src="mapScript.js"></script>
     <script src="postScript.js"></script>
     <link rel="stylesheet" href="style.css">
     <style>
@@ -12,15 +13,18 @@
       }
     </style>
   </head>
-  <body onload="fetchBlobstoreUrlAndShowForm()">
+  <body onload="onload()">
     <h1>Make a Post</h1>
     <p>Type a message and click submit:</p>
 
     <form id="post" class="hidden" method="POST" enctype="multipart/form-data">
-      <p>Upload an image:</p>
+      <p>Location: </p>
+      <input type="text" id="location" name="location">
+      <input type="text" id="place-id" name="place-id">
+      <h2>Upload an image: </h2>
       <input type="file" name="image">
       <br/>
-      <p>Enter a caption:</p>
+      <h2>Enter a caption: </h2>
       <textarea name="caption"></textarea>
       <br/><br/>
       <button>Submit</button>
