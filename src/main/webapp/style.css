@@ -2,6 +2,9 @@
   --gray-icon-color: #808080;
   --form-background: rgba(0,0,0,0.2);
   --navbar-color: #002b54;
+  --button-color: rgba(248, 202, 210, 0.658);
+  --button-color-selected: rgba(247, 162, 177, 0.979);
+  --side-bar: #f1f1f1;
 }
 
 * {
@@ -30,6 +33,32 @@ html, body {
 #user-navbar-section {
   display: flex;
   margin-left: auto;
+}
+
+.button {
+  background-color: var(--button-color);
+  color: var(--side-bar);
+  border: 1.5px solid var(--button-color);
+  font-size: 16px;
+  padding: 5px 10px;
+  font-weight: 450;
+  font-family: 'Roboto';
+  border-radius: 4px;
+  transition: ease background-color 0.1s, ease color 0.1s;
+}
+
+.button:hover {
+  background-color: var(--side-bar);
+  color: var(--button-color);
+}
+
+.button-selected {
+  background-color: var(--button-color-selected);
+}
+
+.button-selected:hover {
+  background-color: var(--side-bar);
+  color: var(--button-color-selected);
 }
 
 .card {
@@ -152,7 +181,7 @@ html, body {
 #side {
   flex: 20%;
   max-width: 20%;
-  background-color: #f1f1f1;
+  background-color: var(--side-bar);
   padding: 20px;
 }
 
@@ -185,6 +214,7 @@ html, body {
   z-index: 1;
   left: 0;
   top: 0;
+  padding: 10%;
   width: 100%;
   height: 100%;
   overflow: auto;
@@ -192,10 +222,12 @@ html, body {
 }
 
 .popup-text {
+  text-align: center;
   margin: auto;
-  padding-left: 100px;
-  padding-top: 350px;
-  width: 400px;
+  width: 350px;
+  background-color: white;
+  padding: 20px;
+  position: relative;
 }
 
 #basic-info {
@@ -203,7 +235,7 @@ html, body {
 }
 
 #name-container {
-  display: inline-flex;
+display: inline-flex;
   align-items: center;
 }
 
@@ -221,6 +253,24 @@ html, body {
 
 .bottom-section {
   flex: 1;
+}
+
+.request-element {
+  display: inline-flex;
+  align-items: center;
+}
+
+.request-buttons {
+  margin-left: 10px;
+}
+
+.fa-close {
+  color: var(--gray-icon-color);
+  cursor: pointer;
+  display: block;
+  position: absolute;
+  top: 10px;
+  right: 10px;
 }
 
 /* Style the tab in sidebar */
@@ -280,4 +330,45 @@ html, body {
 /* Search Users styling */
 #search-users-container {
   text-align: center;
+}
+
+/* Styling for filter buttons. */
+.filter-button {
+  background-color: #ddd;
+  border: none;
+  color: black;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 16px;
+}
+
+.filter-button:hover {
+  background-color: #002b54;
+  color: white;
+} 
+
+.filter-button.active {
+  background-color: turquoise;
+  color: #002b54;
+} 
+
+.clear-button {
+  float: right;
+  background-color: #ddd;
+  border: none;
+  color: #002b54;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 16px;
+}
+
+.clear-button:hover {
+  background-color: plum;
 }

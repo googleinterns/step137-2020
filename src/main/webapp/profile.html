@@ -2,10 +2,12 @@
 <html>
   <head>
     <meta charset="UTF-8">
+    <title>Profile</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" 
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <script src="postScript.js"></script>
+    <script src="eventScript.js"></script>
     <script src="profileScript.js"></script>
     <script src="mapScript.js"></script>
   </head>
@@ -17,13 +19,15 @@
       <div id="user-navbar-section"></div>
     </div>
     <div id="name-form-container" class="popup">
-      <form action="/user-name" method="POST" onsubmit="updateCurrentProfile()" class="popup-text">
+      <form action="/user-name" method="POST" onsubmit="profileOnload()" class="popup-text">
       <label for="name">Enter a name for your account:</label><br>
       <input type="text" name="name" class="input"></input>
       <br></br>
       <input type="submit">
       </form>
     </div>
+    <div id="requests-popup" class="popup"></div>
+    <div id="buddies-popup" class="popup"></div>
     <div id="basic-info">
       <div id="name-container"></div>
       <div id="buddy-container"></div>

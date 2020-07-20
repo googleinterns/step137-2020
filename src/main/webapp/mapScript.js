@@ -4,7 +4,7 @@ const CREATE_EVENT_PAGE = 'createEventPage';
 const EXPLORE_MAP_PAGE = 'exploreMapPage';
 const SESSION_STORE_LOCATION = 'locationName';
 const SESSION_STORE_PLACEID = 'placeId';
-
+var markers = [];
 /** Initial display of screen */
 function initialDisplay() {
   navbarLoginDisplay(); // This function is located in profileScript.js
@@ -17,6 +17,8 @@ function initMap() {
   mapCenter = { lat: 37.4220, lng: -122.0841 };
   infoWindow = new google.maps.InfoWindow;
   var marker = new google.maps.Marker;
+  marker.setIcon('/images/red-marker.png');
+  var filterElements = document.getElementsByClassName('filter-button');
   
   var map = new google.maps.Map(document.getElementById('map'), {
     center: mapCenter,
@@ -40,6 +42,16 @@ function initMap() {
       if (status == "OK") {
         mapCenter = results[0].geometry.location;
         map.setCenter(mapCenter);
+        for (var i = 0; i < filterElements.length; i++) {
+        // Intentionally outsourced to separate function to solve looping bugs.
+        addEventToFilter(map, filterElements.item(i).id, mapCenter, filterElements.item(i));
+        }
+        function addEventToFilter (map, id, mapCenter, filterItem) {
+          filterItem.addEventListener('click', function(e) {
+            highlightNearbyLocation(map, id, mapCenter);
+            updateActiveStatus(filterElements, e);
+          });
+        }
         fetchPlaceInformation(newCenterId, map, EXPLORE_MAP_PAGE);
         marker.setPosition(mapCenter);
         marker.setMap(map);
@@ -61,7 +73,16 @@ function initMap() {
       };
       // For use on Nearme page
       localStorage.setItem('currentLocation', pos);
-
+      for (var i = 0; i < filterElements.length; i++) {
+        // Intentionally outsourced to separate function to solve looping bugs.
+        addEventToFilter(map, filterElements.item(i).id, pos, filterElements.item(i));
+      }
+      function addEventToFilter (map, id, mapCenter, filterItem) {
+        filterItem.addEventListener('click', function(e) {
+          highlightNearbyLocation(map, id, mapCenter);
+          updateActiveStatus(filterElements, e);
+        });
+      }
       infoWindow.setPosition(pos);
       infoWindow.setContent('Your current location has been found.');
       infoWindow.open(map);
@@ -91,6 +112,60 @@ function handleLocationError(browserHasGeolocation, pos) {
     'Error: Your browser does not suppor geolocation.'
     );
   infoWindow.open(map);
+}
+
+/** Searches nearby for a type of location and places markers there. */
+function highlightNearbyLocation(map, placeType, currentLocation) {
+  deleteAllMarkers();
+  var image = '/images/blue-marker.png';
+  var request = {
+    location: currentLocation,
+    radius: '1000',
+    type: [placeType]
+  };
+  service = new google.maps.places.PlacesService(map);
+  service.nearbySearch(request, callback);
+  // output response of API call to console
+  function callback(results, status) {
+    if (status == google.maps.places.PlacesServiceStatus.OK) {
+      for (var i = 0; i < results.length; i++) {
+        createMarker(map, results[i].geometry.location);
+      }
+      function createMarker(thisMap, location) {
+        var marker = new google.maps.Marker({
+          position: location,
+          map: thisMap,
+          icon: image
+        })
+        markers.push(marker);
+      }
+    }
+    else {
+      alert(status);
+    }
+  } 
+}
+
+/** Updates active status of filter buttons.  */
+function updateActiveStatus(listOfElements, evt) {
+  for (var i = 0; i < listOfElements.length; i++) {
+    listOfElements[i].className = listOfElements[i].className.replace(' active', '');
+  }
+  if (evt) { evt.currentTarget.className += ' active'; }
+}
+
+/** Deletes all markers on map. */
+function deleteAllMarkers() {
+    setMapOnAll(null);
+    markers = [];
+    updateActiveStatus(document.getElementsByClassName('filter-button'), null);
+  }
+
+/** Sets the map on all markers in the array. */
+function setMapOnAll(map) {
+  for (var i = 0; i < markers.length; i++) {
+    markers[i].setMap(map);
+  }
 }
 
 /** Fetches information about a place. */
@@ -143,6 +218,7 @@ function fetchPlaceInformation(place_id, map, where) {
         createEventElement = document.createElement('a');
         createPostElement = document.createElement('a');
         interestButtonElement = document.createElement('button');
+        interestButtonElement.className = "button";
         deleteEventsButtonElement = document.createElement('button');
         deletePostsButtonElement = document.createElement('button');
         
@@ -211,7 +287,6 @@ function fetchPlaceInformation(place_id, map, where) {
         infoDivElement.appendChild(eventsDivElement);
         infoDivElement.appendChild(userPostsDivElement);
         document.getElementById('open').click();
-        sideBarElement.innerHTML = '<h1>Information Bar</h1>'
         sideBarElement.appendChild(infoDivElement);
         return sideBarElement;
       }
@@ -333,174 +408,6 @@ function createMapSnippet() {
   });
 }
 
-/**
-  Get all public events to display on map page even when user isn't logged in.
- */
-function getPublicEvents() {
-  eventDivElement = document.createElement("div");
-  eventDivElement.innerText = '';
-  locationName = sessionStorage.getItem(SESSION_STORE_LOCATION);
-
-  fetch("events")
-    .then(response => response.json())
-    .then(events => {
-      for (i = 0; i < events.length; i++) {
-        if (events[i].location == locationName 
-            && events[i].privacy == "public") {
-            eventDivElement.appendChild(createEventNoResponse(events[i]));
-          }
-        }
-    });
-  return eventDivElement;
-}
-
-/**
-  Gets events the user is allowed to see.
-*/
-function getAvailableEvents(userID) {
-  eventDivElement = document.createElement("div");
-  eventDivElement.innerText = '';
-  locationName = sessionStorage.getItem(SESSION_STORE_LOCATION);
-
-  fetch("events")
-    .then(response => response.json())
-    .then(events => {
-      for (i = 0; i < events.length; i++) {
-        if (events[i].location == locationName) {
-          invitedAttendees = events[i].invitedAttendees;
-          rsvpAttendees = events[i].rsvpAttendees;
-          rsvpContains = rsvpAttendees.includes(userID);
-          if (events[i].privacy == "public") {
-            // display public events even if user is not attending
-            if (!rsvpContains) {
-              eventDivElement.appendChild(createEventWithResponse(events[i], userID, "false"));
-            }
-          }
-          if (rsvpContains) {
-            // display events the user is attending
-            eventDivElement.appendChild(createEventWithResponse(events[i], userID, "true"));
-          }
-          else if (invitedAttendees.includes(userID)) {
-            // display events the user is invited to
-            eventDivElement.appendChild(createEventWithResponse(events[i], userID, "false"));
-          }
-        }
-      }
-    });
-  return eventDivElement;
-}
-
-function createEventNoResponse(event) {
-  const eventElement = document.createElement('div');
-  eventElement.className = "card";
-
-  const eventContents = document.createElement('div');
-  eventContents.className = "contents";
-
-  const eventName = document.createElement('h2');
-  eventName.className = "name-display";
-  eventName.innerText = event.eventName;
-
-  const eventDate = document.createElement('p');
-  eventDate.className = "date-display";
-  eventDate.innerText = event.dateTime;
-
-  const locationDisplay = document.createElement('div');
-  locationDisplay.className = "location-display";
-  const locationIcon = document.createElement('i');
-  locationIcon.className = 'fa fa-map-marker';
-  const eventLocation = document.createElement('p');
-  eventLocation.className = "location-name";
-  eventLocation.innerText = event.location;
-  locationDisplay.append(locationIcon);
-  locationDisplay.append(eventLocation);
-  if (window.location.pathname === '/profile.html') {
-    locationDisplay.addEventListener('click', () => {
-      sessionStorage.setItem(SESSION_STORAGE_CURRENT_LOCATION, event.placeId);
-      window.location.href = 'map.html';
-    });
-  }
-
-  const eventDetails = document.createElement('p'); 
-  eventDetails.className = "details-display";
-  eventDetails.innerText = event.eventDetails;
-
-  eventElement.append(eventContents);
-  eventElement.append(eventName);
-  eventElement.append(eventDate);
-  eventElement.append(locationDisplay);
-  eventElement.append(eventDetails);
-  return eventElement;
-}
-
-function createEventWithResponse(event, userID, going) {
-  const eventElement = createEventNoResponse(event);
-
-  const bottomCard = document.createElement('div');
-  bottomCard.id = "bottom-event-wrapper";
-
-  if (userID === event.creator) {
-    const deleteButton = document.createElement('button');
-    deleteButton.className = "icon-button";
-    const deleteIcon = document.createElement('i');
-    deleteIcon.className = 'fa fa-trash-o';
-    deleteButton.appendChild(deleteIcon);
-    deleteButton.addEventListener('click', () => {
-      deleteSingleEvent(event, eventElement);
-    });
-
-    bottomCard.append(deleteButton);
-  }
-  
-  const rsvpButton = document.createElement('button');
-  setRSVPText(rsvpButton, going);
-
-  rsvpButton.addEventListener('click', () => {
-    addRemoveAttendee(event, rsvpButton);
-  }); 
-
-  bottomCard.append(rsvpButton);
-  eventElement.append(bottomCard);
-  return eventElement;
-}
-
-function setRSVPText(rsvpButton, going) {
-  if (going === "true") {
-    rsvpButton.innerText = "Not Going";
-  }
-  else {
-    rsvpButton.innerText = "Going";
-  }
-}
-
-function addRemoveAttendee(event, rsvpButton) {
-  const params = new URLSearchParams();
-  params.append('eventId', event.eventId);
-  fetch('/add-remove-attendee', {
-    method: 'POST', body: params
-  }).then(switchRSVPButtonText(rsvpButton));
-}
-
-function deleteSingleEvent(event, eventElement) {
-  const params = new URLSearchParams();
-  params.append('id', event.eventId);
-  fetch('/delete-single-event', {
-    method: 'POST', body: params
-  }).then(eventElement.style.display = "none");
-}
-
-function switchRSVPButtonText(rsvpButton) {
-  if (rsvpButton.innerText === "Going") {
-    rsvpButton.innerText = "Not Going";
-  }
-  else {
-    rsvpButton.innerText = "Going";
-  }
-  if (window.location.pathname === '/profile.html') {
-    displayProfile();
-  }
-}
-
 /** Sends post request to store or remove saved interest. */
 function saveOrRemoveInterest(locationName, placeId, interestButtonElement) {
   const params = new URLSearchParams()
@@ -537,7 +444,3 @@ function setInterestButtonText(interestButtonElement, placeId, userId) {
   });
 }
 
-function deleteAllEvents() {
-  const request = new Request('/delete-events', {method: 'POST'});
-    fetch(request);
-}

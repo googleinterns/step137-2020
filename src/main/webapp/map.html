@@ -9,6 +9,7 @@
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBf5E9ymEYBv6mAi78mFBOn8oUVvO8sph4&libraries=places"></script>
     <script src="profileScript.js"></script>
     <script src="postScript.js"></script>
+    <script src="eventScript.js"></script>
     <script src="mapScript.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   </head>
@@ -21,14 +22,21 @@
     </div>
     <div class="row">
       <div id="side">
+        <div id="filter-buttons">
+          <h1 style="display: inline;">Filters</h1><span class="clear-button" onclick="deleteAllMarkers()">clear filter</span>
+          <div id="restaurant" class="filter-button">restaurant</div>
+          <div id="park" class="filter-button">park</div>
+          <div id="shopping_mall" class="filter-button">shopping mall</div>
+          <div id="movie_theater" class="filter-button">movie theater</div>
+        </div> 
         <h1>Information Bar</h1>
-        <p>After your current location has been found, 
-           click on a location on the map to view more information. 
-        </p>
         <div id="place-info">
+          <p>After your current location has been found, 
+           click on a location on the map to view more information. 
+          </p>
           <div id="UserPosts" class="tabcontent"> </div>
           <div id="Events" class="tabcontent"> </div>
-        </div> 
+        </div>
       </div>
       <div class="main">
         <div id="map">
