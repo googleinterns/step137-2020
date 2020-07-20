@@ -98,24 +98,3 @@ function isNearby(geocoder, event, locationCircle, userId) {
     }
   });
 }
-
-// TODO: Decide if this will be useful for map page (filtering locations)
- /** Searches for events nearby */
-// function findNearbyEvents(map, currentLocation) {
-//   var request = {
-//     location: currentLocation,
-//     radius: '500',
-//     type: ['restaurant']
-//   };
-//   service = new google.maps.places.PlacesService(map);
-//   service.nearbySearch(request, callback);
-//   // output response of API call to console
-//   function callback(results, status) {
-//     if (status == google.maps.places.PlacesServiceStatus.OK) {
-//       console.log(results[0].name);
-//     }
-//     else {
-//       alert(status);
-//     }
-//   } 
-// }

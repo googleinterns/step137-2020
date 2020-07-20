@@ -4,7 +4,7 @@ const CREATE_EVENT_PAGE = 'createEventPage';
 const EXPLORE_MAP_PAGE = 'exploreMapPage';
 const SESSION_STORE_LOCATION = 'locationName';
 const SESSION_STORE_PLACEID = 'placeId';
-
+var markers = [];
 /** Initial display of screen */
 function initialDisplay() {
   navbarLoginDisplay(); // This function is located in profileScript.js
@@ -17,6 +17,8 @@ function initMap() {
   mapCenter = { lat: 37.4220, lng: -122.0841 };
   infoWindow = new google.maps.InfoWindow;
   var marker = new google.maps.Marker;
+  marker.setIcon('/images/red-marker.png');
+  var filterElements = document.getElementsByClassName('filter-button');
   
   var map = new google.maps.Map(document.getElementById('map'), {
     center: mapCenter,
@@ -40,6 +42,16 @@ function initMap() {
       if (status == "OK") {
         mapCenter = results[0].geometry.location;
         map.setCenter(mapCenter);
+        for (var i = 0; i < filterElements.length; i++) {
+        // Intentionally outsourced to separate function to solve looping bugs.
+        addEventToFilter(map, filterElements.item(i).id, mapCenter, filterElements.item(i));
+        }
+        function addEventToFilter (map, id, mapCenter, filterItem) {
+          filterItem.addEventListener('click', function(e) {
+            highlightNearbyLocation(map, id, mapCenter);
+            updateActiveStatus(filterElements, e);
+          });
+        }
         fetchPlaceInformation(newCenterId, map, EXPLORE_MAP_PAGE);
         marker.setPosition(mapCenter);
         marker.setMap(map);
@@ -61,7 +73,16 @@ function initMap() {
       };
       // For use on Nearme page
       localStorage.setItem('currentLocation', pos);
-
+      for (var i = 0; i < filterElements.length; i++) {
+        // Intentionally outsourced to separate function to solve looping bugs.
+        addEventToFilter(map, filterElements.item(i).id, pos, filterElements.item(i));
+      }
+      function addEventToFilter (map, id, mapCenter, filterItem) {
+        filterItem.addEventListener('click', function(e) {
+          highlightNearbyLocation(map, id, mapCenter);
+          updateActiveStatus(filterElements, e);
+        });
+      }
       infoWindow.setPosition(pos);
       infoWindow.setContent('Your current location has been found.');
       infoWindow.open(map);
@@ -91,6 +112,60 @@ function handleLocationError(browserHasGeolocation, pos) {
     'Error: Your browser does not suppor geolocation.'
     );
   infoWindow.open(map);
+}
+
+/** Searches nearby for a type of location and places markers there. */
+function highlightNearbyLocation(map, placeType, currentLocation) {
+  deleteAllMarkers();
+  var image = '/images/blue-marker.png';
+  var request = {
+    location: currentLocation,
+    radius: '1000',
+    type: [placeType]
+  };
+  service = new google.maps.places.PlacesService(map);
+  service.nearbySearch(request, callback);
+  // output response of API call to console
+  function callback(results, status) {
+    if (status == google.maps.places.PlacesServiceStatus.OK) {
+      for (var i = 0; i < results.length; i++) {
+        createMarker(map, results[i].geometry.location);
+      }
+      function createMarker(thisMap, location) {
+        var marker = new google.maps.Marker({
+          position: location,
+          map: thisMap,
+          icon: image
+        })
+        markers.push(marker);
+      }
+    }
+    else {
+      alert(status);
+    }
+  } 
+}
+
+/** Updates active status of filter buttons.  */
+function updateActiveStatus(listOfElements, evt) {
+  for (var i = 0; i < listOfElements.length; i++) {
+    listOfElements[i].className = listOfElements[i].className.replace(' active', '');
+  }
+  if (evt) { evt.currentTarget.className += ' active'; }
+}
+
+/** Deletes all markers on map. */
+function deleteAllMarkers() {
+    setMapOnAll(null);
+    markers = [];
+    updateActiveStatus(document.getElementsByClassName('filter-button'), null);
+  }
+
+/** Sets the map on all markers in the array. */
+function setMapOnAll(map) {
+  for (var i = 0; i < markers.length; i++) {
+    markers[i].setMap(map);
+  }
 }
 
 /** Fetches information about a place. */
@@ -196,7 +271,6 @@ function fetchPlaceInformation(place_id, map, where) {
         infoDivElement.appendChild(eventsDivElement);
         infoDivElement.appendChild(userPostsDivElement);
         document.getElementById('open').click();
-        sideBarElement.innerHTML = '<h1>Information Bar</h1>'
         sideBarElement.appendChild(infoDivElement);
         return sideBarElement;
       }

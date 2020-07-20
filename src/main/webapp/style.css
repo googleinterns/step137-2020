@@ -331,3 +331,44 @@ display: inline-flex;
 #search-users-container {
   text-align: center;
 }
+
+/* Styling for filter buttons. */
+.filter-button {
+  background-color: #ddd;
+  border: none;
+  color: black;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 16px;
+}
+
+.filter-button:hover {
+  background-color: #002b54;
+  color: white;
+} 
+
+.filter-button.active {
+  background-color: turquoise;
+  color: #002b54;
+} 
+
+.clear-button {
+  float: right;
+  background-color: #ddd;
+  border: none;
+  color: #002b54;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 16px;
+}
+
+.clear-button:hover {
+  background-color: plum;
+}
