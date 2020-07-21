@@ -278,8 +278,39 @@ function createEventNoResponse(event) {
   eventDetails.className = "details-display";
   eventDetails.innerText = event.eventDetails;
 
+  const topOfEvent = document.createElement('div');
+  topOfEvent.id = "top-event";
+
+  const creatorName = document.createElement('div');
+  creatorName.id = "event-creator";
+  fetch("/user")
+    .then(response => response.json())
+    .then(users => {
+      for (let i = 0; i < users.length; i++) {
+        if (users[i].id === event.creator) {
+          displayProfilePicture(users[i], document.getElementById("event-creator"), 'profile-pic-small');
+          const name = document.createElement('p');
+          name.innerText = "Created by " + users[i].name;
+          creatorName.addEventListener('click', () => {
+            visitProfile(users[i].id);
+          });
+          creatorName.append(name);
+        }
+      }
+    });
+  
+  topOfEvent.append(eventName);
+  if (event.yesCOVIDSafe === "yes") {
+    const covidBadge = document.createElement('img');
+    covidBadge.src = "images/mask.png";
+    covidBadge.height = 20;
+    covidBadge.width = 20;
+    covidBadge.id = "covid-badge";
+    topOfEvent.append(covidBadge);
+  }
   eventElement.append(eventContents);
-  eventElement.append(eventName);
+  eventElement.append(creatorName);
+  eventElement.append(topOfEvent);
   eventElement.append(eventDate);
   eventElement.append(locationDisplay);
   eventElement.append(eventDetails);

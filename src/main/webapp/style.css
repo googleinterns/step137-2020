@@ -7,6 +7,14 @@
   --side-bar: #f1f1f1;
 }
 
+<<<<<<< Updated upstream
+=======
+img {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+>>>>>>> Stashed changes
 * {
   box-sizing: border-box;
 }
@@ -169,6 +177,17 @@ html, body {
   font-size: 14px;
   padding: 3px 6px;
   margin: 2px;
+}
+
+#event-creator {
+  display: flex;
+  align-items: center;
+  justify-content: left;
+}
+
+#top-event {
+  display: flex;
+  justify-content: space-between;
 }
 
 /**map styling */
