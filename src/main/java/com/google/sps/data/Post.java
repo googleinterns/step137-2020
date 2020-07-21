@@ -9,6 +9,7 @@ public final class Post {
   private String creator;
   private String location;
   private String placeId;
+  private String privacy;
 
   public Post(PostBuilder builder) {
     this.id = builder.id;
@@ -17,6 +18,7 @@ public final class Post {
     this.creator = builder.creator;
     this.location = builder.location;
     this.placeId = builder.placeId;
+    this.privacy = builder.privacy;
   }
 
   public static class PostBuilder {
@@ -26,20 +28,40 @@ public final class Post {
     private String creator;
     private String location;
     private String placeId;
+    private String privacy;
 
-    public PostBuilder(
-        long id, 
-        String caption, 
-        BlobKey blobKey, 
-        String creator, 
-        String location, 
-        String placeId) {
+    public PostBuilder (long id) {
       this.id = id;
+    }
+
+    public PostBuilder setCaption (String caption) {
       this.caption = caption;
+      return this;
+    }
+
+    public PostBuilder setBlobKey (BlobKey blobKey) {
       this.blobKey = blobKey;
+      return this;
+    }
+
+    public PostBuilder setCreator (String creator) {
       this.creator = creator;
+      return this;
+    }
+
+    public PostBuilder setLocation (String location) {
       this.location = location;
-      this.placeId = placeId;
+      return this;
+    }
+
+    public PostBuilder setPlaceId (String placeId) {
+      this.placeId = placeId;      
+      return this;
+    }
+
+    public PostBuilder setPrivacy (String privacy) {
+      this.privacy = privacy;      
+      return this;
     }
 
     public Post build() {
