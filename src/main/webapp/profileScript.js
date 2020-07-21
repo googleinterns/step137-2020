@@ -535,17 +535,49 @@ function createEventsTab() {
  * Displays the posts of the specified user.
  */
 function displayPosts(user, viewer) {
+  console.log(viewer);
   const postsContainer = document.getElementById('posts-container');
   postsContainer.innerHTML = '';
+  let count = 0; 
+  const currentId = localStorage.getItem(LOCAL_STORAGE_ID);
 
-  if (viewer === PROFILE_VIEWER_PERSONAL || viewer === PROFILE_VIEWER_BUDDY) {
-    postsContainer.appendChild(getPosts(user.id));
-  } else if (viewer === PROFILE_VIEWER_STRANGER || viewer === PROFILE_VIEWER_LOGOUT
-      || viewer === PROFILE_VIEWER_PENDING_BUDDY) {
-    const postMessage = document.createElement('p');
-    postMessage.innerText = 'You cannot see this user\'s posts.';
-    postsContainer.appendChild(postMessage);
-  }
+  fetch('/post')
+    .then(response => response.json())
+    .then(posts => {
+      if (viewer === PROFILE_VIEWER_PERSONAL) {
+        for (let i = 0; i < posts.length; i ++) {
+          if (posts[i].creator === user.id) {
+            postsContainer.appendChild(createPost(posts[i], currentId));
+            count++;
+          }
+        }
+      } else if (viewer === PROFILE_VIEWER_BUDDY) {
+        for (let i = 0; i < posts.length; i ++) {
+          if (posts[i].creator === user.id) {
+            if (posts[i].privacy === "public" 
+                || posts[i].privacy === "buddies-only") {
+              postsContainer.appendChild(createPost(posts[i], currentId));
+              count++
+            }
+          }
+        }
+      } else if (viewer === PROFILE_VIEWER_STRANGER || viewer === PROFILE_VIEWER_LOGOUT
+          || viewer === PROFILE_VIEWER_PENDING_BUDDY) {
+        for (let i = 0; i < posts.length; i ++) {
+          if (posts[i].creator === currentId) {
+            if (posts[i].privacy == "public") {
+              postsContainer.appendChild(createPost(posts[i], user.id));
+              count++
+            }
+          }
+        }
+      }
+      if (count === 0) {
+        noPostElement = document.createElement('p');
+        noPostElement.innerText = "No posts to show.";
+        postsContainer.appendChild(noPostElement);
+      }
+    });
 }
 
 /*
