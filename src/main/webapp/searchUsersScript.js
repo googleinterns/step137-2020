@@ -22,7 +22,7 @@ function displaySearchedUsers() {
       for (let i = 0; i < users.length; i ++) {
         if (users[i].name.includes(searchText)) {
           // Display any users whose name contains the search text.
-          searchedUsers.appendChild(loadUser(users[i]));
+          searchedUsers.appendChild(createUserElement(users[i]));
           userCount ++;
         }
       }
@@ -33,24 +33,4 @@ function displaySearchedUsers() {
       }
     });
   }
-}
-
-/*
- * Creates an element representing a user for the display.
- */
-function loadUser(user) {
-  const userDisplay = document.createElement('p');
-  userDisplay.innerText = user.name;
-  userDisplay.addEventListener('click', () => {
-    visitProfile(user.id);
-  });
-  return userDisplay;
-}
-
-/*
- * Redirects the site to the clicked user's profile.
- */
-function visitProfile(userId) {
-  sessionStorage.setItem(SESSION_STORAGE_PROFILE, userId);
-  window.location.href = 'profile.html';
 }
