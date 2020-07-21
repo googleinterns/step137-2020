@@ -33,6 +33,7 @@ html, body {
 #user-navbar-section {
   display: flex;
   margin-left: auto;
+  align-items: center;
 }
 
 .button {

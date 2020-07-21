@@ -35,20 +35,28 @@ function navbarLoginDisplay() {
       if (name == null || name === '' || name === 'justChanged') {
         confirmUserName();
       } else {
-        const personalProfileButton = document.createElement('p');
-        personalProfileButton.className = 'navbar-text';
-        personalProfileButton.innerText = name;
-        personalProfileButton.addEventListener('click', () => {
-          visitProfile(json['id']);
+        fetch('/user').then(response => response.json()).then((users) => {
+          for (let i = 0; i < users.length; i ++) {
+            if ((users[i].id) === json['id']) {
+              displayProfilePicture(users[i], userNavbarSection, 'profile-pic-small');
+              const personalProfileButton = document.createElement('p');
+              personalProfileButton.className = 'navbar-text';
+              personalProfileButton.style = 'padding-left: 3px';
+              personalProfileButton.innerText = name;
+              personalProfileButton.addEventListener('click', () => {
+                visitProfile(json['id']);
+              });
+              const logoutButton = document.createElement('p');
+              logoutButton.className = 'navbar-text';
+              logoutButton.innerText = 'Logout';
+              logoutButton.addEventListener('click', () => {
+                window.location.href = json['logoutUrl'];
+              });
+              userNavbarSection.appendChild(personalProfileButton);
+              userNavbarSection.appendChild(logoutButton);
+            }
+          }
         });
-        const logoutButton = document.createElement('p');
-        logoutButton.className = 'navbar-text';
-        logoutButton.innerText = 'Logout';
-        logoutButton.addEventListener('click', () => {
-          window.location.href = json['logoutUrl'];
-        });
-        userNavbarSection.appendChild(personalProfileButton);
-        userNavbarSection.appendChild(logoutButton);
       }
     } else {
       // If the user is logged out, clear the locally stored user data 
