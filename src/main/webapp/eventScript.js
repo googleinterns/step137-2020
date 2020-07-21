@@ -267,6 +267,7 @@ function createEventNoResponse(event) {
   eventLocation.innerText = event.location;
   locationDisplay.append(locationIcon);
   locationDisplay.append(eventLocation);
+  
   if (window.location.pathname === '/profile.html') {
     locationDisplay.addEventListener('click', () => {
       sessionStorage.setItem(SESSION_STORAGE_CURRENT_LOCATION, event.placeId);
@@ -278,8 +279,19 @@ function createEventNoResponse(event) {
   eventDetails.className = "details-display";
   eventDetails.innerText = event.eventDetails;
 
+  const topOfEvent = document.createElement('div');
+  topOfEvent.id = "top-event";
+  topOfEvent.append(eventName);
+  if (event.yesCOVIDSafe === "yes") {
+    const covidBadge = document.createElement('img');
+    covidBadge.src = "images/mask.png";
+    covidBadge.height = 20;
+    covidBadge.width = 20;
+    covidBadge.id = "covid-badge";
+    topOfEvent.append(covidBadge);
+  }
   eventElement.append(eventContents);
-  eventElement.append(eventName);
+  eventElement.append(topOfEvent);
   eventElement.append(eventDate);
   eventElement.append(locationDisplay);
   eventElement.append(eventDetails);
