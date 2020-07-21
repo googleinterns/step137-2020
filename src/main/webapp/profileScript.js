@@ -162,6 +162,13 @@ function displayBasicInfo(user, viewer) {
       showNameForm();
     });
     nameContainer.append(editNameButton);
+    // Add an option for the current user to change their profile picture.
+    const editImageButton = document.createElement('button');
+    editImageButton.innerText = 'Change profile picture';
+    editImageButton.addEventListener('click', () => {
+      showImageForm();
+    });
+    nameContainer.append(editImageButton);
   }
 }
 
@@ -545,4 +552,16 @@ function sendOrRemoveBuddyRequest(user, action) {
 function showNameForm() {
   localStorage.setItem(LOCAL_STORAGE_NAME, 'justChanged');
   document.getElementById('name-form-container').style.display = 'block';
+}
+
+/*
+ * Presents the user with a form to change their profile picture.
+ */
+function showImageForm() {
+  fetch('/blobstore-profile-upload-url').then((response) => {
+    return response.text();
+  }).then((imageUploadUrl) => {
+    document.getElementById('image-form-container').style.display = 'block';
+    document.getElementById('image-form').action = imageUploadUrl;
+  });
 }

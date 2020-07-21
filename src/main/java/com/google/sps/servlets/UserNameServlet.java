@@ -76,8 +76,9 @@ public class UserNameServlet extends HttpServlet {
     buddies.add(""); // placeholder entry to prevent empty list from becoming null
     newUserEntity.setProperty(Constants.USER_BUDDIES_PARAM, buddies);
     List<String> buddyRequests = new ArrayList<>();
-    buddyRequests.add("");
+    buddyRequests.add(""); // placeholder entry to prevent empty list from becoming null
     newUserEntity.setProperty(Constants.USER_BUDDY_REQUESTS_PARAM, buddyRequests);
+    newUserEntity.setProperty(Constants.BLOB_KEY_PARAM, "");
     return newUserEntity;
   }
 }
