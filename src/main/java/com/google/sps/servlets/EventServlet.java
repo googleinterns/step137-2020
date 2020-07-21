@@ -215,7 +215,7 @@ public class EventServlet extends HttpServlet {
 
     Entity eventEntity = new Entity(Constants.EVENT_ENTITY_PARAM);
     eventEntity.setProperty(Constants.EVENT_NAME_PARAM, eventName);
-    eventEntity.setProperty(Constants.END_DATE_PARAM, endDate);
+    eventEntity.setProperty(Constants.END_DATE_PARAM, endDateTime);
     eventEntity.setProperty(Constants.TIME_ZONE_PARAM, timeZone);
     eventEntity.setProperty(Constants.DATE_TIME_PARAM, dateTimeFormatted);
     eventEntity.setProperty(Constants.LOCATION_PARAM, location);
@@ -323,7 +323,7 @@ public class EventServlet extends HttpServlet {
       String currentDateString = formatter.format(date);
       currentDate = formatter.parse(currentDateString);
     } catch (ParseException e) {e.printStackTrace();}
-    if (endDate.before(currentDate) || endDate.equals(currentDate)) {
+    if (endDateTime.before(currentDate) || endDateTime.equals(currentDate)) {
       return "past";
     }
     return "current";

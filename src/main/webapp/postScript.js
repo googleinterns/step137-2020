@@ -49,7 +49,7 @@ function createPost(post, userId) {
   
   const params = new URLSearchParams();
   blobKey = post.blobKey;
-  params.append('blobKey', Object.values(blobKey));
+  params.append('blobkey', Object.values(blobKey));
   fetch('/serve', {
     method: 'POST', body: params
   }).then(response => response.blob())

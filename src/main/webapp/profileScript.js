@@ -147,6 +147,8 @@ function displayContent(user, viewer) {
  * Displays basic info and options regarding the specified user.
  */
 function displayBasicInfo(user, viewer) {
+  displayProfilePicture(user);
+
   const nameContainer = document.getElementById('name-container');
   nameContainer.innerHTML = '';
 
@@ -162,7 +164,39 @@ function displayBasicInfo(user, viewer) {
       showNameForm();
     });
     nameContainer.append(editNameButton);
+    // Add an option for the current user to change their profile picture.
+    const editImageButton = document.createElement('button');
+    editImageButton.innerText = 'Change profile picture';
+    editImageButton.addEventListener('click', () => {
+      showImageForm();
+    });
+    nameContainer.append(editImageButton);
   }
+}
+
+/**
+ * Displays the profile picture of the specified user.
+ */
+function displayProfilePicture(user, basicInfoContainer) {
+  const profilePicContainer = document.getElementById('profile-pic-container');
+  profilePicContainer.innerHTML = '';
+
+  const profilePic = document.createElement('img');
+  profilePic.className = 'profile-pic';
+
+  if (user.blobKeyString === '') {
+    profilePic.src = '/images/default-profile-picture.jpg';
+  } else {
+    const params = new URLSearchParams();
+    params.append('blobkey', Object.values(user.blobKey));
+    fetch('/serve', {
+      method: 'POST', body: params
+    }).then(response => response.blob()).then(function(image) {
+      var imageURL = URL.createObjectURL(image);
+      profilePic.src = imageURL;
+    });
+  }
+  profilePicContainer.appendChild(profilePic);
 }
 
 /*
@@ -545,4 +579,16 @@ function sendOrRemoveBuddyRequest(user, action) {
 function showNameForm() {
   localStorage.setItem(LOCAL_STORAGE_NAME, 'justChanged');
   document.getElementById('name-form-container').style.display = 'block';
+}
+
+/*
+ * Presents the user with a form to change their profile picture.
+ */
+function showImageForm() {
+  fetch('/blobstore-profile-upload-url').then((response) => {
+    return response.text();
+  }).then((imageUploadUrl) => {
+    document.getElementById('image-form-container').style.display = 'block';
+    document.getElementById('image-form').action = imageUploadUrl;
+  });
 }
