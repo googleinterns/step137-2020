@@ -41,7 +41,7 @@ public class EventServlet extends HttpServlet {
     Date startDateTime = parseInputDate(requestStartDate);
     Date endDateTime = parseInputDate(requestEndDate);
     // Create dates without times for event currency comparison.
-    Date startDate = parseInputDate(requestStartDate)
+    Date startDate = parseInputDate(requestStartDate);
     Date endDate = parseInputDate(requestEndDate);
     
     JSONObject json = new JSONObject();
@@ -99,19 +99,19 @@ public class EventServlet extends HttpServlet {
       String timeZone = (String) entity.getProperty(Constants.TIME_ZONE_PARAM);
       String currency = eventCurrency(endDate, timeZone);
 
-      Event event = new Event.EventBuilder(
-          eventID, 
-          eventName, 
-          dateTime, 
-          location, 
-          placeId, 
-          eventDetails, 
-          yesCOVIDSafe, 
-          privacy, 
-          invitedAttendees, 
-          rsvpAttendees, 
-          creator, 
-          currency).build();
+      Event event = new Event.EventBuilder(eventID)
+          .setEventName(eventName) 
+          .setDateTime(dateTime)
+          .setLocation(location) 
+          .setPlaceId(placeId) 
+          .setEventDetails(eventDetails)
+          .setYesCOVIDSafe(yesCOVIDSafe)
+          .setPrivacy(privacy)
+          .setInvitedAttendees(invitedAttendees)
+          .setRsvpAttendees(rsvpAttendees)
+          .setCreator(creator)
+          .setCurrency(currency)
+          .build();
       events.add(event);
     }
 
@@ -134,17 +134,17 @@ public class EventServlet extends HttpServlet {
   Using these pieces of the input the date can be parsed and formatted as desired.
 */
   private Date parseInputDateTime(String inputDate, String time, String timeZone) {
-    String year = input.substring(0, 4);
-    String month = input.substring(5, 7);
-    String day = input.substring(8);
+    String year = inputDate.substring(0, 4);
+    String month = inputDate.substring(5, 7);
+    String day = inputDate.substring(8);
 
-    return createDateTime(year, month, day, time, timeZone)
+    return createDateTime(year, month, day, time, timeZone);
   }
 
   private Date parseInputDate(String inputDate) {
-    String year = input.substring(0, 4);
-    String month = input.substring(5, 7);
-    String day = input.substring(8);
+    String year = inputDate.substring(0, 4);
+    String month = inputDate.substring(5, 7);
+    String day = inputDate.substring(8);
 
     return createDate(year, month, day);
   }
@@ -215,7 +215,7 @@ public class EventServlet extends HttpServlet {
 
     Entity eventEntity = new Entity(Constants.EVENT_ENTITY_PARAM);
     eventEntity.setProperty(Constants.EVENT_NAME_PARAM, eventName);
-    eventEntity.setProperty(Constants.END_DATE_PARAM, endDateTime);
+    eventEntity.setProperty(Constants.END_DATE_PARAM, endDate);
     eventEntity.setProperty(Constants.TIME_ZONE_PARAM, timeZone);
     eventEntity.setProperty(Constants.DATE_TIME_PARAM, dateTimeFormatted);
     eventEntity.setProperty(Constants.LOCATION_PARAM, location);
@@ -323,7 +323,7 @@ public class EventServlet extends HttpServlet {
       String currentDateString = formatter.format(date);
       currentDate = formatter.parse(currentDateString);
     } catch (ParseException e) {e.printStackTrace();}
-    if (endDateTime.before(currentDate) || endDateTime.equals(currentDate)) {
+    if (endDate.before(currentDate) || endDate.equals(currentDate)) {
       return "past";
     }
     return "current";
