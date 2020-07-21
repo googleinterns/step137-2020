@@ -1,5 +1,6 @@
 package com.google.sps.servlets;
 
+import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
@@ -76,8 +77,9 @@ public class UserNameServlet extends HttpServlet {
     buddies.add(""); // placeholder entry to prevent empty list from becoming null
     newUserEntity.setProperty(Constants.USER_BUDDIES_PARAM, buddies);
     List<String> buddyRequests = new ArrayList<>();
-    buddyRequests.add("");
+    buddyRequests.add(""); // placeholder entry to prevent empty list from becoming null
     newUserEntity.setProperty(Constants.USER_BUDDY_REQUESTS_PARAM, buddyRequests);
+    newUserEntity.setProperty(Constants.USER_BLOBKEY_PARAM, new BlobKey(""));
     return newUserEntity;
   }
 }
