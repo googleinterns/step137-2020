@@ -10,13 +10,15 @@ public final class User {
   private final List<String> buddies;
   private final List<String> buddyRequests;
   private final BlobKey blobKey;
+  private final String blobKeyString;
 
   public User(String id, String name, List<String> buddies, 
-      List<String> buddyRequests, BlobKey blobKey) {
+      List<String> buddyRequests, BlobKey blobKey, String blobKeyString) {
     this.id = id;
     this.name = name;
     this.buddies = buddies;
     this.buddyRequests = buddyRequests;
     this.blobKey = blobKey;
+    this.blobKeyString = blobKeyString;
   }
 }

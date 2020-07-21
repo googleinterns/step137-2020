@@ -30,9 +30,10 @@ public class UserServlet extends HttpServlet {
       List<String> buddies = (List<String>) userEntity.getProperty(Constants.USER_BUDDIES_PARAM);
       List<String> buddyRequests = (List<String>) userEntity.getProperty(Constants.USER_BUDDY_REQUESTS_PARAM);
       BlobKey blobKey = (BlobKey) userEntity.getProperty(Constants.BLOB_KEY_PARAM);
+      String blobKeyString = blobKey.getKeyString();
 
       // Create a User object with those attributes and add it to the list of users.
-      User user = new User(id, name, buddies, buddyRequests, blobKey);
+      User user = new User(id, name, buddies, buddyRequests, blobKey, blobKeyString);
       users.add(user);
     }
 

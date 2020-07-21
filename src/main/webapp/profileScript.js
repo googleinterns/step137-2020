@@ -184,16 +184,18 @@ function displayProfilePicture(user, basicInfoContainer) {
   const profilePic = document.createElement('img');
   profilePic.className = 'profile-pic';
 
-  const params = new URLSearchParams();
-  blobKey = user.blobKey;
-  params.append('blobkey', Object.values(blobKey));
-  fetch('/serve', {
-    method: 'POST', body: params
-  }).then(response => response.blob()).then(function(image) {
-    var imageURL = URL.createObjectURL(image);
-    profilePic.src = imageURL;
-  });
-
+  if (user.blobKeyString === '') {
+    profilePic.src = '/images/default-profile-picture.jpg';
+  } else {
+    const params = new URLSearchParams();
+    params.append('blobkey', Object.values(user.blobKey));
+    fetch('/serve', {
+      method: 'POST', body: params
+    }).then(response => response.blob()).then(function(image) {
+      var imageURL = URL.createObjectURL(image);
+      profilePic.src = imageURL;
+    });
+  }
   profilePicContainer.appendChild(profilePic);
 }
 
