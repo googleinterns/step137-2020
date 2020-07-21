@@ -147,7 +147,8 @@ function displayContent(user, viewer) {
  * Displays basic info and options regarding the specified user.
  */
 function displayBasicInfo(user, viewer) {
-  displayProfilePicture(user);
+  const profilePicContainer = document.getElementById('profile-pic-container');
+  displayProfilePicture(user, profilePicContainer, 'profile-pic-large');
 
   const nameContainer = document.getElementById('name-container');
   nameContainer.innerHTML = '';
@@ -177,12 +178,11 @@ function displayBasicInfo(user, viewer) {
 /**
  * Displays the profile picture of the specified user.
  */
-function displayProfilePicture(user, basicInfoContainer) {
-  const profilePicContainer = document.getElementById('profile-pic-container');
-  profilePicContainer.innerHTML = '';
+function displayProfilePicture(user, container, size) {
+  container.innerHTML = '';
 
   const profilePic = document.createElement('img');
-  profilePic.className = 'profile-pic';
+  profilePic.className = size;
 
   if (user.blobKeyString === '') {
     profilePic.src = '/images/default-profile-picture.jpg';
@@ -196,7 +196,7 @@ function displayProfilePicture(user, basicInfoContainer) {
       profilePic.src = imageURL;
     });
   }
-  profilePicContainer.appendChild(profilePic);
+  container.appendChild(profilePic);
 }
 
 /*
@@ -298,8 +298,12 @@ function displayBuddyRequests(user) {
           // their profile, an approve button, and a remove button) to the page.
           const requestElement = document.createElement('div');
           requestElement.className = 'request-element';
-          const userElement = document.createElement('p');
-          userElement.innerText = users[i].name;
+          const userElement = document.createElement('div');
+          userElement.className = 'user-element';
+          displayProfilePicture(users[i], userElement, 'profile-pic-small');
+          const userName = document.createElement('p');
+          userName.innerText = users[i].name;
+          userElement.appendChild(userName);
           userElement.addEventListener('click', () => {
             visitProfile(users[i].id);
           });
