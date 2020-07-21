@@ -272,11 +272,11 @@ html, body {
 .user-element {
   display: flex;
   align-items: center;
-  justify-content: center;
+  clear: both;
 }
 
 .request-element {
-  display: inline-flex;
+  display: flex;
   align-items: center;
 }
 
@@ -351,6 +351,17 @@ html, body {
 /* Search Users styling */
 #search-users-container {
   text-align: center;
+}
+
+#searched-users {
+  height: 100%;
+  width: 300px;
+  display: inline-block;
+  text-align: left;
+  background-color: var(--side-bar);
+  padding-left: 10px;
+  margin-top: 10px;
+  border-radius: 5px;
 }
 
 /* Styling for filter buttons. */
