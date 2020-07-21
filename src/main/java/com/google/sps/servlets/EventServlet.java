@@ -38,25 +38,25 @@ public class EventServlet extends HttpServlet {
     String requestEndTime = request.getParameter(Constants.END_TIME_PARAM);
     String timeZone = request.getParameter(Constants.TIME_ZONE_PARAM);
 
-    //create dates with times from input for time verification
-    Date startDateTime = createDateTime(requestStartDate.substring(0, 4),
-          requestStartDate.substring(5, 7), requestStartDate.substring(8), 
-          requestStartTime, timeZone); 
-    Date endDateTime = createDateTime(requestEndDate.substring(0, 4), 
-          requestEndDate.substring(5, 7), requestEndDate.substring(8),
-          requestEndTime, timeZone);
-
-    //create dates with no times for easier formatting
-    Date startDate = createDate(requestStartDate.substring(0, 4),
-          requestStartDate.substring(5, 7), requestStartDate.substring(8));
-    Date endDate = createDate(requestEndDate.substring(0, 4), 
-          requestEndDate.substring(5, 7), requestEndDate.substring(8));
+    Date startDateTime = parseInputDate(requestStartDate);
+    Date endDateTime = parseInputDate(requestEndDate);
+    // Create dates without times for event currency comparison.
+    Date startDate = parseInputDate(requestStartDate)
+    Date endDate = parseInputDate(requestEndDate);
     
     JSONObject json = new JSONObject();
     boolean goodDateTimes = verifyDateTimes(startDateTime, endDateTime, json);
     if (goodDateTimes) {
-      createEntity(request, endDateTime, startDateTime, startDate, endDate, 
-                   json, requestStartTime, requestEndTime, timeZone);  
+      createEntity(
+        request, 
+        endDateTime, 
+        startDateTime, 
+        startDate, 
+        endDate, 
+        json, 
+        requestStartTime, 
+        requestEndTime, 
+        timeZone);  
     }
 
     response.setContentType("application/json;");
@@ -71,7 +71,7 @@ public class EventServlet extends HttpServlet {
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     PreparedQuery results = datastore.prepare(query);
  
-     //converting the list of entities to a list of events 
+     // Converting the list of entities to a list of events .
     List<Event> events = new ArrayList<>();
     for (Entity entity : results.asIterable()) {
       long eventID = entity.getKey().getId();
@@ -99,9 +99,19 @@ public class EventServlet extends HttpServlet {
       String timeZone = (String) entity.getProperty(Constants.TIME_ZONE_PARAM);
       String currency = eventCurrency(endDate, timeZone);
 
-      Event event = new Event(eventID, eventName, dateTime, location, placeId,
-                          eventDetails, yesCOVIDSafe, privacy, invitedAttendees, 
-                          rsvpAttendees, creator, currency);
+      Event event = new Event.EventBuilder(
+          eventID, 
+          eventName, 
+          dateTime, 
+          location, 
+          placeId, 
+          eventDetails, 
+          yesCOVIDSafe, 
+          privacy, 
+          invitedAttendees, 
+          rsvpAttendees, 
+          creator, 
+          currency).build();
       events.add(event);
     }
 
@@ -112,11 +122,69 @@ public class EventServlet extends HttpServlet {
   }
 
 /**
-  creates an event entity in datastore 
+  HTML Date inputs return a String in the form: yyyy/mm/dd.
+  In order to use that for comparison purposes, the String needs to be parsed 
+  into a Date, which requires taking substrings of the year, month, and day of
+  the inputted date String. 
+
+  input.substring(0, 4) should return the yyyy element of the input.
+  input.substrng(5, 7) should return the mm element of the input.
+  input.substring(8) should return the dd element of the input.
+
+  Using these pieces of the input the date can be parsed and formatted as desired.
 */
-  private void createEntity(HttpServletRequest request, Date endDateTime, 
-          Date startDateTime, Date startDate, Date endDate, JSONObject json, 
-          String startTime, String endTime, String timeZone) {
+  private Date parseInputDateTime(String inputDate, String time, String timeZone) {
+    String year = input.substring(0, 4);
+    String month = input.substring(5, 7);
+    String day = input.substring(8);
+
+    return createDateTime(year, month, day, time, timeZone)
+  }
+
+  private Date parseInputDate(String inputDate) {
+    String year = input.substring(0, 4);
+    String month = input.substring(5, 7);
+    String day = input.substring(8);
+
+    return createDate(year, month, day);
+  }
+
+/** Turns inputted strings into a date.*/
+  private Date createDate(String year, String month, String day) {
+    String dateString = month + "-" + day + "-" + year;
+    SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
+    Date dateTime = new Date();
+    try {
+      dateTime = formatter.parse(dateString);
+    } catch (ParseException e) {e.printStackTrace();}
+    return dateTime;
+  }
+
+/** Turns inputted strings into date time. */
+  private Date createDateTime(String year, String month, String day, 
+            String time, String timeZone) {
+    String dateString = month + "-" + day + "-" + year + " " + time + " " + timeZone;
+    SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy HH:mm z");
+    formatter.setTimeZone(TimeZone.getTimeZone(timeZone));
+    Date dateTime = new Date();
+    try {
+      dateTime = formatter.parse(dateString);
+    } catch (ParseException e) {e.printStackTrace();}
+    return dateTime;
+  }
+
+/** Creates an event entity in datastore. */
+  private void createEntity(
+      HttpServletRequest request, 
+      Date endDateTime, 
+      Date startDateTime, 
+      Date startDate, 
+      Date endDate, 
+      JSONObject json, 
+      String startTime, 
+      String endTime, 
+      String timeZone) {
+
     String eventName = request.getParameter(Constants.EVENT_NAME_PARAM);
     String location = request.getParameter(Constants.LOCATION_PARAM);
     String placeId = request.getParameter(Constants.PLACE_ID_PARAM);
@@ -127,21 +195,21 @@ public class EventServlet extends HttpServlet {
     List<String> invitedAttendeesList = Arrays.asList(invitedAttendeesString.split("\\s*,\\s*"));
     ArrayList<String> invitedAttendees = new ArrayList<String>(invitedAttendeesList);
     if (invitedAttendeesList.isEmpty()) {  
-      invitedAttendees.add(""); // placeholder entry to prevent empty list from becoming null
+      invitedAttendees.add(""); // Placeholder entry to prevent empty list from becoming null.
     }
     UserService userService = UserServiceFactory.getUserService();
     String currentUserID = userService.getCurrentUser().getUserId();
 
-    //list of people who said they will come. Creator is assumed to be attending
+    // List of people who said they will come. Creator is assumed to be attending.
     List<String> rsvpAttendees = new ArrayList<>();
-    rsvpAttendees.add(""); // placeholder entry to prevent empty list from becoming null
+    rsvpAttendees.add(""); // Placeholder entry to prevent empty list from becoming null.
     rsvpAttendees.add(currentUserID);
 
-    //get formatted start and end times
+    // Get formatted start and end times.
     String startTimeFormatted = getTimeDisplay(startTime);
     String endTimeFormatted = getTimeDisplay(endTime);
 
-    //get formatted dates and times for display 
+    // Get formatted dates and times for display.
     String dateTimeFormatted = createDateTimeDisplay(startDate, startTimeFormatted, 
           endDate, endTimeFormatted, timeZone);
 
@@ -164,34 +232,6 @@ public class EventServlet extends HttpServlet {
 
     json.put("success", "true");
     json.put("bad-time", "false");
-  }
-
-/**
-  turns inputted strings into a date
-*/
-  private Date createDate(String year, String month, String day) {
-    String dateString = month + "-" + day + "-" + year;
-    SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
-    Date dateTime = new Date();
-    try {
-      dateTime = formatter.parse(dateString);
-    } catch (ParseException e) {e.printStackTrace();}
-    return dateTime;
-  }
-
-/**
-  turns inputted strings into date time
-*/
-  private Date createDateTime(String year, String month, String day, 
-            String time, String timeZone) {
-    String dateString = month + "-" + day + "-" + year + " " + time + " " + timeZone;
-    SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy HH:mm z");
-    formatter.setTimeZone(TimeZone.getTimeZone(timeZone));
-    Date dateTime = new Date();
-    try {
-      dateTime = formatter.parse(dateString);
-    } catch (ParseException e) {e.printStackTrace();}
-    return dateTime;
   }
 
 /**
@@ -222,9 +262,7 @@ public class EventServlet extends HttpServlet {
     return dateTime;
   }
 
-/**
-  make sure the inputted dates and times are valid
-*/
+/** Make sure the inputted dates and times are valid. */
   private boolean verifyDateTimes (Date startDate, Date endDate, JSONObject json) {
     if (endDate.before(startDate) || endDate.equals(startDate)) {
       json.put("bad-time", "true");
@@ -275,10 +313,8 @@ public class EventServlet extends HttpServlet {
     return hourForDisplay;
   }
 
-  /**
-    determines if the event is current or past
-  */
-  private String eventCurrency(Date endDateTime, String timeZone) {
+  /** Determines if the event is current or past. */
+  private String eventCurrency(Date endDate, String timeZone) {
     SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy HH:mm z");
     formatter.setTimeZone(TimeZone.getTimeZone(timeZone));
     Date date = new Date();
