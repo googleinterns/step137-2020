@@ -431,4 +431,3 @@ function setInterestButtonText(interestButtonElement, placeId, userId) {
     }
   });
 }
-
