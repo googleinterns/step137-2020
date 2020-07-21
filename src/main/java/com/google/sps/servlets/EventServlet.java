@@ -38,8 +38,8 @@ public class EventServlet extends HttpServlet {
     String requestEndTime = request.getParameter(Constants.END_TIME_PARAM);
     String timeZone = request.getParameter(Constants.TIME_ZONE_PARAM);
 
-    Date startDateTime = parseInputDate(requestStartDate);
-    Date endDateTime = parseInputDate(requestEndDate);
+    Date startDateTime = parseInputDateTime(requestStartDate, requestStartTime, timeZone);
+    Date endDateTime = parseInputDateTime(requestEndDate, requestEndTime, timeZone);
     // Create dates without times for event currency comparison.
     Date startDate = parseInputDate(requestStartDate);
     Date endDate = parseInputDate(requestEndDate);
