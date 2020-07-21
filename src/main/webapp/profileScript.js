@@ -541,7 +541,6 @@ function createEventsTab() {
  * Displays the posts of the specified user.
  */
 function displayPosts(user, viewer) {
-  console.log(viewer);
   const postsContainer = document.getElementById('posts-container');
   postsContainer.innerHTML = '';
   let count = 0; 
