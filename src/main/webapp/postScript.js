@@ -45,7 +45,7 @@ function createPost(post, userId) {
 
   const imageElement = document.createElement('img');
   imageElement.id = "image";
-  imageElement.heighth = "200";
+  imageElement.height = "200";
   imageElement.width = "200";
   
   const params = new URLSearchParams();
