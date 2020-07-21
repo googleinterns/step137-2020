@@ -147,7 +147,8 @@ function displayContent(user, viewer) {
  * Displays basic info and options regarding the specified user.
  */
 function displayBasicInfo(user, viewer) {
-  displayProfilePicture(user);
+  const profilePicContainer = document.getElementById('profile-pic-container');
+  displayProfilePicture(user, profilePicContainer, 'profile-pic-large');
 
   const nameContainer = document.getElementById('name-container');
   nameContainer.innerHTML = '';
@@ -177,12 +178,11 @@ function displayBasicInfo(user, viewer) {
 /**
  * Displays the profile picture of the specified user.
  */
-function displayProfilePicture(user, basicInfoContainer) {
-  const profilePicContainer = document.getElementById('profile-pic-container');
-  profilePicContainer.innerHTML = '';
+function displayProfilePicture(user, container, size) {
+  container.innerHTML = '';
 
   const profilePic = document.createElement('img');
-  profilePic.className = 'profile-pic';
+  profilePic.className = size;
 
   if (user.blobKeyString === '') {
     profilePic.src = '/images/default-profile-picture.jpg';
@@ -196,7 +196,23 @@ function displayProfilePicture(user, basicInfoContainer) {
       profilePic.src = imageURL;
     });
   }
-  profilePicContainer.appendChild(profilePic);
+  container.appendChild(profilePic);
+}
+
+/**
+ * Creates and returns an element representing a user.
+ */
+function createUserElement(user) {
+  const userElement = document.createElement('div');
+  userElement.className = 'user-element';
+  displayProfilePicture(user, userElement, 'profile-pic-small');
+  const userName = document.createElement('p');
+  userName.innerText = user.name;
+  userElement.appendChild(userName);
+  userElement.addEventListener('click', () => {
+    visitProfile(user.id);
+  });
+  return userElement;
 }
 
 /*
@@ -294,15 +310,10 @@ function displayBuddyRequests(user) {
       for (let i = 0; i < users.length; i ++) {
         if (requestIds.includes(users[i].id)) {
           // If the user's ID is in the list of the profile user's buddy requests,
-          // add a request element (which includes the user's name and link to 
-          // their profile, an approve button, and a remove button) to the page.
+          // add a request element (which includes the user's clickable name 
+          // and image, an approve button, and a remove button) to the page.
           const requestElement = document.createElement('div');
           requestElement.className = 'request-element';
-          const userElement = document.createElement('p');
-          userElement.innerText = users[i].name;
-          userElement.addEventListener('click', () => {
-            visitProfile(users[i].id);
-          });
           const requestButtons = document.createElement('div');
           requestButtons.className = 'request-buttons';
           const approveButton = document.createElement('button');
@@ -319,7 +330,7 @@ function displayBuddyRequests(user) {
           });
           requestButtons.appendChild(approveButton);
           requestButtons.appendChild(removeButton);
-          requestElement.appendChild(userElement);
+          requestElement.appendChild(createUserElement(users[i]));
           requestElement.appendChild(requestButtons);
           buddyRequests.appendChild(requestElement);
         }
@@ -359,13 +370,8 @@ function displayBuddiesList(user, buddyContainer) {
       for (let i = 0; i < users.length; i ++) {
         if (buddyIds.includes(users[i].id)) {
           // If the user's ID is in the list of the profile user's buddies,
-          // add their name (which links to their profile) to the page. 
-          const buddyElement = document.createElement('p');
-          buddyElement.innerText = users[i].name;
-          buddyElement.addEventListener('click', () => {
-            visitProfile(users[i].id);
-          });
-          buddiesList.appendChild(buddyElement);
+          // add their clickable name and image to the page. 
+          buddiesList.appendChild(createUserElement(users[i]));
         }
       }
     }).then(() => {
@@ -535,7 +541,6 @@ function createEventsTab() {
  * Displays the posts of the specified user.
  */
 function displayPosts(user, viewer) {
-  console.log(viewer);
   const postsContainer = document.getElementById('posts-container');
   postsContainer.innerHTML = '';
   let count = 0; 

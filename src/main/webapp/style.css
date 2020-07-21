@@ -234,11 +234,18 @@ html, body {
   text-align: center;
 }
 
-.profile-pic {
+.profile-pic-large {
   height: 200px;
   width: 200px;
   border-radius: 50%;
   margin-top: 20px;
+}
+
+.profile-pic-small {
+  height: 30px;
+  width: 30px;
+  border-radius: 50%;
+  margin-right: 5px;
 }
 
 #name-container {
@@ -260,6 +267,12 @@ html, body {
 
 .bottom-section {
   flex: 1;
+}
+
+.user-element {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .request-element {
