@@ -8,6 +8,7 @@ public final class Constants {
   public static final String USER_NAME_PARAM = "name";
   public static final String USER_BUDDIES_PARAM = "buddies";
   public static final String USER_BUDDY_REQUESTS_PARAM = "buddy-requests";
+  public static final String USER_BLOBKEY_PARAM = "blobkey";
 
   // Login constants
   public static final String LOGIN_STATUS_PARAM = "loginStatus";

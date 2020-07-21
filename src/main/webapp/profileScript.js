@@ -147,6 +147,8 @@ function displayContent(user, viewer) {
  * Displays basic info and options regarding the specified user.
  */
 function displayBasicInfo(user, viewer) {
+  displayProfilePicture(user);
+
   const nameContainer = document.getElementById('name-container');
   nameContainer.innerHTML = '';
 
@@ -170,6 +172,29 @@ function displayBasicInfo(user, viewer) {
     });
     nameContainer.append(editImageButton);
   }
+}
+
+/**
+ * Displays the profile picture of the specified user.
+ */
+function displayProfilePicture(user, basicInfoContainer) {
+  const profilePicContainer = document.getElementById('profile-pic-container');
+  profilePicContainer.innerHTML = '';
+
+  const profilePic = document.createElement('img');
+  profilePic.className = 'profile-pic';
+
+  const params = new URLSearchParams();
+  blobKey = user.blobKey;
+  params.append('blobkey', Object.values(blobKey));
+  fetch('/serve', {
+    method: 'POST', body: params
+  }).then(response => response.blob()).then(function(image) {
+    var imageURL = URL.createObjectURL(image);
+    profilePic.src = imageURL;
+  });
+
+  profilePicContainer.appendChild(profilePic);
 }
 
 /*

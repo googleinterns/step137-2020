@@ -1,5 +1,6 @@
 package com.google.sps.servlets;
 
+import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.datastore.*;
 import com.google.gson.Gson;
 import com.google.sps.data.Constants;
@@ -28,9 +29,10 @@ public class UserServlet extends HttpServlet {
       String name = (String) userEntity.getProperty(Constants.USER_NAME_PARAM);
       List<String> buddies = (List<String>) userEntity.getProperty(Constants.USER_BUDDIES_PARAM);
       List<String> buddyRequests = (List<String>) userEntity.getProperty(Constants.USER_BUDDY_REQUESTS_PARAM);
+      BlobKey blobKey = (BlobKey) userEntity.getProperty(Constants.BLOB_KEY_PARAM);
 
       // Create a User object with those attributes and add it to the list of users.
-      User user = new User(id, name, buddies, buddyRequests);
+      User user = new User(id, name, buddies, buddyRequests, blobKey);
       users.add(user);
     }
 
