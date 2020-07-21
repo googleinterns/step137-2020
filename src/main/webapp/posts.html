@@ -24,14 +24,16 @@
       <h2>Upload an image: </h2>
       <input type="file" name="image">
       <br/>
-      <h2>Enter a caption: </h2>
+      <h2>Caption: </h2>
       <textarea name="caption"></textarea>
       <br/><br/>
+      <h3>Privacy</h3>
+      <select id="privacy" name="privacy" required>
+        <option value="public">Public</option>
+        <option value="buddies-only">Buddies</option>
+        <option value="private">Private</option>
+      </select>
       <button>Submit</button>
-      <br><br>
     </form>
-    <button onclick="getPosts()">Get Posts</button>
-    <div id="posts"></div>
-    <image>
   </body>
 </html>

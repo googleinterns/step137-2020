@@ -45,31 +45,63 @@ public final class Event {
     private String creator;
     private String currency;
 
-    public EventBuilder (
-        long eventId, 
-        String eventName, 
-        String dateTime,
-        String location, 
-        String placeId, 
-        String eventDetails, 
-        String yesCOVIDSafe, 
-        String privacy, 
-        List<String> invitedAttendees,
-        List<String> rsvpAttendees, 
-        String creator, 
-        String currency) {
+    public EventBuilder (long eventId) {
       this.eventId = eventId;
+    }
+
+    public EventBuilder setEventName (String eventName) {
       this.eventName = eventName;
+      return this;
+    }
+
+    public EventBuilder setDateTime (String dateTime) {
       this.dateTime = dateTime;
+      return this;
+    }
+
+    public EventBuilder setLocation (String location) {
       this.location = location;
+      return this;
+    }
+
+    public EventBuilder setPlaceId (String placeId) {
       this.placeId = placeId;
+      return this;
+    }
+
+    public EventBuilder setEventDetails (String eventDetails) {
       this.eventDetails = eventDetails;
+      return this;
+    }
+
+    public EventBuilder setYesCOVIDSafe (String yesCOVIDSafe) {
       this.yesCOVIDSafe = yesCOVIDSafe;
+      return this;
+    }
+
+    public EventBuilder setPrivacy (String privacy) {
       this.privacy = privacy;
+      return this;
+    }
+
+    public EventBuilder setInvitedAttendees (List<String> invitedAttendees) {
       this.invitedAttendees = invitedAttendees;
+      return this;
+    }
+
+    public EventBuilder setRsvpAttendees (List<String> rsvpAttendees) {
       this.rsvpAttendees = rsvpAttendees;
+      return this;
+    }
+
+    public EventBuilder setCreator (String creator) {
       this.creator = creator;
+      return this;
+    }
+
+    public EventBuilder setCurrency (String currency) {
       this.currency = currency;
+      return this;
     }
 
     public Event build() {

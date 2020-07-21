@@ -215,8 +215,10 @@ function fetchPlaceInformation(place_id, map, where) {
         ratingElement = document.createElement('span');
         ratingElement.id = 'stars';
         addressElement = document.createElement('p');
-        createEventElement = document.createElement('a');
-        createPostElement = document.createElement('a');
+        createEventElement = document.createElement('button');
+        createEventElement.className = "button";
+        createPostElement = document.createElement('button');
+        createPostElement.className = "button";
         interestButtonElement = document.createElement('button');
         interestButtonElement.className = "button";
         
@@ -225,9 +227,13 @@ function fetchPlaceInformation(place_id, map, where) {
         // function to create tab and return tab div element
         tabDivElement = createTabElement();
         createEventElement.innerText = 'Create an Event';
-        createEventElement.href = 'CreateAnEvent.html';
+        createEventElement.addEventListener('click', () => {
+          location.href = 'CreateAnEvent.html';
+        });
         createPostElement.innerText = "Create a Post";
-        createPostElement.href = 'posts.html';
+        createPostElement.addEventListener('click', () => {
+          location.href = 'posts.html';
+        });
         if (place.business_status) {
           businessStatusElement = document.createElement('p');
           businessStatusElement.innerText = 'Business Status: ' + place.business_status;
