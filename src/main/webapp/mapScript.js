@@ -196,14 +196,17 @@ function fetchPlaceInformation(place_id, map, where) {
         'business_status'
       ]
     };
+    // Creates a Request object for caching purposes.
     myRequest = new Request([JSON.stringify(request, null, 2)], {type : 'application/json'});
     caches.match(myRequest, {'ignoreVary' : true}).then((response) => {
+      // If cache hit.
       if (response !== undefined) {
         console.log(request);
         response.json().then(place => {
           // call function to display data here
           displayPlaceInfo(place, place_id);
         });
+      // If cache miss.
       } else {
         service.getDetails(request, callback);
         function callback(place, status) {
@@ -216,13 +219,15 @@ function fetchPlaceInformation(place_id, map, where) {
             placeClone.website = place.website;
             placeClone.business_status = place.business_status;
             placeBlob = new Blob([JSON.stringify(placeClone, null, 2)], {type : 'application/json'});
+            // Creates a Response object for caching purposes.
             response = new Response(placeBlob);
-            console.log(response);
             caches.open('v1').then(function(cache) {
               cache.put(myRequest, response);
             })
             displayPlaceInfo(place, place_id);
-          } else { console.log(status); }
+          } else { 
+            alert('PlacesService failed to find desired location: ' + status); 
+          }
         }
       }
     });
