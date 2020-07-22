@@ -1,3 +1,6 @@
+// Global variables
+listOfEventObjects = [];
+
 /** First function to be called onload */
 function onLoad() {
   navbarLoginDisplay();
@@ -66,10 +69,11 @@ function findNearbyEvents(map, currentLocation) {
           isNearby(geocoder, currentEvent, locationCircle, '');
         }
       }
-      // check to see if list is done being made here
-      // if so, sort the list with comparison function
-      // call function to display events with the sorted list
     }
+    // check to see if list is done being made here
+    console.log(listOfEventObjects);
+    // if so, sort the list with comparison function
+    // call function to display events with the sorted list
   });
 }
 
@@ -88,7 +92,12 @@ function isNearby(geocoder, event, locationCircle, userId) {
         event.invitedAttendees.includes(userId) || 
         event.privacy == 'public') {
           // get the rating of the event location
+          eventLocationRating = fetchPlaceInformation(event.placeId, locationCircle.map, "nearmePage");
           // create object with event and rating and add to working list of objects. The list will be a global variable
+          eventObj = new Object();
+          eventObj.event = event;
+          eventObj.locationRating = eventLocationRating;
+          listOfEventObjects.push(eventObj);
           eventElement = createEventNoResponse(event);
           eventElement.addEventListener('click', () => {
             sessionStorage.setItem('currentLocationId', event.placeId);
