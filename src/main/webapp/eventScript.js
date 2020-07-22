@@ -14,6 +14,7 @@ function specifiedAttendees(value) {
   if (value == "attendees") {
     document.getElementById("attendees-wrap").style.display = "block";
     document.getElementById("invited-attendee-ID-list").style.display = "none";
+    document.getElementById("invited-attendee-list").style.display = "none";
   }
   else if (value == "buddies-only") {
     buddiesOnly();
@@ -51,30 +52,91 @@ function displayUsers() {
   }
 }
 
+var attendees = new Array();
 var attendeeNames = new Array();
 var attendeeIDs = new Array();
 attendeeIDs.push("");
 
 function loadUser(user) {
-  const userDisplay = document.createElement('p');
-  userDisplay.innerText = user.name;
+  const userDisplay = document.createElement('div');
+  userDisplay.className = "user-display";
+  userDisplay.appendChild(createAttendeeDisplay(user, "no"));
   userDisplay.addEventListener('click', () => {
-    appendInfo(user.id, user.name);
+    appendInfo(user, userDisplay);
   });
+  
   return userDisplay;
 }
 
-function appendInfo(userId, userName) {
+function appendInfo(user, userDisplay) {
   document.getElementById("warning").innerHTML = "";
-  if (attendeeIDs.includes(userId)) {
+  
+  if (attendeeIDs.includes(user.id)) {
     document.getElementById("warning").innerHTML = 
     "<p>User is already added to list</p>";
   }
+
   else {
-    attendeeIDs.push(userId);
-    attendeeNames.push(userName);
+    attendees.push(user);
+    attendeeIDs.push(user.id);
+    attendeeNames.push(user.name);
+    
+    const displayAttendees = document.getElementById("display-invited-names");
+    displayAttendees.innerHTML = '';
+    displayAttendees.className = "user-display";
+    const selectedUser = document.createElement('div');
+    for (let i = 0; i < attendees.length; i ++) {
+      selectedUser.appendChild(createAttendeeDisplay(attendees[i], "yes"));
+    }
+    displayAttendees.appendChild(selectedUser);
+    
     document.getElementById("invited-attendee-list").value = attendeeNames;
     document.getElementById("invited-attendee-ID-list").value = attendeeIDs;
+  }
+}
+
+function createAttendeeDisplay(user, check) {
+  const selectedUser = document.createElement('div');
+  selectedUser.className = "user-display";
+  fetch("/user")
+    .then(response => response.json())
+    .then(users => {
+      for (let i = 0; i < users.length; i++) {
+        if (users[i].id === user.id) {
+          displayProfilePicture(users[i], selectedUser, 'profile-pic-small');
+          const name = document.createElement('p');
+          name.innerText = users[i].name;
+          selectedUser.append(name);
+        }
+      }
+      if (check === "yes") {
+        const checkIcon = document.createElement('i');
+        checkIcon.className = "fa fa-times";
+        checkIcon.addEventListener('click', () => {
+          deleteAttendee(selectedUser, user);
+        })
+        selectedUser.append(checkIcon);
+      }
+    });
+  return selectedUser;
+}
+
+function deleteAttendee(selectedUser, user) {
+  selectedUser.innerHTML = '';
+  //remove from all three lists 
+  index = attendees.indexOf(user);
+  if (index > -1) {
+    attendees.splice(index, 1);
+  }
+  index = attendeeIDs.indexOf(user.id);
+  if (index > -1) {
+    attendeeIDs.splice(index, 1);
+    document.getElementById("invited-attendee-ID-list").value = attendeeIDs;
+  }
+  index = attendeeNames.indexOf(user.name);
+  if (index > -1) {
+    attendeeNames.splice(index, 1);
+    document.getElementById("invited-attendee-list").value = attendeeNames;
   }
 }
 
