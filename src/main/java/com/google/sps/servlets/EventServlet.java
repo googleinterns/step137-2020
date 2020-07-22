@@ -11,6 +11,7 @@ import com.google.appengine.api.datastore.Entity;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Collections;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
@@ -95,13 +96,15 @@ public class EventServlet extends HttpServlet {
           (List<String>) entity.getProperty(Constants.RSVP_ATTENDEES_PARAM);
       String creator = 
           (String) entity.getProperty(Constants.CREATOR_PARAM);
-      Date endDate = (Date) entity.getProperty(Constants.END_DATE_PARAM);
+      Date startDateTime = (Date) entity.getProperty(Constants.START_TIME_PARAM);
+      Date endDateTime = (Date) entity.getProperty(Constants.END_DATE_PARAM);
       String timeZone = (String) entity.getProperty(Constants.TIME_ZONE_PARAM);
-      String currency = eventCurrency(endDate, timeZone);
+      String currency = eventCurrency(endDateTime, timeZone);
 
       Event event = new Event.EventBuilder(eventID)
           .setEventName(eventName) 
           .setDateTime(dateTime)
+          .setStartDateTime(startDateTime)
           .setLocation(location) 
           .setPlaceId(placeId) 
           .setEventDetails(eventDetails)
@@ -114,6 +117,7 @@ public class EventServlet extends HttpServlet {
           .build();
       events.add(event);
     }
+    Collections.sort(events);
 
     Gson gson = new Gson();
     response.setContentType("application/json;");
@@ -215,7 +219,8 @@ public class EventServlet extends HttpServlet {
 
     Entity eventEntity = new Entity(Constants.EVENT_ENTITY_PARAM);
     eventEntity.setProperty(Constants.EVENT_NAME_PARAM, eventName);
-    eventEntity.setProperty(Constants.END_DATE_PARAM, endDate);
+    eventEntity.setProperty(Constants.END_DATE_PARAM, endDateTime);
+    eventEntity.setProperty(Constants.START_TIME_PARAM, startDateTime);
     eventEntity.setProperty(Constants.TIME_ZONE_PARAM, timeZone);
     eventEntity.setProperty(Constants.DATE_TIME_PARAM, dateTimeFormatted);
     eventEntity.setProperty(Constants.LOCATION_PARAM, location);
