@@ -4,7 +4,7 @@
   --navbar-color: #002b54;
   --button-color: rgba(248, 202, 210, 0.658);
   --button-color-selected: rgba(247, 162, 177, 0.979);
-  --side-bar: #f1f1f1;
+  --sidebar-color: #f1f1f1;
 }
 
 img {
@@ -43,7 +43,7 @@ html, body {
 
 .button {
   background-color: var(--button-color);
-  color: var(--side-bar);
+  color: var(--sidebar-color);
   border: 1.5px solid var(--button-color);
   font-size: 16px;
   padding: 5px 10px;
@@ -54,7 +54,7 @@ html, body {
 }
 
 .button:hover {
-  background-color: var(--side-bar);
+  background-color: var(--sidebar-color);
   color: var(--button-color);
 }
 
@@ -63,7 +63,7 @@ html, body {
 }
 
 .button-selected:hover {
-  background-color: var(--side-bar);
+  background-color: var(--sidebar-color);
   color: var(--button-color-selected);
 }
 
@@ -198,7 +198,7 @@ html, body {
 #side {
   flex: 20%;
   max-width: 20%;
-  background-color: var(--side-bar);
+  background-color: var(--sidebar-color);
   padding: 20px;
 }
 
@@ -247,8 +247,25 @@ html, body {
   position: relative;
 }
 
+#profile-body {
+  background-color: var(--sidebar-color);
+}
+
+.profile-section {
+  background-color: white;
+}
+
 #basic-info {
   text-align: center;
+  margin: 20px 20px 10px 20px;
+}
+
+#saved-interests {
+  margin: 10px 10px 20px 20px;
+}
+
+#events-and-posts {
+  margin: 10px 20px 20px 10px;
 }
 
 .profile-pic-large {
@@ -282,8 +299,16 @@ html, body {
   text-align: center;
 }
 
-.bottom-section {
+#profile-section {
+  background-color: white;
+}
+
+#saved-interests {
   flex: 1;
+}
+
+#events-and-posts {
+  flex: 3;
 }
 
 .user-element {
@@ -308,6 +333,14 @@ html, body {
   position: absolute;
   top: 10px;
   right: 10px;
+}
+
+.events-tabcontent {
+  display: none;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-top: none;
+  font-family: 'Roboto';
 }
 
 /* Style the tab in sidebar */
@@ -375,7 +408,7 @@ html, body {
   width: 300px;
   display: inline-block;
   text-align: left;
-  background-color: var(--side-bar);
+  background-color: var(--sidebar-color);
   padding-left: 10px;
   margin-top: 10px;
   border-radius: 5px;
