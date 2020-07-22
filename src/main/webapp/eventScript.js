@@ -212,32 +212,35 @@ function getAvailableEvents(userID) {
   fetch("events")
     .then(response => response.json())
     .then(events => {
-      if (events.length === 0) {
-        noEventElement = document.createElement('p');
-        noEventElement.innerText = "No events to show.";
-        eventDivElement.appendChild(noEventElement);      }
-      else {
-        for (i = 0; i < events.length; i++) {
-          if (events[i].location == locationName) {
-            invitedAttendees = events[i].invitedAttendees;
-            rsvpAttendees = events[i].rsvpAttendees;
-            rsvpContains = rsvpAttendees.includes(userID);
-            if (events[i].privacy == "public") {
-              // Display public events even if user is not attending.
-              if (!rsvpContains) {
-                eventDivElement.appendChild(createEventWithResponse(events[i], userID, "false"));
-              }
-            }
-            if (rsvpContains) {
-              // Display events the user is attending.
-              eventDivElement.appendChild(createEventWithResponse(events[i], userID, "true"));
-            }
-            else if (invitedAttendees.includes(userID)) {
-              // Display events the user is invited to.
+      let count = 0;
+      for (i = 0; i < events.length; i++) {
+        if (events[i].location == locationName) {
+          invitedAttendees = events[i].invitedAttendees;
+          rsvpAttendees = events[i].rsvpAttendees;
+          rsvpContains = rsvpAttendees.includes(userID);
+          if (events[i].privacy == "public") {
+            // Display public events even if user is not attending.
+            if (!rsvpContains) {
               eventDivElement.appendChild(createEventWithResponse(events[i], userID, "false"));
+              count++;
             }
           }
+          if (rsvpContains) {
+            // Display events the user is attending.
+            eventDivElement.appendChild(createEventWithResponse(events[i], userID, "true"));
+            count++;
+          }
+          else if (invitedAttendees.includes(userID)) {
+            // Display events the user is invited to.
+            eventDivElement.appendChild(createEventWithResponse(events[i], userID, "false"));
+            count++;
+          }
         }
+      }
+      if (count === 0) {
+        noEventElement = document.createElement('p');
+        noEventElement.innerText = "No events to show.";
+        eventDivElement.appendChild(noEventElement);      
       }
     });
   return eventDivElement;
@@ -288,7 +291,7 @@ function createEventNoResponse(event) {
     .then(users => {
       for (let i = 0; i < users.length; i++) {
         if (users[i].id === event.creator) {
-          displayProfilePicture(users[i], document.getElementById("event-creator"), 'profile-pic-small');
+          displayProfilePicture(users[i], creatorName, 'profile-pic-small');
           const name = document.createElement('p');
           name.innerText = "Created by " + users[i].name;
           creatorName.addEventListener('click', () => {
@@ -299,7 +302,7 @@ function createEventNoResponse(event) {
       }
     });
   
-  topOfEvent.append(eventName);
+  topOfEvent.append(creatorName);
   if (event.yesCOVIDSafe === "yes") {
     const covidBadge = document.createElement('img');
     covidBadge.src = "images/mask.png";
@@ -309,8 +312,8 @@ function createEventNoResponse(event) {
     topOfEvent.append(covidBadge);
   }
   eventElement.append(eventContents);
-  eventElement.append(creatorName);
   eventElement.append(topOfEvent);
+  eventElement.append(eventName);
   eventElement.append(eventDate);
   eventElement.append(locationDisplay);
   eventElement.append(eventDetails);
