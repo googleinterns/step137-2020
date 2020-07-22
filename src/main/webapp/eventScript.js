@@ -181,7 +181,7 @@ function getPublicEvents() {
   eventDivElement.innerText = '';
   locationName = sessionStorage.getItem(SESSION_STORE_LOCATION);
 
-  fetch("events")
+  fetch("/events")
     .then(response => response.json())
     .then(events => {
       if (events.length === 0) {
@@ -209,7 +209,7 @@ function getAvailableEvents(userID) {
   eventDivElement.innerText = '';
   locationName = sessionStorage.getItem(SESSION_STORE_LOCATION);
 
-  fetch("events")
+  fetch("/events")
     .then(response => response.json())
     .then(events => {
       if (events.length === 0) {
@@ -288,7 +288,7 @@ function createEventNoResponse(event) {
     .then(users => {
       for (let i = 0; i < users.length; i++) {
         if (users[i].id === event.creator) {
-          displayProfilePicture(users[i], document.getElementById("event-creator"), 'profile-pic-small');
+          displayProfilePicture(users[i], creatorName, 'profile-pic-small');
           const name = document.createElement('p');
           name.innerText = "Created by " + users[i].name;
           creatorName.addEventListener('click', () => {

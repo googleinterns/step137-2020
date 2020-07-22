@@ -19,6 +19,7 @@ public final class Constants {
   public static final String EVENT_ENTITY_PARAM = "Event";
   public static final String EVENT_NAME_PARAM = "event-name";
   public static final String START_DATE_PARAM = "start-date";
+  public static final String START_TIME_PARAM = "start-time";
   public static final String END_DATE_PARAM = "end-date";
   public static final String END_TIME_PARAM = "end-time";
   public static final String TIME_ZONE_PARAM = "time-zone";
