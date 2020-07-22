@@ -185,6 +185,7 @@ function fetchPlaceInformation(place_id, map, where) {
       }
     }
   } 
+
   else if (where == EXPLORE_MAP_PAGE) {
     var request = {
       placeId: place_id,
@@ -196,49 +197,44 @@ function fetchPlaceInformation(place_id, map, where) {
         'business_status'
       ]
     };
+
     // Creates a Request object for caching purposes.
     myRequest = new Request([JSON.stringify(request, null, 2)], {type : 'application/json'});
     caches.match(myRequest, {'ignoreVary' : true}).then((response) => {
       // If cache hit.
       if (response !== undefined) {
-        console.log(request);
         response.json().then(place => {
-          // call function to display data here
           displayPlaceInfo(place, place_id);
         });
+      } 
       // If cache miss.
-      } else {
+      else {
         service.getDetails(request, callback);
         function callback(place, status) {
           if (status == google.maps.places.PlacesServiceStatus.OK) {
-            console.log('caching place');
             let placeClone = new Object();
             placeClone.name = place.name;
             placeClone.rating = place.rating;
             placeClone.formatted_address = place.formatted_address;
             placeClone.website = place.website;
             placeClone.business_status = place.business_status;
-            placeBlob = new Blob([JSON.stringify(placeClone, null, 2)], {type : 'application/json'});
+            placeBlob = new Blob(
+              [JSON.stringify(placeClone, null, 2)], 
+              {type : 'application/json'}
+            );
             // Creates a Response object for caching purposes.
             response = new Response(placeBlob);
             caches.open('v1').then(function(cache) {
               cache.put(myRequest, response);
             })
             displayPlaceInfo(place, place_id);
-          } else { 
+          } 
+          else { 
             alert('PlacesService failed to find desired location: ' + status); 
           }
         }
       }
     });
-
-    // service.getDetails(request, callback);
-
-    // function callback(place, status) {
-    //   if (status == google.maps.places.PlacesServiceStatus.OK) {
-    //     displayPlaceInfo(place, place_id);
-    //   }
-    // }
   }
 }
 
@@ -327,6 +323,7 @@ function displayPlaceInfo(place, placeId) {
   sideBarElement.appendChild(infoDivElement);
   return sideBarElement;
 }
+
 /** Creates tab element to display user posts and events in. */
 function createTabElement() {
   tabDivElement = document.createElement('div');
