@@ -96,7 +96,7 @@ public class EventServlet extends HttpServlet {
           (List<String>) entity.getProperty(Constants.RSVP_ATTENDEES_PARAM);
       String creator = 
           (String) entity.getProperty(Constants.CREATOR_PARAM);
-      Date startDateTime = (Date) entity.getProperty(Constants.START_TIME_PARAM);
+      Date startDateTime = (Date) entity.getProperty(Constants.START_DATE_PARAM);
       Date endDateTime = (Date) entity.getProperty(Constants.END_DATE_PARAM);
       String timeZone = (String) entity.getProperty(Constants.TIME_ZONE_PARAM);
       String currency = eventCurrency(endDateTime, timeZone);
