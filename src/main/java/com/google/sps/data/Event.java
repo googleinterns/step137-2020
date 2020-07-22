@@ -47,7 +47,9 @@ public class Event implements Comparable<Event> {
 
     private long eventId;
     private String eventName;
+    // String of the date and time of event for display purposes.
     private String dateTime;
+    // Start date of event for sorting comparison (displaying events by start date).
     private Date startDateTime;
     private String location;
     private String placeId;
