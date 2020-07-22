@@ -196,98 +196,132 @@ function fetchPlaceInformation(place_id, map, where) {
         'business_status'
       ]
     };
-
-    service.getDetails(request, callback);
-
-    function callback(place, status) {
-      if (status == google.maps.places.PlacesServiceStatus.OK) {
-        sessionStorage.setItem(SESSION_STORE_LOCATION, place.name);
-        sessionStorage.setItem(SESSION_STORE_PLACEID, place_id);
-        sideBarElement = document.getElementById('side');
-        infoDivElement = document.getElementById('place-info');
-        userPostsDivElement = document.getElementById('UserPosts');
-        eventsDivElement = document.getElementById('Events');
-        infoDivElement.innerHTML = '';
-        userPostsDivElement.innerHTML = '';
-        eventsDivElement.innerHTML = '';
-        
-        nameElement = document.createElement('h2');
-        ratingElement = document.createElement('span');
-        ratingElement.id = 'stars';
-        addressElement = document.createElement('p');
-        createEventElement = document.createElement('button');
-        createEventElement.className = "button";
-        createPostElement = document.createElement('button');
-        createPostElement.className = "button";
-        interestButtonElement = document.createElement('button');
-        interestButtonElement.className = "button";
-        
-        nameElement.innerText = place.name;
-        addressElement.innerText = 'Address: ' + place.formatted_address;
-        // function to create tab and return tab div element
-        tabDivElement = createTabElement();
-        createEventElement.innerText = 'Create an Event';
-        createEventElement.addEventListener('click', () => {
-          location.href = 'CreateAnEvent.html';
+    myRequest = new Request([JSON.stringify(request, null, 2)], {type : 'application/json'});
+    caches.match(myRequest, {'ignoreVary' : true}).then((response) => {
+      if (response !== undefined) {
+        console.log(request);
+        response.json().then(place => {
+          // call function to display data here
+          displayPlaceInfo(place, place_id);
         });
-        createPostElement.innerText = "Create a Post";
-        createPostElement.addEventListener('click', () => {
-          location.href = 'posts.html';
-        });
-        if (place.business_status) {
-          businessStatusElement = document.createElement('p');
-          businessStatusElement.innerText = 'Business Status: ' + place.business_status;
+      } else {
+        service.getDetails(request, callback);
+        function callback(place, status) {
+          if (status == google.maps.places.PlacesServiceStatus.OK) {
+            console.log('caching place');
+            let placeClone = new Object();
+            placeClone.name = place.name;
+            placeClone.rating = place.rating;
+            placeClone.formatted_address = place.formatted_address;
+            placeClone.website = place.website;
+            placeClone.business_status = place.business_status;
+            placeBlob = new Blob([JSON.stringify(placeClone, null, 2)], {type : 'application/json'});
+            response = new Response(placeBlob);
+            console.log(response);
+            caches.open('v1').then(function(cache) {
+              cache.put(myRequest, response);
+            })
+            displayPlaceInfo(place, place_id);
+          } else { console.log(status); }
         }
-        interestButtonElement.addEventListener('click', () => {
-          saveOrRemoveInterest(place.name, place_id, interestButtonElement);
-        });
-
-        infoDivElement.appendChild(nameElement);
-
-        if (place.website) {
-          websiteElement = document.createElement('a');
-          websiteElement.innerText = place.website;
-          websiteElement.href = place.website;
-          infoDivElement.appendChild(websiteElement);
-        }
-
-        infoDivElement.appendChild(addressElement);
-
-        if (place.business_status) {
-          businessStatusElement = document.createElement('p');
-          businessStatusElement.innerText = 'Business Status: ' + place.business_status;
-          infoDivElement.appendChild(businessStatusElement);
-        }
-
-        if (place.rating) {
-          ratingElement.innerHTML = getStars(place.rating) +
-           ' ' + place.rating + '<br></br>';
-          infoDivElement.appendChild(ratingElement); 
-        }
-
-        if (localStorage.getItem(LOCAL_STORAGE_STATUS) === 'true') {
-          let userId = localStorage.getItem(LOCAL_STORAGE_ID);
-          setInterestButtonText(interestButtonElement, place_id, userId);
-          infoDivElement.appendChild(interestButtonElement);
-          eventsDivElement.appendChild(createEventElement);
-          eventsDivElement.appendChild(getAvailableEvents(userId)); 
-          userPostsDivElement.appendChild(createPostElement); 
-          userPostsDivElement.appendChild(getPosts(userId)); 
-        }
-        else {
-          eventsDivElement.appendChild(getPublicEvents());
-        }
-        infoDivElement.appendChild(tabDivElement);
-        infoDivElement.appendChild(eventsDivElement);
-        infoDivElement.appendChild(userPostsDivElement);
-        document.getElementById('open').click();
-        sideBarElement.appendChild(infoDivElement);
-        return sideBarElement;
       }
-    }
+    });
+
+    // service.getDetails(request, callback);
+
+    // function callback(place, status) {
+    //   if (status == google.maps.places.PlacesServiceStatus.OK) {
+    //     displayPlaceInfo(place, place_id);
+    //   }
+    // }
   }
 }
 
+/** Display place information on sidebar */
+function displayPlaceInfo(place, placeId) {
+  sessionStorage.setItem(SESSION_STORE_LOCATION, place.name);
+  sessionStorage.setItem(SESSION_STORE_PLACEID, placeId);
+  sideBarElement = document.getElementById('side');
+  infoDivElement = document.getElementById('place-info');
+  userPostsDivElement = document.getElementById('UserPosts');
+  eventsDivElement = document.getElementById('Events');
+  infoDivElement.innerHTML = '';
+  userPostsDivElement.innerHTML = '';
+  eventsDivElement.innerHTML = '';
+  
+  nameElement = document.createElement('h2');
+  ratingElement = document.createElement('span');
+  ratingElement.id = 'stars';
+  addressElement = document.createElement('p');
+  createEventElement = document.createElement('button');
+  createEventElement.className = "button";
+  createPostElement = document.createElement('button');
+  createPostElement.className = "button";
+  interestButtonElement = document.createElement('button');
+  interestButtonElement.className = "button";
+  
+  nameElement.innerText = place.name;
+  addressElement.innerText = 'Address: ' + place.formatted_address;
+  // function to create tab and return tab div element
+  tabDivElement = createTabElement();
+  createEventElement.innerText = 'Create an Event';
+  createEventElement.addEventListener('click', () => {
+    location.href = 'CreateAnEvent.html';
+  });
+  createPostElement.innerText = "Create a Post";
+  createPostElement.addEventListener('click', () => {
+    location.href = 'posts.html';
+  });
+  if (place.business_status) {
+    businessStatusElement = document.createElement('p');
+    businessStatusElement.innerText = 'Business Status: ' + place.business_status;
+  }
+  interestButtonElement.addEventListener('click', () => {
+    saveOrRemoveInterest(place.name, placeId, interestButtonElement);
+  });
+
+  infoDivElement.appendChild(nameElement);
+
+  if (place.website) {
+    websiteElement = document.createElement('a');
+    websiteElement.innerText = place.website;
+    websiteElement.href = place.website;
+    infoDivElement.appendChild(websiteElement);
+  }
+
+  infoDivElement.appendChild(addressElement);
+
+  if (place.business_status) {
+    businessStatusElement = document.createElement('p');
+    businessStatusElement.innerText = 'Business Status: ' + place.business_status;
+    infoDivElement.appendChild(businessStatusElement);
+  }
+
+  if (place.rating) {
+    ratingElement.innerHTML = getStars(place.rating) +
+      ' ' + place.rating + '<br></br>';
+    infoDivElement.appendChild(ratingElement); 
+  }
+
+  if (localStorage.getItem(LOCAL_STORAGE_STATUS) === 'true') {
+    let userId = localStorage.getItem(LOCAL_STORAGE_ID);
+    setInterestButtonText(interestButtonElement, placeId, userId);
+    infoDivElement.appendChild(interestButtonElement);
+    eventsDivElement.appendChild(createEventElement);
+    eventsDivElement.appendChild(getAvailableEvents(userId)); 
+    userPostsDivElement.appendChild(createPostElement); 
+    userPostsDivElement.appendChild(getPosts(userId)); 
+  }
+  else {
+    eventsDivElement.appendChild(getPublicEvents());
+  }
+  infoDivElement.appendChild(tabDivElement);
+  infoDivElement.appendChild(eventsDivElement);
+  infoDivElement.appendChild(userPostsDivElement);
+  document.getElementById('open').click();
+  sideBarElement.appendChild(infoDivElement);
+  return sideBarElement;
+}
 /** Creates tab element to display user posts and events in. */
 function createTabElement() {
   tabDivElement = document.createElement('div');
