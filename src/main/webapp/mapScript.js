@@ -1,9 +1,4 @@
 // Global Variables
-// var API_KEY;
-// fetch('./api_key.json')
-//   .then((resp) => resp.json())
-//   .then((data => API_KEY = data.MAP_API_KEY))
-//   .then(() => console.log(API_KEY));
 const API_KEY = displayKey();
 const CREATE_EVENT_PAGE = 'createEventPage';
 const EXPLORE_MAP_PAGE = 'exploreMapPage';
@@ -15,9 +10,7 @@ function initialDisplay() {
   navbarLoginDisplay(); // This function is located in profileScript.js
   initMap();
 }
-/** {
-  "MAP_API_KEY": "AIzaSyBf5E9ymEYBv6mAi78mFBOn8oUVvO8sph4" 
-} */
+
 /** Initializes map and displays it. */
 function initMap() {
   newCenterId = sessionStorage.getItem(SESSION_STORAGE_CURRENT_LOCATION);
