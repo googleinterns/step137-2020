@@ -158,29 +158,38 @@ function displayBasicInfo(user, viewer) {
   const profilePicContainer = document.getElementById('profile-pic-container');
   displayProfilePicture(user, profilePicContainer, 'profile-pic-large');
 
+  const editImageButton = document.createElement('i');
+  editImageButton.id = 'edit-image-button';
+  editImageButton.className = 'fa fa-edit';
+
   const nameContainer = document.getElementById('name-container');
   nameContainer.innerHTML = '';
 
   const name = document.createElement('h1');
   name.innerText = user.name;
-  nameContainer.appendChild(name);
   
+  const editNameButton = document.createElement('i');
+  editNameButton.id = 'edit-name-button';
+  editNameButton.className = 'fa fa-edit';
+
   if (viewer === PROFILE_VIEWER_PERSONAL) {
-    // Add an option for the current user to change their display name.
-    const editNameButton = document.createElement('i');
-    editNameButton.className = 'fa fa-edit';
-    editNameButton.addEventListener('click', () => {
+    // On hover, display an option for the current user to change their name.
+    name.id = 'personal-name';
+    nameContainer.addEventListener('click', () => {
       showNameForm();
     });
-    nameContainer.append(editNameButton);
-    // Add an option for the current user to change their profile picture.
-    const editImageButton = document.createElement('button');
-    editImageButton.innerText = 'Change profile picture';
-    editImageButton.addEventListener('click', () => {
+    
+    // On hover, display an option for the current user to change their profile picture.
+    profilePicContainer.id = 'personal-pic-container'
+    profilePicContainer.addEventListener('click', () => {
       showImageForm();
     });
-    nameContainer.append(editImageButton);
+    const personalPic = profilePicContainer.childNodes[0];
+    personalPic.id = 'personal-pic';
   }
+  profilePicContainer.appendChild(editImageButton);
+  nameContainer.appendChild(name);
+  nameContainer.appendChild(editNameButton);
 }
 
 /**
