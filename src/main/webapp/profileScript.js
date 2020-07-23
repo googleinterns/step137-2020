@@ -263,6 +263,21 @@ function displayBuddies(user, viewer) {
     }
     buddyContainer.appendChild(buddiesHeading);
   } else if (viewer === PROFILE_VIEWER_BUDDY) {
+    // Add a popup for the profile user's buddies list.
+    const buddiesHeading = document.createElement('h3');
+    const numBuddies = user.buddies.length - 1;
+    if (numBuddies == 1) {
+      buddiesHeading.innerText = numBuddies + ' buddy';
+    } else {
+      buddiesHeading.innerText = numBuddies + ' buddies';
+    }
+    buddiesHeading.addEventListener('click', () => {
+      displayBuddiesList(user);
+    });
+    if (document.getElementById('buddies-popup').style.display === 'block') {
+      displayBuddiesList(user);
+    }
+    buddyContainer.appendChild(buddiesHeading);
     // Add a remove buddy option.
     const removeBuddyButton = document.createElement('button');
     removeBuddyButton.className = 'button';
@@ -271,16 +286,6 @@ function displayBuddies(user, viewer) {
       addOrRemoveBuddy(user, 'remove');
     });
     buddyContainer.appendChild(removeBuddyButton);
-    // Add a popup for the profile user's buddies list.
-    const buddiesHeading = document.createElement('h3');
-    buddiesHeading.innerText = (user.buddies.length - 1) + ' buddies';
-    buddiesHeading.addEventListener('click', () => {
-      displayBuddiesList(user);
-    });
-    if (document.getElementById('buddies-popup').style.display === 'block') {
-      displayBuddiesList(user);
-    }
-    buddyContainer.appendChild(buddiesHeading);
   } else if (viewer === PROFILE_VIEWER_PENDING_BUDDY) {
     // Add an option informing the user that a buddy request has been sent.
     const requestSentButton = document.createElement('button');
