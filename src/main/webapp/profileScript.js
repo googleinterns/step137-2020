@@ -46,16 +46,17 @@ function navbarLoginDisplay() {
               personalProfileButton.addEventListener('click', () => {
                 visitProfile(json['id']);
               });
-              const logoutButton = document.createElement('p');
-              logoutButton.className = 'navbar-text';
-              logoutButton.innerText = 'Logout';
-              logoutButton.addEventListener('click', () => {
-                window.location.href = json['logoutUrl'];
-              });
               userNavbarSection.appendChild(personalProfileButton);
-              userNavbarSection.appendChild(logoutButton);
+              break;
             }
           }
+          const logoutButton = document.createElement('p');
+          logoutButton.className = 'navbar-text';
+          logoutButton.innerText = 'Logout';
+          logoutButton.addEventListener('click', () => {
+            window.location.href = json['logoutUrl'];
+          });
+          userNavbarSection.appendChild(logoutButton);
         });
       }
     } else {
@@ -172,14 +173,14 @@ function displayBasicInfo(user, viewer) {
     editNameButton.addEventListener('click', () => {
       showNameForm();
     });
-    nameContainer.append(editNameButton);
+    nameContainer.appendChild(editNameButton);
     // Add an option for the current user to change their profile picture.
     const editImageButton = document.createElement('button');
     editImageButton.innerText = 'Change profile picture';
     editImageButton.addEventListener('click', () => {
       showImageForm();
     });
-    nameContainer.append(editImageButton);
+    nameContainer.appendChild(editImageButton);
   }
 }
 
@@ -295,23 +296,26 @@ function displayBuddies(user, viewer) {
  * Displays the buddy requests of the specified user.
  */
 function displayBuddyRequests(user) {
-  // Create an empty popup with an exit button.
+  // Create an empty popup with a heading and an exit button.
   const requestsPopup = document.getElementById('requests-popup');
   requestsPopup.innerHTML = '';
   const buddyRequests = document.createElement('div');
   buddyRequests.className = 'popup-text';
+  const buddyRequestsHeading = document.createElement('h3');
+  buddyRequestsHeading.innerText = 'Buddy Requests';
   const exitButton = document.createElement('i');
   exitButton.className = 'fa fa-close';
   exitButton.addEventListener('click', () => {
     requestsPopup.style.display = 'none';
   });
+  buddyRequests.appendChild(buddyRequestsHeading)
+  buddyRequests.appendChild(exitButton);
 
   const requestIds = user.buddyRequests;
   if (requestIds.length == 1) { // length of 1 due to empty placeholder
     const requestMessage = document.createElement('p');
     requestMessage.innerText = 'No buddy requests to show.';
-    buddyRequests.append(requestMessage);
-    buddyRequests.append(exitButton);
+    buddyRequests.appendChild(requestMessage);
     requestsPopup.appendChild(buddyRequests);
   } else {
     fetch('/user').then(response => response.json()).then((users) => {
@@ -344,7 +348,6 @@ function displayBuddyRequests(user) {
         }
       }
     }).then(() => {
-      buddyRequests.append(exitButton);
       requestsPopup.appendChild(buddyRequests);
     });
   }
@@ -355,23 +358,26 @@ function displayBuddyRequests(user) {
  * Displays the buddies list of the specified user.
  */
 function displayBuddiesList(user, buddyContainer) {
-  // Create an empty popup with an exit button.
+  // Create an empty popup with a heading and an exit button.
   const buddiesPopup = document.getElementById('buddies-popup');
   buddiesPopup.innerHTML = '';
   const buddiesList = document.createElement('div');
   buddiesList.className = 'popup-text';
+  const buddiesHeading = document.createElement('h3');
+  buddiesHeading.innerText = 'Buddies';
   const exitButton = document.createElement('i');
   exitButton.className = 'fa fa-close';
   exitButton.addEventListener('click', () => {
     buddiesPopup.style.display = 'none';
   });
+  buddiesList.appendChild(buddiesHeading);
+  buddiesList.appendChild(exitButton);
 
   const buddyIds = user.buddies;
   if (buddyIds.length == 1) { // length of 1 due to empty placeholder
     const buddyMessage = document.createElement('p');
     buddyMessage.innerText = 'No buddies to show.';
     buddiesList.appendChild(buddyMessage);
-    buddiesList.appendChild(exitButton);
     buddiesPopup.appendChild(buddiesList);
   } else {
     fetch('/user').then(response => response.json()).then((users) => {
@@ -383,7 +389,6 @@ function displayBuddiesList(user, buddyContainer) {
         }
       }
     }).then(() => {
-      buddiesList.appendChild(exitButton);
       buddiesPopup.appendChild(buddiesList);
     });
   }
@@ -432,7 +437,7 @@ function createInterest(interest) {
   });
 
   const interestElement = document.createElement('div');
-  interestElement.append(interestName);
+  interestElement.appendChild(interestName);
   return interestElement;
 }
 
@@ -489,9 +494,9 @@ function displayPersonalEvents(user, eventsContainer) {
       attendingEventMessage.innerText = 'No events to show.';
       attendingEvents.appendChild(attendingEventMessage);
     }
-    eventsContainer.append(tabContainer);
-    eventsContainer.append(invitedEvents);
-    eventsContainer.append(attendingEvents);
+    eventsContainer.appendChild(tabContainer);
+    eventsContainer.appendChild(invitedEvents);
+    eventsContainer.appendChild(attendingEvents);
     document.getElementById('open').click();
   });
 }
