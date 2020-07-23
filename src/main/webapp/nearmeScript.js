@@ -79,12 +79,12 @@ function findNearbyEvents(map, currentLocation) {
     }
     // check to see if list is done being made here
     Promise.all(eventPromises).then((listOfEventObjects) => {
-      console.log(listOfEventObjects[0]);
-      calculateDistances(currentLocation, listOfEventObjects)
+      calculateDistances(currentLocation, listOfEventObjects).then((results) => {
+        console.log(results);
+      });
     });
-    //not working! Fix tomorrow! Cannot access individual elements
-    // call function to check for distances 
-    // if so, sort the list with comparison function
+    
+    // sort the list with comparison function
     // call function to display events with the sorted list
   });
 }
@@ -137,17 +137,40 @@ function isNearby(geocoder, event, locationCircle, userId, resolveFn, rejectFn) 
 
 /** Calculates distances between all event locations and the current location. */
 function calculateDistances(currentLocation, listOfEventObjects) {
-  // get currentLocation latLng
-  origin = currentLocation;
-  destinations = [];
-  // make list of latLngs of destinations
-  for (var i = 0; i < listOfEventObjects.length; i++) {
-    destinations.push(listOfEventObjects[i].latLng);
-  }
-  console.log(listOfEventObjects);
-  console.log(destinations);
-  
-  // create service and make API call
-  // get results
+  return new Promise(function(resolveFn, reject) {
+    // get currentLocation latLng
+    origin = currentLocation;
+    destinations = [];
+    // make list of latLngs of destinations
+    for (var i = 0; i < listOfEventObjects.length; i++) {
+      destinations.push(listOfEventObjects[i].latLng);
+    }
+    console.log(listOfEventObjects);
+    console.log(destinations);
+    
+    // create service and make API call
+    var service = new google.maps.DistanceMatrixService();
+    service.getDistanceMatrix(
+      {
+        origins: [origin],
+        destinations: destinations,
+        travelMode: 'WALKING'
+      }, callback
+    );
+    // get results
+    function callback(response, status) {
+      if (status == 'OK') {
+        distances = response.rows[0].elements;
+        for (var i = 0; i < listOfEventObjects.length; i ++) {
+          listOfEventObjects[i].distanceText = distances[i].distance.text;
+          listOfEventObjects[i].distanceValue = distances[i].distance.value; 
+        }
+        resolveFn(listOfEventObjects);
+      }
+      else { 
+        console.log(status);
+        reject(); 
+      }
+    }
+  });
 }
-
