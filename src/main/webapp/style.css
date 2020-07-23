@@ -4,6 +4,7 @@
   --navbar-color: #002b54;
   --button-color: rgba(248, 202, 210, 0.658);
   --button-color-selected: rgba(247, 162, 177, 0.979);
+  --request-button-color: #006400;
   --sidebar-color: #f1f1f1;
   --red-marker-color: #F78F8F;
 }
@@ -251,8 +252,9 @@ html, body {
   margin: auto;
   width: 350px;
   background-color: white;
-  padding: 20px;
+  padding: 20px 20px 20px 30px;
   position: relative;
+  border-radius: 5%;
 }
 
 .request-element {
@@ -384,6 +386,11 @@ html, body {
   margin: 20px 20px 10px 20px;
 }
 
+.request-buttons {
+  position: absolute;
+  right: 18px;
+}
+
 #name-buddy-wrapper {
   margin-left: 20px;
 }
@@ -414,6 +421,25 @@ html, body {
   border: 1px solid #ccc;
   border-top: none;
   font-family: 'Roboto';
+}
+
+/* Buddy request button styling */
+.request-button {
+  background-color: var(--request-button-color);
+  color: var(--side-bar);
+  border: 1.5px solid var(--request-button-color);
+  font-size: 10px;
+  padding: 5px 10px;
+  font-weight: 400;
+  font-family: 'Roboto';
+  border-radius: 4px;
+  transition: ease background-color 0.1s, ease color 0.1s;
+  margin-right: 2px;
+}
+
+.request-button:hover {
+  background-color: var(--side-bar);
+  color: var(--request-button-color);
 }
 
 /* Style the tab in sidebar */
