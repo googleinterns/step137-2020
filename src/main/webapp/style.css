@@ -5,6 +5,7 @@
   --button-color: rgba(248, 202, 210, 0.658);
   --button-color-selected: rgba(247, 162, 177, 0.979);
   --sidebar-color: #f1f1f1;
+  --red-marker-color: #F78F8F;
 }
 
 img {
@@ -498,4 +499,27 @@ html, body {
 
 .clear-button:hover {
   background-color: plum;
+}
+
+/* Styling for map saved interest */
+#map-interest-container {
+  display: flex;
+  align-items: center;
+  margin-top: -15px;
+  margin-bottom: 5px;
+}
+
+.fa-heart-o {
+  color: var(--red-marker-color);
+  font-size: 20px;
+  font-weight: 500;
+  margin-right: 5px;
+  cursor: pointer;
+}
+
+.fa-heart {
+  color: var(--red-marker-color);
+  font-size: 20px;
+  margin-right: 5px;
+  cursor: pointer;
 }
