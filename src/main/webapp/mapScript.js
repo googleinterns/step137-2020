@@ -129,14 +129,18 @@ function highlightNearbyLocation(map, placeType, currentLocation) {
   function callback(results, status) {
     if (status == google.maps.places.PlacesServiceStatus.OK) {
       for (var i = 0; i < results.length; i++) {
-        createMarker(map, results[i].geometry.location);
+        createMarker(map, results[i].geometry.location, results[i].place_id);
       }
-      function createMarker(thisMap, location) {
+      function createMarker(thisMap, location, markerPlaceId) {
         var marker = new google.maps.Marker({
           position: location,
           map: thisMap,
           icon: image
         })
+        marker.addListener('click', function(e) {
+          fetchPlaceInformation(markerPlaceId, map, EXPLORE_MAP_PAGE);
+          e.stop(); // Stops infobox from appearing when location clicked
+          });
         markers.push(marker);
       }
     }
