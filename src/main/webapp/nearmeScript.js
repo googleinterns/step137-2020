@@ -1,5 +1,5 @@
 // Global variables
-listOfEventObjects = [];
+// var listOfEventObjs = [];
 
 /** First function to be called onload */
 function onLoad() {
@@ -47,6 +47,7 @@ function findNearbyEvents(map, currentLocation) {
   fetch('/events')
   .then(response => response.json())
   .then(events => {
+    var listOfEventObjs = []
     if (events.length == 0) {
       eventsDivElement.innerHTML = '<p>No nearby events to show.</p>';
       return;
@@ -57,8 +58,9 @@ function findNearbyEvents(map, currentLocation) {
       for (var i = 0; i < events.length; i++) {
         if (events[i].currency === "current") {
           var currentEvent = events[i];
-          isNearby(geocoder, currentEvent, locationCircle, userId);
-        }
+          console.log('is nearby called');
+          isNearby(geocoder, currentEvent, locationCircle, userId, listOfEventObjs);
+        } 
       }
     }
     // When user is not logged in, get only public events.
@@ -66,19 +68,20 @@ function findNearbyEvents(map, currentLocation) {
       for (var i = 0; i < events.length; i++) {
         if (events[i].currency === "current") {
           var currentEvent = events[i];
-          isNearby(geocoder, currentEvent, locationCircle, '');
+          isNearby(geocoder, currentEvent, locationCircle, '', listOfEventObjs);
         }
       }
     }
     // check to see if list is done being made here
-    console.log(listOfEventObjects);
+    // console.log(listOfEventObjs[0]); //not working! Fix tomorrow! Cannot access individual elements
+    // call function to check for distances 
     // if so, sort the list with comparison function
     // call function to display events with the sorted list
   });
 }
 
 /** Checks to see if an event is nearby */
-function isNearby(geocoder, event, locationCircle, userId) {
+function isNearby(geocoder, event, locationCircle, userId, listOfEvtObjs) {
   geocoder.geocode( {'placeId' : event.placeId}, function(results, status) {
     if (status !== google.maps.GeocoderStatus.OK) {
       alert('Geocode was not successful for the following reason: ' + status);
@@ -91,13 +94,12 @@ function isNearby(geocoder, event, locationCircle, userId) {
         if (event.rsvpAttendees.includes(userId) ||
         event.invitedAttendees.includes(userId) || 
         event.privacy == 'public') {
-          // get the rating of the event location
-          eventLocationRating = fetchPlaceInformation(event.placeId, locationCircle.map, "nearmePage");
-          // create object with event and rating and add to working list of objects. The list will be a global variable
+          // create object with event and add to working list of objects. The list will be a global variable
           eventObj = new Object();
           eventObj.event = event;
-          eventObj.locationRating = eventLocationRating;
-          listOfEventObjects.push(eventObj);
+          eventObj.latLng = eventLatLng;
+          listOfEvtObjs.push("here");
+
           eventElement = createEventNoResponse(event);
           eventElement.addEventListener('click', () => {
             sessionStorage.setItem('currentLocationId', event.placeId);
@@ -120,3 +122,20 @@ function isNearby(geocoder, event, locationCircle, userId) {
     }
   });
 }
+
+/** Calculates distances between all event locations and the current location. */
+function calculateDistances(currentLocation, listOfEventObjects) {
+  // get currentLocation latLng
+  origin = currentLocation;
+  destinations = [];
+  // make list of latLngs of destinations
+  for (var i = 0; i < listOfEventObjects.length; i++) {
+    destinations.push(listOfEventObjects[i].latLng);
+  }
+  console.log(listOfEventObjects);
+  console.log(destinations);
+  
+  // create service and make API call
+  // get results
+}
+
