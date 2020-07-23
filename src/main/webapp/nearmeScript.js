@@ -1,6 +1,3 @@
-// Global variables
-// var listOfEventObjs = [];
-
 /** First function to be called onload */
 function onLoad() {
   navbarLoginDisplay();
@@ -37,6 +34,7 @@ function findNearbyEvents(map, currentLocation) {
   eventsDivElement = document.getElementById('nearbyEvents');
   eventsDivElement.innerHTML = '';
   var geocoder = new google.maps.Geocoder();
+
   // This is the circle within which we search for events.
   var locationCircle = new google.maps.Circle({ 
     map: map,
@@ -52,6 +50,7 @@ function findNearbyEvents(map, currentLocation) {
       eventsDivElement.innerHTML = '<p>No nearby events to show.</p>';
       return;
     }
+
     // When user is logged in, get all public events and events user is attending.
     if (localStorage.getItem('loginStatus').localeCompare('true') == 0) {
       var userId = localStorage.getItem('userId');
@@ -59,42 +58,45 @@ function findNearbyEvents(map, currentLocation) {
         if (events[i].currency === "current") {
           var currentEvent = events[i];
           var currentEventPromise = new Promise((resolveFn, rejectFn) => {
-            console.log('is nearby called');
-            console.log(currentEventPromise);
             isNearby(geocoder, currentEvent, locationCircle, userId, resolveFn, rejectFn);
           });
           eventPromises.push(currentEventPromise);
         } 
       }
     }
+    
     // When user is not logged in, get only public events.
     else {
       for (var i = 0; i < events.length; i++) {
         if (events[i].currency === "current") {
           var currentEvent = events[i];
           var currentEventPromise = new Promise((resolveFn, rejectFn) => {
-            console.log('is nearby called');
-            console.log(currentEventPromise);
             isNearby(geocoder, currentEvent, locationCircle, '', resolveFn, rejectFn);
           });
           eventPromises.push(currentEventPromise);
         }
       }
     }
-    // check to see if list is done being made here
+
+    // Get list of nearby event objects after isNearby is finished running.
+    /** Nearby event object structure:
+        {
+          type: json, 
+          properties:[ event,
+                    eventLatLng,
+                    distanceText,
+                    distanceValue
+                   ]
+        }
+    */  
     Promise.all(eventPromises).then((listOfEventObjects) => {
       calculateDistances(currentLocation, listOfEventObjects).then((results) => {
-        console.log(results);
-        results.sort( compare );
+        results.sort( compareDistanceToCurrLocation );
         for (var i = 0; i < listOfEventObjects.length; i++) {
           eventsDivElement.appendChild(displayEvents(listOfEventObjects[i]));
         }
-        console.log(results);
       });
     });
-    
-    // sort the list with comparison function
-    // call function to display events with the sorted list
   });
 }
 
@@ -103,11 +105,11 @@ function isNearby(geocoder, event, locationCircle, userId, resolveFn, rejectFn) 
   geocoder.geocode( {'placeId' : event.placeId}, function(results, status) {
     if (status !== google.maps.GeocoderStatus.OK) {
       alert('Geocode was not successful for the following reason: ' + status);
-      // reject the promise
+      // Reject the promise.
       rejectFn();
       return;
     }
-    // resolve the promise
+    // Resolve the promise.
     eventLatLng = results[0].geometry.location;
     var isNearby = locationCircle.getBounds().contains(eventLatLng)
     if (isNearby) {
@@ -115,23 +117,14 @@ function isNearby(geocoder, event, locationCircle, userId, resolveFn, rejectFn) 
         if (event.rsvpAttendees.includes(userId) ||
         event.invitedAttendees.includes(userId) || 
         event.privacy == 'public') {
-          // create object with event and add to working list of objects. The list will be a global variable
           eventObj = new Object();
           eventObj.event = event;
           eventObj.latLng = eventLatLng;
           resolveFn(eventObj);
-
-          // eventElement = createEventNoResponse(event);
-          // eventElement.addEventListener('click', () => {
-          //   sessionStorage.setItem('currentLocationId', event.placeId);
-          //   window.location.href = 'map.html';
-          // });
-          //  eventsDivElement.appendChild(eventElement);
         }
       }
       else {
         if (event.privacy == 'public'){
-          // create object with event and add to working list of objects. The list will be a global variable
           eventObj = new Object();
           eventObj.event = event;
           eventObj.latLng = eventLatLng;
@@ -146,17 +139,12 @@ function isNearby(geocoder, event, locationCircle, userId, resolveFn, rejectFn) 
 /** Calculates distances between all event locations and the current location. */
 function calculateDistances(currentLocation, listOfEventObjects) {
   return new Promise(function(resolveFn, reject) {
-    // get currentLocation latLng
     origin = currentLocation;
     destinations = [];
-    // make list of latLngs of destinations
     for (var i = 0; i < listOfEventObjects.length; i++) {
       destinations.push(listOfEventObjects[i].latLng);
-    }
-    console.log(listOfEventObjects);
-    console.log(destinations);
+    } 
     
-    // create service and make API call
     var service = new google.maps.DistanceMatrixService();
     service.getDistanceMatrix(
       {
@@ -165,7 +153,7 @@ function calculateDistances(currentLocation, listOfEventObjects) {
         travelMode: 'WALKING'
       }, callback
     );
-    // get results
+    
     function callback(response, status) {
       if (status == 'OK') {
         distances = response.rows[0].elements;
@@ -173,12 +161,9 @@ function calculateDistances(currentLocation, listOfEventObjects) {
           listOfEventObjects[i].distanceText = distances[i].distance.text;
           listOfEventObjects[i].distanceValue = distances[i].distance.value; 
         }
-        console.log(listOfEventObjects);
         resolveFn(listOfEventObjects);
-        
       }
       else { 
-        console.log(status);
         reject(); 
       }
     }
@@ -186,7 +171,7 @@ function calculateDistances(currentLocation, listOfEventObjects) {
 }
 
 /** Compares events by their distance to the current location */
-function compare(eventObj1, eventObj2) {
+function compareDistanceToCurrLocation(eventObj1, eventObj2) {
   if (eventObj1.distanceValue < eventObj2.distanceValue) {
     return -1;
   }
