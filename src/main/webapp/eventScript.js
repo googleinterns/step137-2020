@@ -332,6 +332,7 @@ function createEventNoResponse(event) {
   eventLocation.innerText = event.location;
   locationDisplay.append(locationIcon);
   locationDisplay.append(eventLocation);
+  
   if (window.location.pathname === '/profile.html') {
     locationDisplay.addEventListener('click', () => {
       sessionStorage.setItem(SESSION_STORAGE_CURRENT_LOCATION, event.placeId);
@@ -365,6 +366,7 @@ function createEventNoResponse(event) {
     });
   
   topOfEvent.append(creatorName);
+  
   if (event.yesCOVIDSafe === "yes") {
     const covidBadge = document.createElement('img');
     covidBadge.src = "images/mask.png";
