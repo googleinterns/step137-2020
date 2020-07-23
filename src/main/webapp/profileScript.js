@@ -406,6 +406,11 @@ function displaySavedInterests(user, viewer) {
   const savedInterestsContainer = document.getElementById('interests-container');
   savedInterestsContainer.innerHTML = '';
 
+  const interestHeading = document.createElement('h1');
+  interestHeading.style = 'text-align: center';
+  interestHeading.innerText = 'Saved Interests';
+  savedInterestsContainer.appendChild(interestHeading);
+
   if (viewer === PROFILE_VIEWER_PERSONAL || viewer === PROFILE_VIEWER_BUDDY) {
     fetch('/interest').then(response => response.json()).then((interests) => {
       let interestCount = 0;
@@ -433,7 +438,12 @@ function displaySavedInterests(user, viewer) {
  * Returns a newly created saved interest element to be displayed on the page.
  */
 function createInterest(interest) {
-  const interestName = document.createElement('h3');
+  
+  const interestIcon = document.createElement('img');
+  interestIcon.id = 'interest-icon';
+  interestIcon.src = 'images/red-marker.png';
+
+  const interestName = document.createElement('h4');
   interestName.innerText = interest.locationName;
   interestName.addEventListener('click', () => {
     sessionStorage.setItem(SESSION_STORAGE_CURRENT_LOCATION, interest.placeId);
@@ -441,6 +451,8 @@ function createInterest(interest) {
   });
 
   const interestElement = document.createElement('div');
+  interestElement.id = 'interest-element';
+  interestElement.append(interestIcon);
   interestElement.append(interestName);
   return interestElement;
 }
