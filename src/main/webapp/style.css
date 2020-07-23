@@ -1,5 +1,5 @@
 :root {
-  --gray-icon-color: #808080;
+  --option-color: #696969;
   --form-background: rgba(0,0,0,0.2);
   --navbar-color: #002b54;
   --button-color: rgba(248, 202, 210, 0.658);
@@ -257,7 +257,7 @@ html, body {
 }
 
 .fa-close {
-  color: var(--gray-icon-color);
+  color: var(--option-color);
   cursor: pointer;
   display: block;
   position: absolute;
@@ -312,10 +312,23 @@ html, body {
 }
 
 .fa-edit {
-  color: var(--gray-icon-color);
+  color: var(--option-color);
   cursor: pointer;
   padding-left: 10px;
   padding-top: 3px;
+}
+
+#edit-name-button {
+  display: none;
+  transition: 0.5s ease;
+}
+
+#personal-name:hover + #edit-name-button{
+  display: block;
+}
+
+#personal-name:hover {
+  color: var(--option-color);
 }
 
 #bottom-wrapper {
