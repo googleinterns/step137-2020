@@ -72,8 +72,12 @@ function findNearbyEvents(map, currentLocation) {
       for (var i = 0; i < events.length; i++) {
         if (events[i].currency === "current") {
           var currentEvent = events[i];
-          var currentEventPromise = eventPromises[i];
-          // isNearby(geocoder, currentEvent, locationCircle, '', currentEventPromise);
+          var currentEventPromise = new Promise((resolveFn, rejectFn) => {
+            console.log('is nearby called');
+            console.log(currentEventPromise);
+            isNearby(geocoder, currentEvent, locationCircle, '', resolveFn, rejectFn);
+          });
+          eventPromises.push(currentEventPromise);
         }
       }
     }
@@ -127,12 +131,11 @@ function isNearby(geocoder, event, locationCircle, userId, resolveFn, rejectFn) 
       }
       else {
         if (event.privacy == 'public'){
-          eventElement = createEventNoResponse(event);
-          eventElement.addEventListener('click', () => {
-            sessionStorage.setItem('currentLocationId', event.placeId);
-            window.location.href = 'map.html';
-          });
-          eventsDivElement.appendChild(eventElement);
+          // create object with event and add to working list of objects. The list will be a global variable
+          eventObj = new Object();
+          eventObj.event = event;
+          eventObj.latLng = eventLatLng;
+          resolveFn(eventObj);
         }
       } 
       
