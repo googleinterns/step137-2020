@@ -81,6 +81,8 @@ function findNearbyEvents(map, currentLocation) {
     Promise.all(eventPromises).then((listOfEventObjects) => {
       calculateDistances(currentLocation, listOfEventObjects).then((results) => {
         console.log(results);
+        results.sort( compare );
+        console.log(results);
       });
     });
     
@@ -166,6 +168,7 @@ function calculateDistances(currentLocation, listOfEventObjects) {
           listOfEventObjects[i].distanceValue = distances[i].distance.value; 
         }
         resolveFn(listOfEventObjects);
+        console.log(listOfEventObjects);
       }
       else { 
         console.log(status);
@@ -173,4 +176,15 @@ function calculateDistances(currentLocation, listOfEventObjects) {
       }
     }
   });
+}
+
+/** Compares events by their distance to the current location */
+function compare(eventObj1, eventObj2) {
+  if (eventObj1.distanceValue < eventObj2.distanceValue) {
+    return -1;
+  }
+  if (eventObj1.distanceValue > eventObj2.distanceValue) {
+    return 1;
+  }
+  return 0;
 }
