@@ -47,7 +47,7 @@ function findNearbyEvents(map, currentLocation) {
   fetch('/events')
   .then(response => response.json())
   .then(events => {
-    var listOfEventObjs = []
+    var eventPromises = [];
     if (events.length == 0) {
       eventsDivElement.innerHTML = '<p>No nearby events to show.</p>';
       return;
@@ -58,8 +58,12 @@ function findNearbyEvents(map, currentLocation) {
       for (var i = 0; i < events.length; i++) {
         if (events[i].currency === "current") {
           var currentEvent = events[i];
-          console.log('is nearby called');
-          isNearby(geocoder, currentEvent, locationCircle, userId, listOfEventObjs);
+          var currentEventPromise = new Promise((resolveFn, rejectFn) => {
+            console.log('is nearby called');
+            console.log(currentEventPromise);
+            isNearby(geocoder, currentEvent, locationCircle, userId, resolveFn, rejectFn);
+          });
+          eventPromises.push(currentEventPromise);
         } 
       }
     }
@@ -68,12 +72,17 @@ function findNearbyEvents(map, currentLocation) {
       for (var i = 0; i < events.length; i++) {
         if (events[i].currency === "current") {
           var currentEvent = events[i];
-          isNearby(geocoder, currentEvent, locationCircle, '', listOfEventObjs);
+          var currentEventPromise = eventPromises[i];
+          // isNearby(geocoder, currentEvent, locationCircle, '', currentEventPromise);
         }
       }
     }
     // check to see if list is done being made here
-    // console.log(listOfEventObjs[0]); //not working! Fix tomorrow! Cannot access individual elements
+    Promise.all(eventPromises).then((listOfEventObjects) => {
+      console.log(listOfEventObjects[0]);
+      calculateDistances(currentLocation, listOfEventObjects)
+    });
+    //not working! Fix tomorrow! Cannot access individual elements
     // call function to check for distances 
     // if so, sort the list with comparison function
     // call function to display events with the sorted list
@@ -81,12 +90,15 @@ function findNearbyEvents(map, currentLocation) {
 }
 
 /** Checks to see if an event is nearby */
-function isNearby(geocoder, event, locationCircle, userId, listOfEvtObjs) {
+function isNearby(geocoder, event, locationCircle, userId, resolveFn, rejectFn) {
   geocoder.geocode( {'placeId' : event.placeId}, function(results, status) {
     if (status !== google.maps.GeocoderStatus.OK) {
       alert('Geocode was not successful for the following reason: ' + status);
+      // reject the promise
+      rejectFn();
       return;
     }
+    // resolve the promise
     eventLatLng = results[0].geometry.location;
     var isNearby = locationCircle.getBounds().contains(eventLatLng)
     if (isNearby) {
@@ -98,7 +110,7 @@ function isNearby(geocoder, event, locationCircle, userId, listOfEvtObjs) {
           eventObj = new Object();
           eventObj.event = event;
           eventObj.latLng = eventLatLng;
-          listOfEvtObjs.push("here");
+          resolveFn(eventObj);
 
           eventElement = createEventNoResponse(event);
           eventElement.addEventListener('click', () => {
