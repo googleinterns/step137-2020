@@ -285,6 +285,60 @@ html, body {
   clear: both;
 }
 
+/* Profile options styling */
+.fa-edit {
+  color: var(--option-color);
+  cursor: pointer;
+}
+
+#edit-name-button {
+  transition: 0.5s ease;
+  opacity: 0;
+  padding-top: 8px;
+  padding-left: 8px;
+}
+
+#edit-image-button {
+  transition: 0.3s ease;
+  opacity: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  padding-left: 10px;
+  transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  font-size: 100px;
+}
+
+#personal-pic-container {
+  position: relative;
+}
+
+#personal-pic {
+  transition: 0.5s ease;
+  backface-visibility: hidden;
+}
+
+#personal-name {
+  transition: 0.5 ease;
+}
+
+#personal-name:hover + #edit-name-button {
+  opacity: 1;
+}
+
+#personal-name:hover {
+  opacity: 0.7;
+}
+
+#personal-pic-container:hover #edit-image-button {
+  opacity: 1;
+}
+
+#personal-pic-container:hover #personal-pic {
+  opacity: 0.5;
+}
+
 /* Profile page styling */
 #profile-body {
   background-color: var(--sidebar-color);
@@ -309,26 +363,6 @@ html, body {
 #name-container {
   display: inline-flex;
   align-items: center;
-}
-
-.fa-edit {
-  color: var(--option-color);
-  cursor: pointer;
-  padding-left: 10px;
-  padding-top: 3px;
-}
-
-#edit-name-button {
-  display: none;
-  transition: 0.5s ease;
-}
-
-#personal-name:hover + #edit-name-button{
-  display: block;
-}
-
-#personal-name:hover {
-  color: var(--option-color);
 }
 
 #bottom-wrapper {
