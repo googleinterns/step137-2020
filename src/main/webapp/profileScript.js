@@ -234,7 +234,12 @@ function displayBuddies(user, viewer) {
   if (viewer === PROFILE_VIEWER_PERSONAL) {
     // Add a popup for the user's buddy requests.
     const requestHeading = document.createElement('h3');
-    requestHeading.innerText = (user.buddyRequests.length - 1) + ' buddy requests';
+    const numBuddyRequests = user.buddyRequests.length - 1;
+    if (numBuddyRequests == 1) {
+      requestHeading.innerText = numBuddyRequests + ' buddy request';  
+    } else {
+      requestHeading.innerText = numBuddyRequests + ' buddy requests';
+    }
     requestHeading.addEventListener('click', () => {
       displayBuddyRequests(user);
     });
@@ -244,7 +249,12 @@ function displayBuddies(user, viewer) {
     buddyContainer.appendChild(requestHeading);
     // Add a popup for the user's buddies list.
     const buddiesHeading = document.createElement('h3');
-    buddiesHeading.innerText = (user.buddies.length - 1) + ' buddies';
+    const numBuddies = user.buddies.length - 1;
+    if (numBuddies == 1) {
+      buddiesHeading.innerText = numBuddies + ' buddy';
+    } else {
+      buddiesHeading.innerText = numBuddies + ' buddies';
+    }
     buddiesHeading.addEventListener('click', () => {
       displayBuddiesList(user);
     });
