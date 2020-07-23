@@ -185,6 +185,7 @@ function fetchPlaceInformation(place_id, map, where) {
       }
     }
   } 
+
   else if (where == EXPLORE_MAP_PAGE) {
     var request = {
       placeId: place_id,
@@ -197,95 +198,137 @@ function fetchPlaceInformation(place_id, map, where) {
       ]
     };
 
-    service.getDetails(request, callback);
-
-    function callback(place, status) {
-      if (status == google.maps.places.PlacesServiceStatus.OK) {
-        sessionStorage.setItem(SESSION_STORE_LOCATION, place.name);
-        sessionStorage.setItem(SESSION_STORE_PLACEID, place_id);
-        sideBarElement = document.getElementById('side');
-        infoDivElement = document.getElementById('place-info');
-        userPostsDivElement = document.getElementById('UserPosts');
-        eventsDivElement = document.getElementById('Events');
-        infoDivElement.innerHTML = '';
-        userPostsDivElement.innerHTML = '';
-        eventsDivElement.innerHTML = '';
-        
-        nameElement = document.createElement('h2');
-        ratingElement = document.createElement('span');
-        ratingElement.id = 'stars';
-        addressElement = document.createElement('p');
-        createEventElement = document.createElement('button');
-        createEventElement.className = "button";
-        createPostElement = document.createElement('button');
-        createPostElement.className = "button";
-        interestButtonElement = document.createElement('button');
-        interestButtonElement.className = "button";
-        
-        nameElement.innerText = place.name;
-        addressElement.innerText = 'Address: ' + place.formatted_address;
-        // function to create tab and return tab div element
-        tabDivElement = createTabElement();
-        createEventElement.innerText = 'Create an Event';
-        createEventElement.addEventListener('click', () => {
-          location.href = 'CreateAnEvent.html';
+    // Creates a Request object for caching purposes.
+    myRequest = new Request([JSON.stringify(request, null, 2)], {type : 'application/json'});
+    caches.match(myRequest, {'ignoreVary' : true}).then((response) => {
+      // If cache hit.
+      if (response !== undefined) {
+        response.json().then(place => {
+          displayPlaceInfo(place, place_id);
         });
-        createPostElement.innerText = "Create a Post";
-        createPostElement.addEventListener('click', () => {
-          location.href = 'posts.html';
-        });
-        if (place.business_status) {
-          businessStatusElement = document.createElement('p');
-          businessStatusElement.innerText = 'Business Status: ' + place.business_status;
+      } 
+      // If cache miss.
+      else {
+        service.getDetails(request, callback);
+        function callback(place, status) {
+          if (status == google.maps.places.PlacesServiceStatus.OK) {
+            let placeClone = new Object();
+            placeClone.name = place.name;
+            placeClone.rating = place.rating;
+            placeClone.formatted_address = place.formatted_address;
+            placeClone.website = place.website;
+            placeClone.business_status = place.business_status;
+            placeBlob = new Blob(
+              [JSON.stringify(placeClone, null, 2)], 
+              {type : 'application/json'}
+            );
+            // Creates a Response object for caching purposes.
+            response = new Response(placeBlob);
+            caches.open('v1').then(function(cache) {
+              cache.put(myRequest, response);
+            })
+            displayPlaceInfo(place, place_id);
+          } 
+          else { 
+            alert('PlacesService failed to find desired location: ' + status); 
+          }
         }
-        interestButtonElement.addEventListener('click', () => {
-          saveOrRemoveInterest(place.name, place_id, interestButtonElement);
-        });
-
-        infoDivElement.appendChild(nameElement);
-
-        if (place.website) {
-          websiteElement = document.createElement('a');
-          websiteElement.innerText = place.website;
-          websiteElement.href = place.website;
-          infoDivElement.appendChild(websiteElement);
-        }
-
-        infoDivElement.appendChild(addressElement);
-
-        if (place.business_status) {
-          businessStatusElement = document.createElement('p');
-          businessStatusElement.innerText = 'Business Status: ' + place.business_status;
-          infoDivElement.appendChild(businessStatusElement);
-        }
-
-        if (place.rating) {
-          ratingElement.innerHTML = getStars(place.rating) +
-           ' ' + place.rating + '<br></br>';
-          infoDivElement.appendChild(ratingElement); 
-        }
-
-        if (localStorage.getItem(LOCAL_STORAGE_STATUS) === 'true') {
-          let userId = localStorage.getItem(LOCAL_STORAGE_ID);
-          setInterestButtonText(interestButtonElement, place_id, userId);
-          infoDivElement.appendChild(interestButtonElement);
-          eventsDivElement.appendChild(createEventElement);
-          eventsDivElement.appendChild(getAvailableEvents(userId)); 
-          userPostsDivElement.appendChild(createPostElement); 
-          userPostsDivElement.appendChild(getPosts(userId)); 
-        }
-        else {
-          eventsDivElement.appendChild(getPublicEvents());
-        }
-        infoDivElement.appendChild(tabDivElement);
-        infoDivElement.appendChild(eventsDivElement);
-        infoDivElement.appendChild(userPostsDivElement);
-        document.getElementById('open').click();
-        sideBarElement.appendChild(infoDivElement);
-        return sideBarElement;
       }
-    }
+    });
   }
+}
+
+/** Display place information on sidebar */
+function displayPlaceInfo(place, placeId) {
+  sessionStorage.setItem(SESSION_STORE_LOCATION, place.name);
+  sessionStorage.setItem(SESSION_STORE_PLACEID, placeId);
+  sideBarElement = document.getElementById('side');
+  infoDivElement = document.getElementById('place-info');
+  userPostsDivElement = document.getElementById('UserPosts');
+  eventsDivElement = document.getElementById('Events');
+  infoDivElement.innerHTML = '';
+  userPostsDivElement.innerHTML = '';
+  eventsDivElement.innerHTML = '';
+  
+  nameElement = document.createElement('h2');
+  ratingElement = document.createElement('span');
+  ratingElement.id = 'stars';
+  addressElement = document.createElement('p');
+  createEventElement = document.createElement('button');
+  createEventElement.className = "button";
+  createPostElement = document.createElement('button');
+  createPostElement.className = "button";
+
+  interestContainerElement = document.createElement('div');
+  interestContainerElement.id = 'map-interest-container';
+  interestButtonElement = document.createElement('i');
+  interestButtonElement.className = 'fa fa-heart-o';
+  interestTextElement = document.createElement('p');
+  interestTextElement.innerText = 'Save as interest';
+  interestContainerElement.appendChild(interestButtonElement);
+  interestContainerElement.appendChild(interestTextElement);
+  
+  nameElement.innerText = place.name;
+  addressElement.innerText = 'Address: ' + place.formatted_address;
+  // function to create tab and return tab div element
+  tabDivElement = createTabElement();
+  createEventElement.innerText = 'Create an Event';
+  createEventElement.addEventListener('click', () => {
+    location.href = 'CreateAnEvent.html';
+  });
+  createPostElement.innerText = "Create a Post";
+  createPostElement.addEventListener('click', () => {
+    location.href = 'posts.html';
+  });
+  if (place.business_status) {
+    businessStatusElement = document.createElement('p');
+    businessStatusElement.innerText = 'Business Status: ' + place.business_status;
+  }
+  interestButtonElement.addEventListener('click', () => {
+    saveOrRemoveInterest(place.name, placeId, interestButtonElement, interestTextElement);
+  });
+
+  infoDivElement.appendChild(nameElement);
+
+  if (place.website) {
+    websiteElement = document.createElement('a');
+    websiteElement.innerText = place.website;
+    websiteElement.href = place.website;
+    infoDivElement.appendChild(websiteElement);
+  }
+
+  infoDivElement.appendChild(addressElement);
+
+  if (place.business_status) {
+    businessStatusElement = document.createElement('p');
+    businessStatusElement.innerText = 'Business Status: ' + place.business_status;
+    infoDivElement.appendChild(businessStatusElement);
+  }
+
+  if (place.rating) {
+    ratingElement.innerHTML = getStars(place.rating) +
+      ' ' + place.rating + '<br></br>';
+    infoDivElement.appendChild(ratingElement); 
+  }
+
+  if (localStorage.getItem(LOCAL_STORAGE_STATUS) === 'true') {
+    let userId = localStorage.getItem(LOCAL_STORAGE_ID);
+    setInterestButton(interestButtonElement, interestTextElement, placeId, userId);
+    infoDivElement.appendChild(interestContainerElement);
+    eventsDivElement.appendChild(createEventElement);
+    eventsDivElement.appendChild(getAvailableEvents(userId)); 
+    userPostsDivElement.appendChild(createPostElement); 
+    userPostsDivElement.appendChild(getPosts(userId)); 
+  }
+  else {
+    eventsDivElement.appendChild(getPublicEvents());
+  }
+  infoDivElement.appendChild(tabDivElement);
+  infoDivElement.appendChild(eventsDivElement);
+  infoDivElement.appendChild(userPostsDivElement);
+  document.getElementById('open').click();
+  sideBarElement.appendChild(infoDivElement);
+  return sideBarElement;
 }
 
 /** Creates tab element to display user posts and events in. */
@@ -403,38 +446,37 @@ function createMapSnippet() {
 }
 
 /** Sends post request to store or remove saved interest. */
-function saveOrRemoveInterest(locationName, placeId, interestButtonElement) {
+function saveOrRemoveInterest(locationName, placeId, interestButtonElement, interestTextElement) {
   const params = new URLSearchParams()
   params.append('place-id', placeId);
   params.append('location-name', locationName);
   fetch('/interest', {
     method: 'POST', body: params
-  }).then(switchInterestButtonText(interestButtonElement));
+  }).then(switchInterestButton(interestButtonElement, interestTextElement));
 }
 
 /** Switches the text of the interest button. */
-function switchInterestButtonText(interestButtonElement) {
-  if (interestButtonElement.innerText === 'Remove as interest') {
-    interestButtonElement.innerText = 'Save as interest';
+function switchInterestButton(interestButtonElement) {
+  if (interestTextElement.innerText === 'Saved as interest') {
+    interestButtonElement.className = 'fa fa-heart-o';
+    interestTextElement.innerText = 'Save as interest';
   } else {
-    interestButtonElement.innerText = 'Remove as interest';
+    interestButtonElement.className = 'fa fa-heart';
+    interestTextElement.innerText = 'Saved as interest';
   }
 }
 
-/** Sets interest button's text based on whether it has already been saved by the user. */
-function setInterestButtonText(interestButtonElement, placeId, userId) {
+/** Sets interest button's display based on whether it has already been saved by the user. */
+function setInterestButton(interestButtonElement, interestTextElement, placeId, userId) {
   alreadySaved = false;
   fetch('/interest').then(response => response.json()).then((interests) => {
     for (let i = 0; i < interests.length; i ++) {
       if (interests[i].placeId === placeId && 
           interests[i].interestedUsers.includes(userId)) {
         alreadySaved = true;
-        interestButtonElement.innerText = 'Remove as interest';
+        interestButtonElement.className = 'fa fa-heart';
+        interestTextElement.innerText = 'Saved as interest';
       }
-    }
-    if (!alreadySaved) {
-      interestButtonElement.innerText = 'Save as interest';
     }
   });
 }
-

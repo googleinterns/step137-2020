@@ -1,10 +1,12 @@
 package com.google.sps.data;
 import java.util.List;
+import java.util.Date;
 
-public final class Event {
+public class Event implements Comparable<Event> {
   private long eventId;
   private String eventName;
   private String dateTime;
+  private Date startDateTime;
   private String location;
   private String placeId;
   private String eventDetails;
@@ -19,6 +21,7 @@ public final class Event {
     this.eventId = builder.eventId;
     this.eventName = builder.eventName;
     this.dateTime = builder.dateTime;
+    this.startDateTime  = builder.startDateTime;
     this.location = builder.location;
     this.placeId = builder.placeId;
     this.eventDetails = builder.eventDetails;
@@ -30,11 +33,24 @@ public final class Event {
     this.currency = builder.currency;
   }
 
+
+  public Date getDateTime() {
+    return startDateTime;
+  }
+
+  @Override
+  public int compareTo(Event e) {
+    return e.getDateTime().compareTo(getDateTime());
+  }
+
   public static class EventBuilder {
 
     private long eventId;
     private String eventName;
+    // String of the date and time of event for display purposes.
     private String dateTime;
+    // Start date of event for sorting comparison (displaying events by start date).
+    private Date startDateTime;
     private String location;
     private String placeId;
     private String eventDetails;
@@ -56,6 +72,11 @@ public final class Event {
 
     public EventBuilder setDateTime (String dateTime) {
       this.dateTime = dateTime;
+      return this;
+    }
+
+    public EventBuilder setStartDateTime (Date startDateTime) {
+      this.startDateTime = startDateTime;
       return this;
     }
 

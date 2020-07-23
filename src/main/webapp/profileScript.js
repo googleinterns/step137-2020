@@ -35,20 +35,29 @@ function navbarLoginDisplay() {
       if (name == null || name === '' || name === 'justChanged') {
         confirmUserName();
       } else {
-        const personalProfileButton = document.createElement('p');
-        personalProfileButton.className = 'navbar-text';
-        personalProfileButton.innerText = name;
-        personalProfileButton.addEventListener('click', () => {
-          visitProfile(json['id']);
+        fetch('/user').then(response => response.json()).then((users) => {
+          for (let i = 0; i < users.length; i ++) {
+            if ((users[i].id) === json['id']) {
+              displayProfilePicture(users[i], userNavbarSection, 'profile-pic-small');
+              const personalProfileButton = document.createElement('p');
+              personalProfileButton.className = 'navbar-text';
+              personalProfileButton.style = 'padding-left: 3px';
+              personalProfileButton.innerText = name;
+              personalProfileButton.addEventListener('click', () => {
+                visitProfile(json['id']);
+              });
+              const logoutButton = document.createElement('p');
+              logoutButton.className = 'navbar-text';
+              logoutButton.innerText = 'Logout';
+              logoutButton.addEventListener('click', () => {
+                window.location.href = json['logoutUrl'];
+              });
+              userNavbarSection.appendChild(personalProfileButton);
+              userNavbarSection.appendChild(logoutButton);
+              break;
+            }
+          }
         });
-        const logoutButton = document.createElement('p');
-        logoutButton.className = 'navbar-text';
-        logoutButton.innerText = 'Logout';
-        logoutButton.addEventListener('click', () => {
-          window.location.href = json['logoutUrl'];
-        });
-        userNavbarSection.appendChild(personalProfileButton);
-        userNavbarSection.appendChild(logoutButton);
       }
     } else {
       // If the user is logged out, clear the locally stored user data 
@@ -139,50 +148,58 @@ function displayContent(user, viewer) {
   displayBasicInfo(user, viewer);
   displayBuddies(user, viewer);
   displaySavedInterests(user, viewer);
-  displayEvents(user, viewer);
-  displayPosts(user, viewer);
+  displayEventsAndPosts(user, viewer);
 }
 
 /*
  * Displays basic info and options regarding the specified user.
  */
 function displayBasicInfo(user, viewer) {
-  displayProfilePicture(user);
+  const profilePicContainer = document.getElementById('profile-pic-container');
+  displayProfilePicture(user, profilePicContainer, 'profile-pic-large');
+
+  const editImageButton = document.createElement('i');
+  editImageButton.id = 'edit-image-button';
+  editImageButton.className = 'fa fa-edit';
 
   const nameContainer = document.getElementById('name-container');
   nameContainer.innerHTML = '';
 
   const name = document.createElement('h1');
   name.innerText = user.name;
-  nameContainer.appendChild(name);
   
+  const editNameButton = document.createElement('i');
+  editNameButton.id = 'edit-name-button';
+  editNameButton.className = 'fa fa-edit';
+
   if (viewer === PROFILE_VIEWER_PERSONAL) {
-    // Add an option for the current user to change their display name.
-    const editNameButton = document.createElement('i');
-    editNameButton.className = 'fa fa-edit';
-    editNameButton.addEventListener('click', () => {
+    // On hover, display an option for the current user to change their name.
+    name.id = 'personal-name';
+    nameContainer.addEventListener('click', () => {
       showNameForm();
     });
-    nameContainer.append(editNameButton);
-    // Add an option for the current user to change their profile picture.
-    const editImageButton = document.createElement('button');
-    editImageButton.innerText = 'Change profile picture';
-    editImageButton.addEventListener('click', () => {
+    
+    // On hover, display an option for the current user to change their profile picture.
+    profilePicContainer.id = 'personal-pic-container'
+    profilePicContainer.addEventListener('click', () => {
       showImageForm();
     });
-    nameContainer.append(editImageButton);
+    const personalPic = profilePicContainer.childNodes[0];
+    personalPic.id = 'personal-pic';
   }
+  profilePicContainer.appendChild(editImageButton);
+  nameContainer.appendChild(name);
+  nameContainer.appendChild(editNameButton);
 }
 
 /**
  * Displays the profile picture of the specified user.
  */
-function displayProfilePicture(user, basicInfoContainer) {
-  const profilePicContainer = document.getElementById('profile-pic-container');
-  profilePicContainer.innerHTML = '';
+function displayProfilePicture(user, container, size) {
+  container.innerHTML = '';
 
   const profilePic = document.createElement('img');
-  profilePic.className = 'profile-pic';
+  profilePic.className = size;
 
   if (user.blobKeyString === '') {
     profilePic.src = '/images/default-profile-picture.jpg';
@@ -196,7 +213,23 @@ function displayProfilePicture(user, basicInfoContainer) {
       profilePic.src = imageURL;
     });
   }
-  profilePicContainer.appendChild(profilePic);
+  container.appendChild(profilePic);
+}
+
+/**
+ * Creates and returns an element representing a user.
+ */
+function createUserElement(user) {
+  const userElement = document.createElement('div');
+  userElement.className = 'user-element';
+  displayProfilePicture(user, userElement, 'profile-pic-small');
+  const userName = document.createElement('p');
+  userName.innerText = user.name;
+  userElement.appendChild(userName);
+  userElement.addEventListener('click', () => {
+    visitProfile(user.id);
+  });
+  return userElement;
 }
 
 /*
@@ -294,15 +327,10 @@ function displayBuddyRequests(user) {
       for (let i = 0; i < users.length; i ++) {
         if (requestIds.includes(users[i].id)) {
           // If the user's ID is in the list of the profile user's buddy requests,
-          // add a request element (which includes the user's name and link to 
-          // their profile, an approve button, and a remove button) to the page.
+          // add a request element (which includes the user's clickable name 
+          // and image, an approve button, and a remove button) to the page.
           const requestElement = document.createElement('div');
           requestElement.className = 'request-element';
-          const userElement = document.createElement('p');
-          userElement.innerText = users[i].name;
-          userElement.addEventListener('click', () => {
-            visitProfile(users[i].id);
-          });
           const requestButtons = document.createElement('div');
           requestButtons.className = 'request-buttons';
           const approveButton = document.createElement('button');
@@ -319,7 +347,7 @@ function displayBuddyRequests(user) {
           });
           requestButtons.appendChild(approveButton);
           requestButtons.appendChild(removeButton);
-          requestElement.appendChild(userElement);
+          requestElement.appendChild(createUserElement(users[i]));
           requestElement.appendChild(requestButtons);
           buddyRequests.appendChild(requestElement);
         }
@@ -359,13 +387,8 @@ function displayBuddiesList(user, buddyContainer) {
       for (let i = 0; i < users.length; i ++) {
         if (buddyIds.includes(users[i].id)) {
           // If the user's ID is in the list of the profile user's buddies,
-          // add their name (which links to their profile) to the page. 
-          const buddyElement = document.createElement('p');
-          buddyElement.innerText = users[i].name;
-          buddyElement.addEventListener('click', () => {
-            visitProfile(users[i].id);
-          });
-          buddiesList.appendChild(buddyElement);
+          // add their clickable name and image to the page. 
+          buddiesList.appendChild(createUserElement(users[i]));
         }
       }
     }).then(() => {
@@ -382,6 +405,11 @@ function displayBuddiesList(user, buddyContainer) {
 function displaySavedInterests(user, viewer) {
   const savedInterestsContainer = document.getElementById('interests-container');
   savedInterestsContainer.innerHTML = '';
+
+  const interestHeading = document.createElement('h1');
+  interestHeading.style = 'text-align: center';
+  interestHeading.innerText = 'Saved Interests';
+  savedInterestsContainer.appendChild(interestHeading);
 
   if (viewer === PROFILE_VIEWER_PERSONAL || viewer === PROFILE_VIEWER_BUDDY) {
     fetch('/interest').then(response => response.json()).then((interests) => {
@@ -410,7 +438,12 @@ function displaySavedInterests(user, viewer) {
  * Returns a newly created saved interest element to be displayed on the page.
  */
 function createInterest(interest) {
-  const interestName = document.createElement('h3');
+  
+  const interestIcon = document.createElement('img');
+  interestIcon.id = 'interest-icon';
+  interestIcon.src = 'images/red-marker.png';
+
+  const interestName = document.createElement('h4');
   interestName.innerText = interest.locationName;
   interestName.addEventListener('click', () => {
     sessionStorage.setItem(SESSION_STORAGE_CURRENT_LOCATION, interest.placeId);
@@ -418,6 +451,8 @@ function createInterest(interest) {
   });
 
   const interestElement = document.createElement('div');
+  interestElement.id = 'interest-element';
+  interestElement.append(interestIcon);
   interestElement.append(interestName);
   return interestElement;
 }
@@ -425,9 +460,17 @@ function createInterest(interest) {
 /*
  * Displays the events of the specified user.
  */
-function displayEvents(user, viewer) {
-  const eventsContainer = document.getElementById('events-container');
-  eventsContainer.innerHTML = '';
+function displayEventsAndPosts(user, viewer) {
+  const eventsAndPostsContainer = document.getElementById('events-and-posts-container');
+  eventsAndPostsContainer.innerHTML = '';
+
+  const eventsContainer = document.createElement('div');
+  eventsContainer.className = 'tabcontent';
+  eventsContainer.id = 'events-container';
+  const postsContainer = document.createElement('div');
+  postsContainer.className = 'tabcontent';
+  postsContainer.id = 'posts-container';
+  const tabContainer = createEventsPostsTab();
 
   if (viewer === PROFILE_VIEWER_PERSONAL) {
     displayPersonalEvents(user, eventsContainer);
@@ -439,6 +482,11 @@ function displayEvents(user, viewer) {
     eventMessage.innerText = 'You cannot see this user\'s events.';
     eventsContainer.appendChild(eventMessage);
   }
+  displayPosts(user, viewer, postsContainer);
+  eventsAndPostsContainer.append(tabContainer);
+  eventsAndPostsContainer.append(eventsContainer);
+  eventsAndPostsContainer.append(postsContainer);
+  document.getElementById('open').click();
 }
 
 /*
@@ -446,10 +494,10 @@ function displayEvents(user, viewer) {
  */
 function displayPersonalEvents(user, eventsContainer) {
   const invitedEvents = document.createElement('div');
-  invitedEvents.className = 'tabcontent';
+  invitedEvents.className = 'events-tabcontent';
   invitedEvents.id = 'invited-events';
   const attendingEvents = document.createElement('div');
-  attendingEvents.className = 'tabcontent';
+  attendingEvents.className = 'events-tabcontent';
   attendingEvents.id = 'attending-events';
   const tabContainer = createEventsTab();
 
@@ -478,7 +526,7 @@ function displayPersonalEvents(user, eventsContainer) {
     eventsContainer.append(tabContainer);
     eventsContainer.append(invitedEvents);
     eventsContainer.append(attendingEvents);
-    document.getElementById('open').click();
+    document.getElementById('events-open').click();
   });
 }
 
@@ -507,23 +555,23 @@ function displayBuddyEvents(user, eventsContainer) {
  * Creates the tab element that holds the invited and attending events tabs.
  */
 function createEventsTab() {
-  tabContainer = document.createElement('div');
+  const tabContainer = document.createElement('div');
   tabContainer.className = 'tab';
   tabContainer.innerHTML = '';
 
-  invitedButton = document.createElement('button');
+  const invitedButton = document.createElement('button');
   invitedButton.innerText = 'Invited';
-  invitedButton.className = 'tablinks active';
-  invitedButton.id = 'open';
+  invitedButton.className = 'events-tablinks active';
+  invitedButton.id = 'events-open';
   invitedButton.addEventListener('click', function(e) {
-    openTab(e, 'invited-events');
+    openEventsTab(e, 'invited-events');
   })
 
-  attendingButton = document.createElement('button');
+  const attendingButton = document.createElement('button');
   attendingButton.innerText = 'Attending';
-  attendingButton.className = 'tablinks';
+  attendingButton.className = 'events-tablinks';
   attendingButton.addEventListener('click', function(e) {
-    openTab(e, 'attending-events');
+    openEventsTab(e, 'attending-events');
   })
 
   tabContainer.appendChild(invitedButton);
@@ -532,12 +580,37 @@ function createEventsTab() {
 }
 
 /*
+ * Creates the tab element that hold the events and posts tabs.
+ */
+function createEventsPostsTab() {
+  const tabContainer = document.createElement('div');
+  tabContainer.className = 'tab';
+  tabContainer.innerHTML = '';
+
+  const eventsButton = document.createElement('button');
+  eventsButton.innerText = 'Events';
+  eventsButton.className = 'tablinks active';
+  eventsButton.id = 'open';
+  eventsButton.addEventListener('click', function(e) {
+    openTab(e, 'events-container');
+  })
+
+  const postsButton = document.createElement('button');
+  postsButton.innerText = 'Posts';
+  postsButton.className = 'tablinks';
+  postsButton.addEventListener('click', function(e) {
+    openTab(e, 'posts-container');
+  })
+
+  tabContainer.appendChild(eventsButton);
+  tabContainer.appendChild(postsButton);
+  return tabContainer;
+}
+
+/*
  * Displays the posts of the specified user.
  */
-function displayPosts(user, viewer) {
-  console.log(viewer);
-  const postsContainer = document.getElementById('posts-container');
-  postsContainer.innerHTML = '';
+function displayPosts(user, viewer, postsContainer) {
   let count = 0; 
   const currentId = localStorage.getItem(LOCAL_STORAGE_ID);
 
@@ -623,4 +696,21 @@ function showImageForm() {
     document.getElementById('image-form-container').style.display = 'block';
     document.getElementById('image-form').action = imageUploadUrl;
   });
+}
+
+/** Opens a specific events tab (Invited/Attending) when tab is clicked. */
+function openEventsTab(evt, tabName) {
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName('events-tabcontent');
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = 'none';
+  }
+  tablinks = document.getElementsByClassName('events-tablinks');
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(' active', '');
+    tablinks[i].id = tablinks[i].id.replace('events-open', '');
+  }
+  document.getElementById(tabName).style.display = 'block';
+  evt.currentTarget.className += ' active';
+  evt.currentTarget.id += 'events-open';
 }

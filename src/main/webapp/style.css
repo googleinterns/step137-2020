@@ -1,10 +1,16 @@
 :root {
-  --gray-icon-color: #808080;
+  --option-color: #696969;
   --form-background: rgba(0,0,0,0.2);
   --navbar-color: #002b54;
   --button-color: rgba(248, 202, 210, 0.658);
   --button-color-selected: rgba(247, 162, 177, 0.979);
-  --side-bar: #f1f1f1;
+  --sidebar-color: #f1f1f1;
+  --red-marker-color: #F78F8F;
+}
+
+img {
+  max-width: 100%;
+  max-height: 100%;
 }
 
 img {
@@ -38,11 +44,12 @@ html, body {
 #user-navbar-section {
   display: flex;
   margin-left: auto;
+  align-items: center;
 }
 
 .button {
   background-color: var(--button-color);
-  color: var(--side-bar);
+  color: var(--sidebar-color);
   border: 1.5px solid var(--button-color);
   font-size: 16px;
   padding: 5px 10px;
@@ -53,7 +60,7 @@ html, body {
 }
 
 .button:hover {
-  background-color: var(--side-bar);
+  background-color: var(--sidebar-color);
   color: var(--button-color);
 }
 
@@ -62,7 +69,7 @@ html, body {
 }
 
 .button-selected:hover {
-  background-color: var(--side-bar);
+  background-color: var(--sidebar-color);
   color: var(--button-color-selected);
 }
 
@@ -176,9 +183,21 @@ html, body {
   margin: 2px;
 }
 
+#event-creator {
+  display: flex;
+  align-items: center;
+  justify-content: left;
+}
+
 #top-event {
   display: flex;
-  justify-content: space-between
+  justify-content: space-between;
+}
+
+.user-display {
+  display: flex;
+  align-items: center;
+  justify-content: left;
 }
 
 /**map styling */
@@ -191,7 +210,7 @@ html, body {
 #side {
   flex: 20%;
   max-width: 20%;
-  background-color: var(--side-bar);
+  background-color: var(--sidebar-color);
   padding: 20px;
 }
 
@@ -217,7 +236,7 @@ html, body {
   }
 }
 
-/* Profile syling */
+/* Popup styling */
 .popup {
   display: none;
   position: fixed;
@@ -240,40 +259,8 @@ html, body {
   position: relative;
 }
 
-#basic-info {
-  text-align: center;
-}
-
-.profile-pic {
-  height: 200px;
-  width: 200px;
-  border-radius: 50%;
-  margin-top: 20px;
-}
-
-#name-container {
-  display: inline-flex;
-  align-items: center;
-}
-
-.fa-edit {
-  color: var(--gray-icon-color);
-  cursor: pointer;
-  padding-left: 10px;
-  padding-top: 3px;
-}
-
-#bottom-wrapper {
-  display: flex;
-  text-align: center;
-}
-
-.bottom-section {
-  flex: 1;
-}
-
 .request-element {
-  display: inline-flex;
+  display: flex;
   align-items: center;
 }
 
@@ -282,12 +269,154 @@ html, body {
 }
 
 .fa-close {
-  color: var(--gray-icon-color);
+  color: var(--option-color);
   cursor: pointer;
   display: block;
   position: absolute;
   top: 10px;
   right: 10px;
+}
+
+/* Profile picture styling */
+.profile-pic-large {
+  height: 200px;
+  width: 200px;
+  border-radius: 50%;
+}
+
+.profile-pic-small {
+  height: 30px;
+  width: 30px;
+  border-radius: 50%;
+  margin-right: 5px;
+}
+
+.user-element {
+  display: flex;
+  align-items: center;
+  clear: both;
+  cursor: pointer;
+}
+
+/* Profile options styling */
+.fa-edit {
+  color: var(--option-color);
+  cursor: pointer;
+}
+
+#edit-name-button {
+  transition: 0.5s ease;
+  opacity: 0;
+  padding-top: 8px;
+  padding-left: 8px;
+}
+
+#edit-image-button {
+  transition: 0.3s ease;
+  opacity: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  padding-left: 10px;
+  transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  font-size: 100px;
+}
+
+#personal-pic-container {
+  position: relative;
+}
+
+#personal-pic {
+  transition: 0.5s ease;
+  backface-visibility: hidden;
+}
+
+#personal-name {
+  transition: 0.5 ease;
+}
+
+#personal-name:hover + #edit-name-button {
+  opacity: 1;
+}
+
+#personal-name:hover {
+  opacity: 0.7;
+}
+
+#personal-pic-container:hover #edit-image-button {
+  opacity: 1;
+}
+
+#personal-pic-container:hover #personal-pic {
+  opacity: 0.5;
+}
+
+/* Profile saved interests styling */
+#interests-container {
+  text-align: left;
+  margin-left: 30px;
+}
+
+#interest-element {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+#interest-icon {
+  width: 30px;
+  height: 30px;
+  margin-right: 3px;
+}
+
+/* Profile page styling */
+#profile-body {
+  background-color: var(--sidebar-color);
+}
+
+.profile-section {
+  background-color: white;
+}
+
+#basic-info {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  margin: 20px 20px 10px 20px;
+}
+
+#name-buddy-wrapper {
+  margin-left: 20px;
+}
+
+#name-container {
+  display: inline-flex;
+  align-items: center;
+}
+
+#bottom-wrapper {
+  display: flex;
+  text-align: center;
+}
+
+#saved-interests {
+  flex: 1;
+  margin: 10px 10px 20px 20px;
+}
+
+#events-and-posts {
+  flex: 3;
+  margin: 10px 20px 20px 10px;
+}
+
+.events-tabcontent {
+  display: none;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-top: none;
+  font-family: 'Roboto';
 }
 
 /* Style the tab in sidebar */
@@ -350,6 +479,17 @@ html, body {
   text-align: center;
 }
 
+#searched-users {
+  height: 100%;
+  width: 300px;
+  display: inline-block;
+  text-align: left;
+  background-color: var(--sidebar-color);
+  padding-left: 10px;
+  margin-top: 10px;
+  border-radius: 5px;
+}
+
 /* Styling for filter buttons. */
 .filter-button {
   background-color: #ddd;
@@ -389,4 +529,27 @@ html, body {
 
 .clear-button:hover {
   background-color: plum;
+}
+
+/* Styling for map saved interest */
+#map-interest-container {
+  display: flex;
+  align-items: center;
+  margin-top: -15px;
+  margin-bottom: 5px;
+}
+
+.fa-heart-o {
+  color: var(--red-marker-color);
+  font-size: 20px;
+  font-weight: 500;
+  margin-right: 5px;
+  cursor: pointer;
+}
+
+.fa-heart {
+  color: var(--red-marker-color);
+  font-size: 20px;
+  margin-right: 5px;
+  cursor: pointer;
 }
