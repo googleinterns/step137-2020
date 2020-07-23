@@ -5,6 +5,7 @@
   --button-color: rgba(248, 202, 210, 0.658);
   --button-color-selected: rgba(247, 162, 177, 0.979);
   --side-bar: #f1f1f1;
+  --request-button-color: #006400;
 }
 
 img {
@@ -243,8 +244,9 @@ html, body {
   margin: auto;
   width: 350px;
   background-color: white;
-  padding: 20px;
+  padding: 20px 20px 20px 30px;
   position: relative;
+  border-radius: 5%;
 }
 
 #basic-info {
@@ -298,7 +300,8 @@ html, body {
 }
 
 .request-buttons {
-  margin-left: 10px;
+  position: absolute;
+  right: 18px;
 }
 
 .fa-close {
@@ -308,6 +311,25 @@ html, body {
   position: absolute;
   top: 10px;
   right: 10px;
+}
+
+/* Buddy request button styling */
+.request-button {
+  background-color: var(--request-button-color);
+  color: var(--side-bar);
+  border: 1.5px solid var(--request-button-color);
+  font-size: 10px;
+  padding: 5px 10px;
+  font-weight: 400;
+  font-family: 'Roboto';
+  border-radius: 4px;
+  transition: ease background-color 0.1s, ease color 0.1s;
+  margin-right: 2px;
+}
+
+.request-button:hover {
+  background-color: var(--side-bar);
+  color: var(--request-button-color);
 }
 
 /* Style the tab in sidebar */

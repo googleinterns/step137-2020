@@ -339,13 +339,13 @@ function displayBuddyRequests(user) {
           const requestButtons = document.createElement('div');
           requestButtons.className = 'request-buttons';
           const approveButton = document.createElement('button');
-          approveButton.className = 'button';
+          approveButton.className = 'request-button';
           approveButton.innerText = 'Approve';
           approveButton.addEventListener('click', () => {
             addOrRemoveBuddy(users[i], 'add');
           });
           const removeButton = document.createElement('button');
-          removeButton.className = 'button';
+          removeButton.className = 'request-button';
           removeButton.innerText = 'Remove';
           removeButton.addEventListener('click', () => {
             sendOrRemoveBuddyRequest(users[i], 'remove');
