@@ -46,17 +46,17 @@ function navbarLoginDisplay() {
               personalProfileButton.addEventListener('click', () => {
                 visitProfile(json['id']);
               });
-              const logoutButton = document.createElement('p');
-              logoutButton.className = 'navbar-text';
-              logoutButton.innerText = 'Logout';
-              logoutButton.addEventListener('click', () => {
-                window.location.href = json['logoutUrl'];
-              });
               userNavbarSection.appendChild(personalProfileButton);
-              userNavbarSection.appendChild(logoutButton);
               break;
             }
           }
+          const logoutButton = document.createElement('p');
+          logoutButton.className = 'navbar-text';
+          logoutButton.innerText = 'Logout';
+          logoutButton.addEventListener('click', () => {
+            window.location.href = json['logoutUrl'];
+          });
+          userNavbarSection.appendChild(logoutButton);
         });
       }
     } else {
@@ -242,7 +242,12 @@ function displayBuddies(user, viewer) {
   if (viewer === PROFILE_VIEWER_PERSONAL) {
     // Add a popup for the user's buddy requests.
     const requestHeading = document.createElement('h3');
-    requestHeading.innerText = (user.buddyRequests.length - 1) + ' buddy requests';
+    const numBuddyRequests = user.buddyRequests.length - 1;
+    if (numBuddyRequests == 1) {
+      requestHeading.innerText = numBuddyRequests + ' buddy request';  
+    } else {
+      requestHeading.innerText = numBuddyRequests + ' buddy requests';
+    }
     requestHeading.addEventListener('click', () => {
       displayBuddyRequests(user);
     });
@@ -252,7 +257,12 @@ function displayBuddies(user, viewer) {
     buddyContainer.appendChild(requestHeading);
     // Add a popup for the user's buddies list.
     const buddiesHeading = document.createElement('h3');
-    buddiesHeading.innerText = (user.buddies.length - 1) + ' buddies';
+    const numBuddies = user.buddies.length - 1;
+    if (numBuddies == 1) {
+      buddiesHeading.innerText = numBuddies + ' buddy';
+    } else {
+      buddiesHeading.innerText = numBuddies + ' buddies';
+    }
     buddiesHeading.addEventListener('click', () => {
       displayBuddiesList(user);
     });
@@ -261,6 +271,21 @@ function displayBuddies(user, viewer) {
     }
     buddyContainer.appendChild(buddiesHeading);
   } else if (viewer === PROFILE_VIEWER_BUDDY) {
+    // Add a popup for the profile user's buddies list.
+    const buddiesHeading = document.createElement('h3');
+    const numBuddies = user.buddies.length - 1;
+    if (numBuddies == 1) {
+      buddiesHeading.innerText = numBuddies + ' buddy';
+    } else {
+      buddiesHeading.innerText = numBuddies + ' buddies';
+    }
+    buddiesHeading.addEventListener('click', () => {
+      displayBuddiesList(user);
+    });
+    if (document.getElementById('buddies-popup').style.display === 'block') {
+      displayBuddiesList(user);
+    }
+    buddyContainer.appendChild(buddiesHeading);
     // Add a remove buddy option.
     const removeBuddyButton = document.createElement('button');
     removeBuddyButton.className = 'button';
@@ -269,16 +294,6 @@ function displayBuddies(user, viewer) {
       addOrRemoveBuddy(user, 'remove');
     });
     buddyContainer.appendChild(removeBuddyButton);
-    // Add a popup for the profile user's buddies list.
-    const buddiesHeading = document.createElement('h3');
-    buddiesHeading.innerText = (user.buddies.length - 1) + ' buddies';
-    buddiesHeading.addEventListener('click', () => {
-      displayBuddiesList(user);
-    });
-    if (document.getElementById('buddies-popup').style.display === 'block') {
-      displayBuddiesList(user);
-    }
-    buddyContainer.appendChild(buddiesHeading);
   } else if (viewer === PROFILE_VIEWER_PENDING_BUDDY) {
     // Add an option informing the user that a buddy request has been sent.
     const requestSentButton = document.createElement('button');
@@ -304,23 +319,26 @@ function displayBuddies(user, viewer) {
  * Displays the buddy requests of the specified user.
  */
 function displayBuddyRequests(user) {
-  // Create an empty popup with an exit button.
+  // Create an empty popup with a heading and an exit button.
   const requestsPopup = document.getElementById('requests-popup');
   requestsPopup.innerHTML = '';
   const buddyRequests = document.createElement('div');
   buddyRequests.className = 'popup-text';
+  const buddyRequestsHeading = document.createElement('h3');
+  buddyRequestsHeading.innerText = 'Buddy Requests';
   const exitButton = document.createElement('i');
   exitButton.className = 'fa fa-close';
   exitButton.addEventListener('click', () => {
     requestsPopup.style.display = 'none';
   });
+  buddyRequests.appendChild(buddyRequestsHeading)
+  buddyRequests.appendChild(exitButton);
 
   const requestIds = user.buddyRequests;
   if (requestIds.length == 1) { // length of 1 due to empty placeholder
     const requestMessage = document.createElement('p');
     requestMessage.innerText = 'No buddy requests to show.';
-    buddyRequests.append(requestMessage);
-    buddyRequests.append(exitButton);
+    buddyRequests.appendChild(requestMessage);
     requestsPopup.appendChild(buddyRequests);
   } else {
     fetch('/user').then(response => response.json()).then((users) => {
@@ -334,13 +352,13 @@ function displayBuddyRequests(user) {
           const requestButtons = document.createElement('div');
           requestButtons.className = 'request-buttons';
           const approveButton = document.createElement('button');
-          approveButton.className = 'button';
+          approveButton.className = 'request-button';
           approveButton.innerText = 'Approve';
           approveButton.addEventListener('click', () => {
             addOrRemoveBuddy(users[i], 'add');
           });
           const removeButton = document.createElement('button');
-          removeButton.className = 'button';
+          removeButton.className = 'request-button';
           removeButton.innerText = 'Remove';
           removeButton.addEventListener('click', () => {
             sendOrRemoveBuddyRequest(users[i], 'remove');
@@ -353,7 +371,6 @@ function displayBuddyRequests(user) {
         }
       }
     }).then(() => {
-      buddyRequests.append(exitButton);
       requestsPopup.appendChild(buddyRequests);
     });
   }
@@ -364,23 +381,26 @@ function displayBuddyRequests(user) {
  * Displays the buddies list of the specified user.
  */
 function displayBuddiesList(user, buddyContainer) {
-  // Create an empty popup with an exit button.
+  // Create an empty popup with a heading and an exit button.
   const buddiesPopup = document.getElementById('buddies-popup');
   buddiesPopup.innerHTML = '';
   const buddiesList = document.createElement('div');
   buddiesList.className = 'popup-text';
+  const buddiesHeading = document.createElement('h3');
+  buddiesHeading.innerText = 'Buddies';
   const exitButton = document.createElement('i');
   exitButton.className = 'fa fa-close';
   exitButton.addEventListener('click', () => {
     buddiesPopup.style.display = 'none';
   });
+  buddiesList.appendChild(buddiesHeading);
+  buddiesList.appendChild(exitButton);
 
   const buddyIds = user.buddies;
   if (buddyIds.length == 1) { // length of 1 due to empty placeholder
     const buddyMessage = document.createElement('p');
     buddyMessage.innerText = 'No buddies to show.';
     buddiesList.appendChild(buddyMessage);
-    buddiesList.appendChild(exitButton);
     buddiesPopup.appendChild(buddiesList);
   } else {
     fetch('/user').then(response => response.json()).then((users) => {
@@ -392,7 +412,6 @@ function displayBuddiesList(user, buddyContainer) {
         }
       }
     }).then(() => {
-      buddiesList.appendChild(exitButton);
       buddiesPopup.appendChild(buddiesList);
     });
   }
