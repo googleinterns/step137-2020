@@ -18,20 +18,21 @@ function fetchBlobstoreUrlAndShowForm() {
 function getPosts(userId) {
   locationName = sessionStorage.getItem(SESSION_STORE_LOCATION);
   postDivElement = document.createElement('div');
+  postDivElement.innerText = '';
+  let count = 0;
   fetch('/post')
     .then(response => response.json())
     .then(posts => {
-      if (posts.length === 0) {
+      for (let i = 0; i < posts.length; i ++) {
+        if (locationName === posts[i].location) {
+          postDivElement.appendChild(createPost(posts[i], userId));
+          count++;
+        }
+      }
+      if (count === 0) {
         noPostElement = document.createElement('p');
         noPostElement.innerText = "No posts to show.";
         postDivElement.appendChild(noPostElement);
-      }
-      else {
-        for (let i = 0; i < posts.length; i ++) {
-          if (locationName === posts[i].location) {
-            postDivElement.appendChild(createPost(posts[i], userId));
-          }
-        }
       }
     });
   return postDivElement;
@@ -44,9 +45,7 @@ function createPost(post, userId) {
 
   const imageElement = document.createElement('img');
   imageElement.id = "image";
-  imageElement.height = "200";
-  imageElement.width = "200";
-  
+
   const params = new URLSearchParams();
   blobKey = post.blobKey;
   params.append('blobkey', Object.values(blobKey));

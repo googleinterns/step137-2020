@@ -8,7 +8,7 @@ function onload() {
 }
 
 /**
-  change display based on privacy setting
+  Change display based on privacy setting.
 */
 function specifiedAttendees(value) {
   if (value == "attendees") {
@@ -78,6 +78,8 @@ function appendInfo(userId, userName) {
   }
 }
 
+/**If user selects buddies only as their privacy method, stores the user's
+  buddie's ids in a text box in the form so they can be submitted with the form. */
 function buddiesOnly() {
   var buddyIds = new Array();
   fetch("/buddy")
@@ -91,6 +93,7 @@ function buddiesOnly() {
     });
 }
 
+/** Sends a POST request to the /events servlet to create a post. */
 function submitForm() {
   const params = new URLSearchParams();
   filledIn = checkFillIn();
@@ -133,7 +136,7 @@ function submitForm() {
       });
   }
 } 
-
+/** Makes sure all required fields of the form are filled in. */
 function checkFillIn() {
   var fillIn = "<p>Please fill our all sections with an * by them</p>";
   document.getElementById("success").style.color = "red";
@@ -191,7 +194,7 @@ function getPublicEvents() {
           if (events[i].location == locationName 
               && events[i].privacy == "public") {
               eventDivElement.appendChild(createEventNoResponse(events[i]));
-            }
+          }
         }
       }
     });
@@ -220,17 +223,17 @@ function getAvailableEvents(userID) {
             rsvpAttendees = events[i].rsvpAttendees;
             rsvpContains = rsvpAttendees.includes(userID);
             if (events[i].privacy == "public") {
-              // display public events even if user is not attending
+              // Display public events even if user is not attending.
               if (!rsvpContains) {
                 eventDivElement.appendChild(createEventWithResponse(events[i], userID, "false"));
               }
             }
             if (rsvpContains) {
-              // display events the user is attending
+              // Display events the user is attending.
               eventDivElement.appendChild(createEventWithResponse(events[i], userID, "true"));
             }
             else if (invitedAttendees.includes(userID)) {
-              // display events the user is invited to
+              // Display events the user is invited to.
               eventDivElement.appendChild(createEventWithResponse(events[i], userID, "false"));
             }
           }
@@ -275,8 +278,39 @@ function createEventNoResponse(event) {
   eventDetails.className = "details-display";
   eventDetails.innerText = event.eventDetails;
 
+  const topOfEvent = document.createElement('div');
+  topOfEvent.id = "top-event";
+
+  const creatorName = document.createElement('div');
+  creatorName.id = "event-creator";
+  fetch("/user")
+    .then(response => response.json())
+    .then(users => {
+      for (let i = 0; i < users.length; i++) {
+        if (users[i].id === event.creator) {
+          displayProfilePicture(users[i], document.getElementById("event-creator"), 'profile-pic-small');
+          const name = document.createElement('p');
+          name.innerText = "Created by " + users[i].name;
+          creatorName.addEventListener('click', () => {
+            visitProfile(users[i].id);
+          });
+          creatorName.append(name);
+        }
+      }
+    });
+  
+  topOfEvent.append(eventName);
+  if (event.yesCOVIDSafe === "yes") {
+    const covidBadge = document.createElement('img');
+    covidBadge.src = "images/mask.png";
+    covidBadge.height = 20;
+    covidBadge.width = 20;
+    covidBadge.id = "covid-badge";
+    topOfEvent.append(covidBadge);
+  }
   eventElement.append(eventContents);
-  eventElement.append(eventName);
+  eventElement.append(creatorName);
+  eventElement.append(topOfEvent);
   eventElement.append(eventDate);
   eventElement.append(locationDisplay);
   eventElement.append(eventDetails);

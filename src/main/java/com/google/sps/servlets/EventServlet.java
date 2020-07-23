@@ -99,19 +99,19 @@ public class EventServlet extends HttpServlet {
       String timeZone = (String) entity.getProperty(Constants.TIME_ZONE_PARAM);
       String currency = eventCurrency(endDate, timeZone);
 
-      Event event = new Event.EventBuilder(
-          eventID, 
-          eventName, 
-          dateTime, 
-          location, 
-          placeId, 
-          eventDetails, 
-          yesCOVIDSafe, 
-          privacy, 
-          invitedAttendees, 
-          rsvpAttendees, 
-          creator, 
-          currency).build();
+      Event event = new Event.EventBuilder(eventID)
+          .setEventName(eventName) 
+          .setDateTime(dateTime)
+          .setLocation(location) 
+          .setPlaceId(placeId) 
+          .setEventDetails(eventDetails)
+          .setYesCOVIDSafe(yesCOVIDSafe)
+          .setPrivacy(privacy)
+          .setInvitedAttendees(invitedAttendees)
+          .setRsvpAttendees(rsvpAttendees)
+          .setCreator(creator)
+          .setCurrency(currency)
+          .build();
       events.add(event);
     }
 
@@ -215,7 +215,7 @@ public class EventServlet extends HttpServlet {
 
     Entity eventEntity = new Entity(Constants.EVENT_ENTITY_PARAM);
     eventEntity.setProperty(Constants.EVENT_NAME_PARAM, eventName);
-    eventEntity.setProperty(Constants.END_DATE_PARAM, endDateTime);
+    eventEntity.setProperty(Constants.END_DATE_PARAM, endDate);
     eventEntity.setProperty(Constants.TIME_ZONE_PARAM, timeZone);
     eventEntity.setProperty(Constants.DATE_TIME_PARAM, dateTimeFormatted);
     eventEntity.setProperty(Constants.LOCATION_PARAM, location);

@@ -7,6 +7,11 @@
   --side-bar: #f1f1f1;
 }
 
+img {
+  max-width: 100%;
+  max-height: 100%;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -33,6 +38,7 @@ html, body {
 #user-navbar-section {
   display: flex;
   margin-left: auto;
+  align-items: center;
 }
 
 .button {
@@ -45,6 +51,7 @@ html, body {
   font-family: 'Roboto';
   border-radius: 4px;
   transition: ease background-color 0.1s, ease color 0.1s;
+  cursor: pointer;
 }
 
 .button:hover {
@@ -171,6 +178,17 @@ html, body {
   margin: 2px;
 }
 
+#event-creator {
+  display: flex;
+  align-items: center;
+  justify-content: left;
+}
+
+#top-event {
+  display: flex;
+  justify-content: space-between;
+}
+
 /**map styling */
 .row {
   height: 95%;
@@ -234,11 +252,18 @@ html, body {
   text-align: center;
 }
 
-.profile-pic {
+.profile-pic-large {
   height: 200px;
   width: 200px;
   border-radius: 50%;
   margin-top: 20px;
+}
+
+.profile-pic-small {
+  height: 30px;
+  width: 30px;
+  border-radius: 50%;
+  margin-right: 5px;
 }
 
 #name-container {
@@ -262,8 +287,15 @@ html, body {
   flex: 1;
 }
 
+.user-element {
+  display: flex;
+  align-items: center;
+  clear: both;
+  cursor: pointer
+}
+
 .request-element {
-  display: inline-flex;
+  display: flex;
   align-items: center;
 }
 
@@ -338,6 +370,17 @@ html, body {
 /* Search Users styling */
 #search-users-container {
   text-align: center;
+}
+
+#searched-users {
+  height: 100%;
+  width: 300px;
+  display: inline-block;
+  text-align: left;
+  background-color: var(--side-bar);
+  padding-left: 10px;
+  margin-top: 10px;
+  border-radius: 5px;
 }
 
 /* Styling for filter buttons. */
