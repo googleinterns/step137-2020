@@ -54,6 +54,7 @@ function navbarLoginDisplay() {
               });
               userNavbarSection.appendChild(personalProfileButton);
               userNavbarSection.appendChild(logoutButton);
+              break;
             }
           }
         });
@@ -147,8 +148,7 @@ function displayContent(user, viewer) {
   displayBasicInfo(user, viewer);
   displayBuddies(user, viewer);
   displaySavedInterests(user, viewer);
-  displayEvents(user, viewer);
-  displayPosts(user, viewer);
+  displayEventsAndPosts(user, viewer);
 }
 
 /*
@@ -439,9 +439,17 @@ function createInterest(interest) {
 /*
  * Displays the events of the specified user.
  */
-function displayEvents(user, viewer) {
-  const eventsContainer = document.getElementById('events-container');
-  eventsContainer.innerHTML = '';
+function displayEventsAndPosts(user, viewer) {
+  const eventsAndPostsContainer = document.getElementById('events-and-posts-container');
+  eventsAndPostsContainer.innerHTML = '';
+
+  const eventsContainer = document.createElement('div');
+  eventsContainer.className = 'tabcontent';
+  eventsContainer.id = 'events-container';
+  const postsContainer = document.createElement('div');
+  postsContainer.className = 'tabcontent';
+  postsContainer.id = 'posts-container';
+  const tabContainer = createEventsPostsTab();
 
   if (viewer === PROFILE_VIEWER_PERSONAL) {
     displayPersonalEvents(user, eventsContainer);
@@ -453,6 +461,11 @@ function displayEvents(user, viewer) {
     eventMessage.innerText = 'You cannot see this user\'s events.';
     eventsContainer.appendChild(eventMessage);
   }
+  displayPosts(user, viewer, postsContainer);
+  eventsAndPostsContainer.append(tabContainer);
+  eventsAndPostsContainer.append(eventsContainer);
+  eventsAndPostsContainer.append(postsContainer);
+  document.getElementById('open').click();
 }
 
 /*
@@ -460,10 +473,10 @@ function displayEvents(user, viewer) {
  */
 function displayPersonalEvents(user, eventsContainer) {
   const invitedEvents = document.createElement('div');
-  invitedEvents.className = 'tabcontent';
+  invitedEvents.className = 'events-tabcontent';
   invitedEvents.id = 'invited-events';
   const attendingEvents = document.createElement('div');
-  attendingEvents.className = 'tabcontent';
+  attendingEvents.className = 'events-tabcontent';
   attendingEvents.id = 'attending-events';
   const tabContainer = createEventsTab();
 
@@ -492,7 +505,7 @@ function displayPersonalEvents(user, eventsContainer) {
     eventsContainer.append(tabContainer);
     eventsContainer.append(invitedEvents);
     eventsContainer.append(attendingEvents);
-    document.getElementById('open').click();
+    document.getElementById('events-open').click();
   });
 }
 
@@ -521,23 +534,23 @@ function displayBuddyEvents(user, eventsContainer) {
  * Creates the tab element that holds the invited and attending events tabs.
  */
 function createEventsTab() {
-  tabContainer = document.createElement('div');
+  const tabContainer = document.createElement('div');
   tabContainer.className = 'tab';
   tabContainer.innerHTML = '';
 
-  invitedButton = document.createElement('button');
+  const invitedButton = document.createElement('button');
   invitedButton.innerText = 'Invited';
-  invitedButton.className = 'tablinks active';
-  invitedButton.id = 'open';
+  invitedButton.className = 'events-tablinks active';
+  invitedButton.id = 'events-open';
   invitedButton.addEventListener('click', function(e) {
-    openTab(e, 'invited-events');
+    openEventsTab(e, 'invited-events');
   })
 
-  attendingButton = document.createElement('button');
+  const attendingButton = document.createElement('button');
   attendingButton.innerText = 'Attending';
-  attendingButton.className = 'tablinks';
+  attendingButton.className = 'events-tablinks';
   attendingButton.addEventListener('click', function(e) {
-    openTab(e, 'attending-events');
+    openEventsTab(e, 'attending-events');
   })
 
   tabContainer.appendChild(invitedButton);
@@ -546,11 +559,37 @@ function createEventsTab() {
 }
 
 /*
+ * Creates the tab element that hold the events and posts tabs.
+ */
+function createEventsPostsTab() {
+  const tabContainer = document.createElement('div');
+  tabContainer.className = 'tab';
+  tabContainer.innerHTML = '';
+
+  const eventsButton = document.createElement('button');
+  eventsButton.innerText = 'Events';
+  eventsButton.className = 'tablinks active';
+  eventsButton.id = 'open';
+  eventsButton.addEventListener('click', function(e) {
+    openTab(e, 'events-container');
+  })
+
+  const postsButton = document.createElement('button');
+  postsButton.innerText = 'Posts';
+  postsButton.className = 'tablinks';
+  postsButton.addEventListener('click', function(e) {
+    openTab(e, 'posts-container');
+  })
+
+  tabContainer.appendChild(eventsButton);
+  tabContainer.appendChild(postsButton);
+  return tabContainer;
+}
+
+/*
  * Displays the posts of the specified user.
  */
-function displayPosts(user, viewer) {
-  const postsContainer = document.getElementById('posts-container');
-  postsContainer.innerHTML = '';
+function displayPosts(user, viewer, postsContainer) {
   let count = 0; 
   const currentId = localStorage.getItem(LOCAL_STORAGE_ID);
 
@@ -636,4 +675,21 @@ function showImageForm() {
     document.getElementById('image-form-container').style.display = 'block';
     document.getElementById('image-form').action = imageUploadUrl;
   });
+}
+
+/** Opens a specific events tab (Invited/Attending) when tab is clicked. */
+function openEventsTab(evt, tabName) {
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName('events-tabcontent');
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = 'none';
+  }
+  tablinks = document.getElementsByClassName('events-tablinks');
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(' active', '');
+    tablinks[i].id = tablinks[i].id.replace('events-open', '');
+  }
+  document.getElementById(tabName).style.display = 'block';
+  evt.currentTarget.className += ' active';
+  evt.currentTarget.id += 'events-open';
 }
