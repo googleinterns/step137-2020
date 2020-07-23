@@ -318,10 +318,11 @@ function displayPlaceInfo(place, placeId) {
     eventsDivElement.appendChild(createEventElement);
     eventsDivElement.appendChild(getAvailableEvents(userId)); 
     userPostsDivElement.appendChild(createPostElement); 
-    userPostsDivElement.appendChild(getPosts(userId)); 
+    userPostsDivElement.appendChild(getAvailablePosts(userId)); 
   }
   else {
     eventsDivElement.appendChild(getPublicEvents());
+    userPostsDivElement.appendChild(getPublicPosts());
   }
   infoDivElement.appendChild(tabDivElement);
   infoDivElement.appendChild(eventsDivElement);

@@ -15,7 +15,7 @@ function fetchBlobstoreUrlAndShowForm() {
       });
 }
 
-function getPosts(userId) {
+function getPublicPosts() {
   locationName = sessionStorage.getItem(SESSION_STORE_LOCATION);
   postDivElement = document.createElement('div');
   postDivElement.innerText = '';
@@ -24,8 +24,9 @@ function getPosts(userId) {
     .then(response => response.json())
     .then(posts => {
       for (let i = 0; i < posts.length; i ++) {
-        if (locationName === posts[i].location) {
-          postDivElement.appendChild(createPost(posts[i], userId));
+        if (locationName === posts[i].location &&
+            posts[i].privacy === "public") {
+          postDivElement.appendChild(createPostNoResponse(posts[i]));
           count++;
         }
       }
@@ -38,8 +39,61 @@ function getPosts(userId) {
   return postDivElement;
 }
 
-function createPost(post, userId) {
-  const caption = document.createElement('p');
+function getAvailablePosts(userId) {
+  locationName = sessionStorage.getItem(SESSION_STORE_LOCATION);
+  postDivElement = document.createElement('div');
+  postDivElement.innerText = '';
+  var fetchedUsers = new Array();
+  let count = 0;
+  fetch('/post')
+    .then(response => response.json())
+    .then(posts => {
+      for (let i = 0; i < posts.length; i ++) {
+        if (locationName === posts[i].location ) {
+          if (posts[i].privacy === "public") {
+            postDivElement.appendChild(createPostWithResponse(posts[i], userId));
+            count++;
+          }
+          else if (posts[i].privacy === "buddies") {
+            if (fetchedUsers.length === 0) {
+              fetch('/user')
+                .then(response => response.json())
+                .then(users => {
+                  fetchedUsers = users;
+                });
+            }
+            fetchedUsers.forEach(function(user)  {
+              if (user.id === userId) {
+                if (user.buddies.includes(userId)) {
+                  postDivElement.appendChild(createPostWithResponse(posts[i], userId));
+                  ++count;
+                }
+              }
+            });
+          }
+          else if (posts[i].privacy === "private") {
+            if (posts[i].creator === userId) {
+              postDivElement.appendChild(createPostWithResponse(posts[i], userId));
+              ++count;
+            }
+          }
+          else if (posts[i].creator === userId) {
+            postDivElement.appendChild(createPostWithResponse(posts[i], userId));
+            ++count;
+          }
+        }
+      }
+      if (count === 0) {
+        noPostElement = document.createElement('p');
+        noPostElement.innerText = "No posts to show.";
+        postDivElement.appendChild(noPostElement);
+      }
+    });
+  return postDivElement;
+}
+
+function createPostNoResponse(post) {
+const caption = document.createElement('p');
   caption.id = "caption";
   caption.innerText = post.caption;
 
@@ -56,8 +110,19 @@ function createPost(post, userId) {
     var imageURL = URL.createObjectURL(image);
     imageElement.src = imageURL;
   });
+  
+  const postElement = document.createElement('div');
+  postElement.className = "card";
+  postElement.append(imageElement);
+  postElement.append(caption);
 
+  return postElement;
+}
+
+function createPostWithResponse(post, userId) {
+  const postElement = createPostNoResponse(post);
   const bottomCard = document.createElement('div');
+
   if (userId === post.creator) {
     const deleteButton = document.createElement('button');
     deleteButton.className = "icon-button";
@@ -70,10 +135,7 @@ function createPost(post, userId) {
     bottomCard.append(deleteButton);
   }
   
-  const postElement = document.createElement('div');
   postElement.className = "card";
-  postElement.append(imageElement);
-  postElement.append(caption);
   postElement.append(bottomCard);
 
   return postElement;

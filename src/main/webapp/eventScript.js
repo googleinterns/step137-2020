@@ -271,7 +271,7 @@ function getAvailableEvents(userID) {
   eventDivElement.innerText = '';
   locationName = sessionStorage.getItem(SESSION_STORE_LOCATION);
 
-  fetch("/events")
+  fetch('/events')
     .then(response => response.json())
     .then(events => {
       let count = 0;
