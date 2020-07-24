@@ -87,6 +87,7 @@ html, body {
   width: 409px;
   height: 325px;
   max-width: 100%;
+  z-index: 3
 }
 
 /* On mouse-over, add a deeper shadow */
@@ -228,6 +229,7 @@ html, body {
 
 #side {
   flex: 20%;
+  flex-wrap: wrap;
   max-width: 20%;
   background-color: var(--sidebar-color);
   padding: 20px;
@@ -235,6 +237,7 @@ html, body {
 
 #map {
   height: 100%;
+  z-index: 1;
 }
 
 #map-snippet {
@@ -259,13 +262,13 @@ html, body {
 .popup {
   display: none;
   position: fixed;
-  z-index: 1;
+  z-index: 5;
   left: 0;
   top: 0;
   padding: 10%;
   width: 100%;
   height: 100%;
-overflow: auto;
+  overflow: auto;
   background-color: rgba(0, 0, 0, 0.4);
 }
 
@@ -521,6 +524,7 @@ overflow: auto;
   border: 1px solid #ccc;
   border-top: none;
   font-family: var(--base-font);
+  z-index: 2;
 }
 
 /* Style font for sidebar */
@@ -538,6 +542,10 @@ overflow: auto;
 
 #side a {
   color: black;
+}
+
+#post-form {
+  display: none;
 }
 
 /* Search Users styling */

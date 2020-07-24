@@ -9,6 +9,7 @@ var markers = [];
 function initialDisplay() {
   navbarLoginDisplay(); // This function is located in profileScript.js
   initMap();
+  fetchBlobstoreURL();
 }
 
 /** Initializes map and displays it. */
@@ -278,7 +279,8 @@ function displayPlaceInfo(place, placeId) {
   });
   createPostElement.innerText = "Create a Post";
   createPostElement.addEventListener('click', () => {
-    location.href = 'posts.html';
+    createPostForm();
+    document.getElementById("post-form").style.display = 'block';
   });
   if (place.business_status) {
     businessStatusElement = document.createElement('p');
