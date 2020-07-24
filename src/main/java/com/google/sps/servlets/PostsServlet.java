@@ -20,6 +20,7 @@ import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
+import java.util.Collections;
 import java.util.Map;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -99,6 +100,7 @@ public class PostsServlet extends HttpServlet {
       posts.add(post);
     }
 
+    Collections.sort(posts);
     Gson gson = new Gson();
     response.setContentType("application/json;");
     response.getWriter().println(gson.toJson(posts));

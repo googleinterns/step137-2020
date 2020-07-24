@@ -3,7 +3,7 @@ package com.google.sps.data;
 import com.google.appengine.api.blobstore.BlobKey;
 import java.util.List;
 
-public final class Post {
+public final class Post implements Comparable<Post>{
   private long id;
   private String caption;
   private BlobKey blobKey;
@@ -22,6 +22,11 @@ public final class Post {
     this.placeId = builder.placeId;
     this.privacy = builder.privacy;
     this.likes = builder.likes;
+  }
+
+  @Override
+  public int compareTo(Post p) {
+    return Integer.compare(p.likes.size(), this.likes.size());  
   }
 
   public static class PostBuilder {
