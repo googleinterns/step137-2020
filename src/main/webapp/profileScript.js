@@ -180,7 +180,7 @@ function displayBasicInfo(user, viewer) {
     });
     
     // On hover, display an option for the current user to change their profile picture.
-    profilePicContainer.id = 'personal-pic-container'
+    profilePicContainer.className = 'personal-pic-container'
     profilePicContainer.addEventListener('click', () => {
       showImageForm();
     });

@@ -84,8 +84,8 @@ html, body {
   transition: 0.3s;
   padding: 4px 16px;
   border-radius: 5px;
-  margin: 10px;
-  width: 409px;
+  margin: 15px;
+  width: 412px;
   height: 325px;
   max-width: 100%;
   position: relative;
@@ -376,7 +376,7 @@ html, body {
   font-size: 100px;
 }
 
-#personal-pic-container {
+.personal-pic-container {
   position: relative;
 }
 
@@ -397,11 +397,11 @@ html, body {
   opacity: 0.7;
 }
 
-#personal-pic-container:hover #edit-image-button {
+.personal-pic-container:hover #edit-image-button {
   opacity: 1;
 }
 
-#personal-pic-container:hover #personal-pic {
+.personal-pic-container:hover #personal-pic {
   opacity: 0.5;
 }
 

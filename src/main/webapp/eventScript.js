@@ -409,7 +409,7 @@ function createEventWithResponse(event, userID, going) {
 
     const invitedAttendees = document.createElement('p');
     invitedAttendees.className = 'attendee-info';
-    invitedAttendees.innerText = (event.invitedAttendees.length - 1) + ' Invited';
+    invitedAttendees.innerText = (event.invitedAttendees.length) + ' Invited';
     invitedAttendees.addEventListener('click', () => {
       displayAttendees(event, 'invited')
     });
