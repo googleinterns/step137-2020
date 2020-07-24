@@ -67,7 +67,7 @@ public class PostsServlet extends HttpServlet {
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     datastore.put(postEntity);
 
-    response.sendRedirect("/posts.html");
+    response.sendRedirect("/map.html");
   }
 
   @Override

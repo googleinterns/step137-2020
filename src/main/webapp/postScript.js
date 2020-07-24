@@ -1,9 +1,4 @@
-function onload() {
-  fetchBlobstoreUrlAndShowForm();
-  getLocationInfo();
-}
-
-function fetchBlobstoreUrlAndShowForm() {
+function fetchBlobstoreURL() {
   fetch('/blobstore-upload-url')
       .then((response) => {
         return response.text();
@@ -11,7 +6,6 @@ function fetchBlobstoreUrlAndShowForm() {
       .then((imageUploadUrl) => {
         const messageForm = document.getElementById('post');
         messageForm.action = imageUploadUrl;
-        messageForm.classList.remove('hidden');
       });
 }
 
@@ -219,4 +213,18 @@ function deleteBlob(blobkey) {
   fetch('/delete-blob', {
     method:'POST', body: params
   })
+}
+
+function hideForm() {
+  document.getElementById("post-form").style.display = 'none';
+}
+
+function createPostForm() {
+  getLocationInfo();
+  const exitButton = document.createElement('i');
+  exitButton.className = 'fa fa-close';
+  exitButton.addEventListener('click', () => {
+    document.getElementById("post-form").style.display = 'none';
+  });
+  document.getElementById("exit-button").appendChild(exitButton);
 }
