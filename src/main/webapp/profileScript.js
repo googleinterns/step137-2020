@@ -457,7 +457,6 @@ function displaySavedInterests(user, viewer) {
  * Returns a newly created saved interest element to be displayed on the page.
  */
 function createInterest(interest) {
-  
   const interestIcon = document.createElement('img');
   interestIcon.id = 'interest-icon';
   interestIcon.src = 'images/red-marker.png';
@@ -512,13 +511,29 @@ function displayEventsAndPosts(user, viewer) {
  * Displays events the user is invited to or attending on their personal profile.
  */
 function displayPersonalEvents(user, eventsContainer) {
-  const invitedEvents = document.createElement('div');
-  invitedEvents.className = 'events-tabcontent';
-  invitedEvents.id = 'invited-events';
+  // Create a dropdown to select between invited and attending events.
+  const dropDown = document.createElement('select');
+  const attendingOption = document.createElement('option');
+  attendingOption.innerText = 'Attending';
+  const invitedOption = document.createElement('option');
+  invitedOption.innerText = 'Invited';
+  
   const attendingEvents = document.createElement('div');
-  attendingEvents.className = 'events-tabcontent';
   attendingEvents.id = 'attending-events';
-  const tabContainer = createEventsTab();
+  const invitedEvents = document.createElement('div');
+  invitedEvents.id = 'invited-events';
+  
+  dropDown.onchange = () => {
+    if (invitedEvents.style.display === 'block') {
+      invitedEvents.style.display = 'none';
+      attendingEvents.style.display = 'block';
+    } else {
+      attendingEvents.style.display = 'none';
+      invitedEvents.style.display = 'block';
+    }
+  };
+  dropDown.appendChild(attendingOption);
+  dropDown.appendChild(invitedOption);
 
   fetch('/events').then(response => response.json()).then((events) => {
     let invitedEventsCount = 0;
@@ -534,18 +549,17 @@ function displayPersonalEvents(user, eventsContainer) {
     }
     if (invitedEventsCount == 0) {
       const invitedEventMessage = document.createElement('p');
-      invitedEventMessage.innerText = 'No events to show.';
+      invitedEventMessage.innerText = 'No invited events to show.';
       invitedEvents.appendChild(invitedEventMessage);
     }
     if (attendingEventsCount == 0) {
       const attendingEventMessage = document.createElement('p');
-      attendingEventMessage.innerText = 'No events to show.';
+      attendingEventMessage.innerText = 'No attending events to show.';
       attendingEvents.appendChild(attendingEventMessage);
     }
-    eventsContainer.append(tabContainer);
+    eventsContainer.append(dropDown);
     eventsContainer.append(invitedEvents);
     eventsContainer.append(attendingEvents);
-    document.getElementById('events-open').click();
   });
 }
 
@@ -568,34 +582,6 @@ function displayBuddyEvents(user, eventsContainer) {
       }
     }
   });
-}
-
-/*
- * Creates the tab element that holds the invited and attending events tabs.
- */
-function createEventsTab() {
-  const tabContainer = document.createElement('div');
-  tabContainer.className = 'tab';
-  tabContainer.innerHTML = '';
-
-  const invitedButton = document.createElement('button');
-  invitedButton.innerText = 'Invited';
-  invitedButton.className = 'events-tablinks active';
-  invitedButton.id = 'events-open';
-  invitedButton.addEventListener('click', function(e) {
-    openEventsTab(e, 'invited-events');
-  })
-
-  const attendingButton = document.createElement('button');
-  attendingButton.innerText = 'Attending';
-  attendingButton.className = 'events-tablinks';
-  attendingButton.addEventListener('click', function(e) {
-    openEventsTab(e, 'attending-events');
-  })
-
-  tabContainer.appendChild(invitedButton);
-  tabContainer.appendChild(attendingButton);
-  return tabContainer;
 }
 
 /*
@@ -715,21 +701,4 @@ function showImageForm() {
     document.getElementById('image-form-container').style.display = 'block';
     document.getElementById('image-form').action = imageUploadUrl;
   });
-}
-
-/** Opens a specific events tab (Invited/Attending) when tab is clicked. */
-function openEventsTab(evt, tabName) {
-  var i, tabcontent, tablinks;
-  tabcontent = document.getElementsByClassName('events-tabcontent');
-  for (i = 0; i < tabcontent.length; i++) {
-    tabcontent[i].style.display = 'none';
-  }
-  tablinks = document.getElementsByClassName('events-tablinks');
-  for (i = 0; i < tablinks.length; i++) {
-    tablinks[i].className = tablinks[i].className.replace(' active', '');
-    tablinks[i].id = tablinks[i].id.replace('events-open', '');
-  }
-  document.getElementById(tabName).style.display = 'block';
-  evt.currentTarget.className += ' active';
-  evt.currentTarget.id += 'events-open';
 }

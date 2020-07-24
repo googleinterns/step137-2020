@@ -418,12 +418,8 @@ html, body {
   margin: 10px 20px 20px 10px;
 }
 
-.events-tabcontent {
+#invited-events {
   display: none;
-  padding: 6px 12px;
-  border: 1px solid #ccc;
-  border-top: none;
-  font-family: 'Roboto';
 }
 
 /* Buddy request button styling */
