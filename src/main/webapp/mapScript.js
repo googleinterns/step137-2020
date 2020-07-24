@@ -66,7 +66,11 @@ function initMap() {
   }
   // Checks if browser supports geolocation.
   else if (navigator.geolocation) {
-    // set diplay of loader to block
+    loaderElement = document.getElementById('loader-icon');
+    findLocationTextElement = document.getElementById('finding-location-text');
+    foundLocationTextElement = document.getElementById('found-location-text');
+    loaderElement.style.display = 'block';
+    findLocationTextElement.style.display = 'block';
     navigator.geolocation.getCurrentPosition(function(position) {
       var pos = {
         lat: position.coords.latitude,
@@ -84,7 +88,9 @@ function initMap() {
           updateActiveStatus(filterElements, e);
         });
       }
-      // set display of loader to none
+      loaderElement.style.display = 'none';
+      findLocationTextElement.style.display = 'none';
+      foundLocationTextElement.style.display = 'block';
       infoWindow.setPosition(pos);
       infoWindow.setContent('Your current location has been found.');
       infoWindow.open(map);
