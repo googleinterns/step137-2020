@@ -116,6 +116,8 @@ function handleLocationError(browserHasGeolocation, pos) {
 
 /** Searches nearby for a type of location and places markers there. */
 function highlightNearbyLocation(map, placeType, currentLocation) {
+  errorMessage = document.getElementById('error_message');
+  errorMessage.innerText = '';
   deleteAllMarkers();
   var image = '/images/blue-marker.png';
   var request = {
@@ -145,7 +147,9 @@ function highlightNearbyLocation(map, placeType, currentLocation) {
       }
     }
     else {
-      alert(status);
+      if (status == "ZERO_RESULTS") {
+        errorMessage.innerText = 'No locations of this category found.';     
+      };
     }
   } 
 }
@@ -175,22 +179,6 @@ function setMapOnAll(map) {
 /** Fetches information about a place. */
 function fetchPlaceInformation(place_id, map, where) {
   var service = new google.maps.places.PlacesService(map);
-  
-  // if (where == CREATE_EVENT_PAGE) {
-  //   var request = { placeId: place_id, fields: ['name'] };
-  //   service.getDetails(request, callback);
-
-  //   function callback(place, status) {
-  //     if (status == google.maps.places.PlacesServiceStatus.OK) {
-  //       // Updates sessionStorage and update input forms.
-  //       sessionStorage.setItem(SESSION_STORE_LOCATION, place.name);
-  //       sessionStorage.setItem(SESSION_STORE_PLACEID, place_id);
-  //       getLocationInfo();
-  //     }
-  //   }
-  // } 
-
-  // else if (where == EXPLORE_MAP_PAGE) {
     var request = {
       placeId: place_id,
       fields: [
@@ -218,12 +206,6 @@ function fetchPlaceInformation(place_id, map, where) {
             sessionStorage.setItem(SESSION_STORE_PLACEID, place_id);
             getLocationInfo();
             return;
-          }
-          else if (where == "nearmePage") {  
-            console.log('in nearme page');
-            console.log(place.rating)
-            if (place.rating) { return place.rating;  }
-            else { return 0;}
           }
         });
       } 
@@ -257,10 +239,6 @@ function fetchPlaceInformation(place_id, map, where) {
               sessionStorage.setItem(SESSION_STORE_PLACEID, place_id);
               getLocationInfo();
               return;
-            }
-            else if (where == "nearmePage") {
-              if (place.rating) { return place.rating; }
-              else { return 0;}
             }
           } 
           else { 
