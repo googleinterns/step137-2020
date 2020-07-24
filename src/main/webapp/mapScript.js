@@ -66,6 +66,7 @@ function initMap() {
   }
   // Checks if browser supports geolocation.
   else if (navigator.geolocation) {
+    // set diplay of loader to block
     navigator.geolocation.getCurrentPosition(function(position) {
       var pos = {
         lat: position.coords.latitude,
@@ -83,6 +84,7 @@ function initMap() {
           updateActiveStatus(filterElements, e);
         });
       }
+      // set display of loader to none
       infoWindow.setPosition(pos);
       infoWindow.setContent('Your current location has been found.');
       infoWindow.open(map);
