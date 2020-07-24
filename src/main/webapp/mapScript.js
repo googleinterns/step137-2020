@@ -300,6 +300,7 @@ function displayPlaceInfo(place, placeId) {
   });
   createPostElement.innerText = "Create a Post";
   createPostElement.addEventListener('click', () => {
+    sessionStorage.setItem('postPlaceId', placeId);
     createPostForm();
     document.getElementById("post-form").style.display = 'block';
   });

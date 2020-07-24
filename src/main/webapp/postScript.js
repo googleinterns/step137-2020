@@ -216,6 +216,9 @@ function deleteBlob(blobkey) {
 }
 
 function hideForm() {
+  // set sessionStorage so that the map reloads to this location
+  postPlaceId = sessionStorage.getItem('postPlaceId');
+  sessionStorage.setItem('currentLocationId', postPlaceId);
   document.getElementById("post-form").style.display = 'none';
 }
 
