@@ -87,9 +87,10 @@ html, body {
   margin: 15px;
   width: 412px;
   height: 325px;
-  max-width: 100%;
+  max-width: 90%;
   position: relative;
-  z-index: 3
+  z-index: 3;
+  text-align: center;
 }
 
 /* On mouse-over, add a deeper shadow */
