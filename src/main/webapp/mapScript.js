@@ -1,5 +1,5 @@
 // Global Variables
-const API_KEY = 'AIzaSyBf5E9ymEYBv6mAi78mFBOn8oUVvO8sph4';
+const API_KEY = displayKey();
 const CREATE_EVENT_PAGE = 'createEventPage';
 const EXPLORE_MAP_PAGE = 'exploreMapPage';
 const SESSION_STORE_LOCATION = 'locationName';
@@ -116,6 +116,8 @@ function handleLocationError(browserHasGeolocation, pos) {
 
 /** Searches nearby for a type of location and places markers there. */
 function highlightNearbyLocation(map, placeType, currentLocation) {
+  errorMessage = document.getElementById('error_message');
+  errorMessage.innerText = '';
   deleteAllMarkers();
   var image = '/images/blue-marker.png';
   var request = {
@@ -129,19 +131,25 @@ function highlightNearbyLocation(map, placeType, currentLocation) {
   function callback(results, status) {
     if (status == google.maps.places.PlacesServiceStatus.OK) {
       for (var i = 0; i < results.length; i++) {
-        createMarker(map, results[i].geometry.location);
+        createMarker(map, results[i].geometry.location, results[i].place_id);
       }
-      function createMarker(thisMap, location) {
+      function createMarker(thisMap, location, markerPlaceId) {
         var marker = new google.maps.Marker({
           position: location,
           map: thisMap,
           icon: image
         })
+        marker.addListener('click', function(e) {
+          fetchPlaceInformation(markerPlaceId, map, EXPLORE_MAP_PAGE);
+          e.stop(); // Stops infobox from appearing when location clicked
+          });
         markers.push(marker);
       }
     }
     else {
-      alert(status);
+      if (status == "ZERO_RESULTS") {
+        errorMessage.innerText = 'No locations of this category found.';     
+      };
     }
   } 
 }
@@ -171,22 +179,6 @@ function setMapOnAll(map) {
 /** Fetches information about a place. */
 function fetchPlaceInformation(place_id, map, where) {
   var service = new google.maps.places.PlacesService(map);
-  
-  if (where == CREATE_EVENT_PAGE) {
-    var request = { placeId: place_id, fields: ['name'] };
-    service.getDetails(request, callback);
-
-    function callback(place, status) {
-      if (status == google.maps.places.PlacesServiceStatus.OK) {
-        // Updates sessionStorage and update input forms.
-        sessionStorage.setItem(SESSION_STORE_LOCATION, place.name);
-        sessionStorage.setItem(SESSION_STORE_PLACEID, place_id);
-        getLocationInfo();
-      }
-    }
-  } 
-
-  else if (where == EXPLORE_MAP_PAGE) {
     var request = {
       placeId: place_id,
       fields: [
@@ -204,7 +196,17 @@ function fetchPlaceInformation(place_id, map, where) {
       // If cache hit.
       if (response !== undefined) {
         response.json().then(place => {
-          displayPlaceInfo(place, place_id);
+          if (where == EXPLORE_MAP_PAGE) {
+            displayPlaceInfo(place, place_id);
+            return;
+          }
+          else if (where == CREATE_EVENT_PAGE) {
+            // Updates sessionStorage and update input forms.
+            sessionStorage.setItem(SESSION_STORE_LOCATION, place.name);
+            sessionStorage.setItem(SESSION_STORE_PLACEID, place_id);
+            getLocationInfo();
+            return;
+          }
         });
       } 
       // If cache miss.
@@ -227,15 +229,26 @@ function fetchPlaceInformation(place_id, map, where) {
             caches.open('v1').then(function(cache) {
               cache.put(myRequest, response);
             })
+            if (where == EXPLORE_MAP_PAGE) {
             displayPlaceInfo(place, place_id);
+            return;
+            }
+            else if (where == CREATE_EVENT_PAGE) {
+              // Updates sessionStorage and update input forms.
+              sessionStorage.setItem(SESSION_STORE_LOCATION, place.name);
+              sessionStorage.setItem(SESSION_STORE_PLACEID, place_id);
+              getLocationInfo();
+              return;
+            }
           } 
           else { 
             alert('PlacesService failed to find desired location: ' + status); 
+            return;
           }
         }
       }
     });
-  }
+  // }
 }
 
 /** Display place information on sidebar */
