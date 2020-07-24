@@ -267,26 +267,28 @@ function getAvailableEvents(userID) {
     .then(events => {
       let count = 0;
       for (i = 0; i < events.length; i++) {
-        if (events[i].location == locationName) {
-          invitedAttendees = events[i].invitedAttendees;
-          rsvpAttendees = events[i].rsvpAttendees;
-          rsvpContains = rsvpAttendees.includes(userID);
-          if (events[i].privacy == "public") {
-            // Display public events even if user is not attending.
-            if (!rsvpContains) {
+        if (events[i].currency === "current") {
+          if (events[i].location == locationName) {
+            invitedAttendees = events[i].invitedAttendees;
+            rsvpAttendees = events[i].rsvpAttendees;
+            rsvpContains = rsvpAttendees.includes(userID);
+            if (events[i].privacy == "public") {
+              // Display public events even if user is not attending.
+              if (!rsvpContains) {
+                eventDivElement.appendChild(createEventWithResponse(events[i], userID, "false"));
+                count++;
+              }
+            }
+            if (rsvpContains) {
+              // Display events the user is attending.
+              eventDivElement.appendChild(createEventWithResponse(events[i], userID, "true"));
+              count++;
+            }
+            else if (invitedAttendees.includes(userID)) {
+              // Display events the user is invited to.
               eventDivElement.appendChild(createEventWithResponse(events[i], userID, "false"));
               count++;
             }
-          }
-          if (rsvpContains) {
-            // Display events the user is attending.
-            eventDivElement.appendChild(createEventWithResponse(events[i], userID, "true"));
-            count++;
-          }
-          else if (invitedAttendees.includes(userID)) {
-            // Display events the user is invited to.
-            eventDivElement.appendChild(createEventWithResponse(events[i], userID, "false"));
-            count++;
           }
         }
       }
