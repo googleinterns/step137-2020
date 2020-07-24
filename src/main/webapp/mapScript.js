@@ -344,8 +344,8 @@ function createTabElement() {
   postsButtonElement.id = 'open';
   eventsButtonElement.innerText = 'Events'
   eventsButtonElement.className = 'tablinks';
-  tabDivElement.appendChild(postsButtonElement);
   tabDivElement.appendChild(eventsButtonElement);
+  tabDivElement.appendChild(postsButtonElement);
   postsButtonElement.addEventListener('click', function(e) {
           openTab(e, 'UserPosts');
         });
