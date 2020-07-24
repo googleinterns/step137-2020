@@ -639,7 +639,7 @@ function displayPosts(user, viewer, postsContainer) {
       if (viewer === PROFILE_VIEWER_PERSONAL) {
         for (let i = 0; i < posts.length; i ++) {
           if (posts[i].creator === user.id) {
-            postsContainer.appendChild(createPost(posts[i], currentId));
+            postsContainer.appendChild(createPostWithResponse(posts[i], currentId));
             count++;
           }
         }
@@ -648,7 +648,7 @@ function displayPosts(user, viewer, postsContainer) {
           if (posts[i].creator === user.id) {
             if (posts[i].privacy === "public" 
                 || posts[i].privacy === "buddies-only") {
-              postsContainer.appendChild(createPost(posts[i], currentId));
+              postsContainer.appendChild(createPostWithResponse(posts[i], currentId));
               count++
             }
           }
@@ -658,7 +658,7 @@ function displayPosts(user, viewer, postsContainer) {
         for (let i = 0; i < posts.length; i ++) {
           if (posts[i].creator === currentId) {
             if (posts[i].privacy == "public") {
-              postsContainer.appendChild(createPost(posts[i], user.id));
+              postsContainer.appendChild(createPostWithResponse(posts[i], user.id));
               count++
             }
           }
