@@ -512,6 +512,8 @@ function displayEventsAndPosts(user, viewer) {
  */
 function displayPersonalEvents(user, eventsContainer) {
   // Create a dropdown to select between invited and attending events.
+  const dropDownContainer = document.createElement('div');
+  dropDownContainer.id = 'dropdown-container';
   const dropDown = document.createElement('select');
   const attendingOption = document.createElement('option');
   attendingOption.innerText = 'Attending';
@@ -534,6 +536,7 @@ function displayPersonalEvents(user, eventsContainer) {
   };
   dropDown.appendChild(attendingOption);
   dropDown.appendChild(invitedOption);
+  dropDownContainer.appendChild(dropDown);
 
   fetch('/events').then(response => response.json()).then((events) => {
     let invitedEventsCount = 0;
@@ -557,7 +560,7 @@ function displayPersonalEvents(user, eventsContainer) {
       invitedEventMessage.innerText = 'No invited events to show.';
       invitedEvents.appendChild(invitedEventMessage);
     }
-    eventsContainer.append(dropDown);
+    eventsContainer.append(dropDownContainer);
     eventsContainer.append(attendingEvents);
     eventsContainer.append(invitedEvents);
   });
@@ -618,6 +621,8 @@ function createEventsPostsTab() {
 function displayPosts(user, viewer, postsContainer) {
   let count = 0; 
   const currentId = localStorage.getItem(LOCAL_STORAGE_ID);
+  const postsGrid = document.createElement('div');
+  postsGrid.id = 'posts-grid';
 
   fetch('/post')
     .then(response => response.json())
@@ -625,7 +630,7 @@ function displayPosts(user, viewer, postsContainer) {
       if (viewer === PROFILE_VIEWER_PERSONAL) {
         for (let i = 0; i < posts.length; i ++) {
           if (posts[i].creator === user.id) {
-            postsContainer.appendChild(createPost(posts[i], currentId));
+            postsGrid.appendChild(createPost(posts[i], currentId));
             count++;
           }
         }
@@ -634,7 +639,7 @@ function displayPosts(user, viewer, postsContainer) {
           if (posts[i].creator === user.id) {
             if (posts[i].privacy === "public" 
                 || posts[i].privacy === "buddies-only") {
-              postsContainer.appendChild(createPost(posts[i], currentId));
+              postsGrid.appendChild(createPost(posts[i], currentId));
               count++
             }
           }
@@ -644,7 +649,7 @@ function displayPosts(user, viewer, postsContainer) {
         for (let i = 0; i < posts.length; i ++) {
           if (posts[i].creator === currentId) {
             if (posts[i].privacy == "public") {
-              postsContainer.appendChild(createPost(posts[i], user.id));
+              postsGrid.appendChild(createPost(posts[i], user.id));
               count++
             }
           }
@@ -653,8 +658,9 @@ function displayPosts(user, viewer, postsContainer) {
       if (count === 0) {
         noPostElement = document.createElement('p');
         noPostElement.innerText = "No posts to show.";
-        postsContainer.appendChild(noPostElement);
+        postsGrid.appendChild(noPostElement);
       }
+      postsContainer.appendChild(postsGrid);
     });
 }
 

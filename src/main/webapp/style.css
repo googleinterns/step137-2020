@@ -421,6 +421,10 @@ html, body {
   margin: 10px 20px 20px 10px;
 }
 
+#dropdown-container {
+  text-align: left;
+}
+
 #attending-events {
   display: flex;
   flex-wrap: wrap;
@@ -428,6 +432,11 @@ html, body {
 
 #invited-events {
   display: none;
+  flex-wrap: wrap;
+}
+
+#posts-grid {
+  display: flex;
   flex-wrap: wrap;
 }
 
