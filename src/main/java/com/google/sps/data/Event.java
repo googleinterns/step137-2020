@@ -40,7 +40,7 @@ public class Event implements Comparable<Event> {
 
   @Override
   public int compareTo(Event e) {
-    return e.getDateTime().compareTo(getDateTime());
+    return getDateTime().compareTo(e.getDateTime());
   }
 
   public static class EventBuilder {
