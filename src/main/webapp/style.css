@@ -84,11 +84,13 @@ html, body {
   transition: 0.3s;
   padding: 4px 16px;
   border-radius: 5px;
-  margin: 10px;
-  width: 409px;
+  margin: 15px;
+  width: 412px;
   height: 325px;
-  max-width: 100%;
-  z-index: 3
+  max-width: 90%;
+  position: relative;
+  z-index: 3;
+  text-align: center;
 }
 
 /* On mouse-over, add a deeper shadow */
@@ -100,7 +102,7 @@ html, body {
   padding: 2px 16px;
 }
 
-/*events styling */
+/* Events form styling */
 #events-title {
   font-family: Helvetica;
   font-size: 40px;
@@ -155,25 +157,27 @@ html, body {
   height: 50px;
 }
 
+/* Events element styling */
 .name-display {
-  font-size: 30px;
+  font-size: 26px;
   font-family: Helvetica;
-  margin-bottom: 0;
   padding: 0;
-  margin-top: 5%;
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
 .date-display {
-  font-size: 14px;
+  font-size: 13px;
   font-family: Helvetica;
-  color: rgba(128, 128, 128, 0.726);
-  margin-top: .5%;
+  color: var(--option-color);
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
 .location-display {
   display: inline-flex;
   align-items: center;
-  font-size: 15px;
+  font-size: 16px;
   font-family: Helvetica;
 }
 
@@ -182,9 +186,10 @@ html, body {
 }
 
 .details-display {
-  font-size: 20px;
-  font-weight: bold;
+  font-size: 15px;
   font-family: Helvetica;
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
 .icon-button {
@@ -199,6 +204,10 @@ html, body {
   justify-content: left;
 }
 
+#event-creator-name {
+  font-size: 15px;
+}
+
 #top-event {
   display: flex;
   justify-content: space-between;
@@ -210,15 +219,36 @@ html, body {
   justify-content: left;
 }
 
+#attendee-info-container {
+  display: inline-flex;
+}
+
+.attendee-info {
+  margin-left: 15px;
+  margin-right: 15px;
+  font-size: 16px;
+}
+
 #bottom-card {
   display: inline-flex;
   justify-content: space-between;
+}
+
+#rsvp-button {
+  display: block;
+  margin: 0 auto;
 }
 
 #likes-element {
   display: inline-flex;
   justify-content: space-between;
   align-items: flex-end;
+}
+
+#delete-button {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
 }
 
 /**map styling */
@@ -347,7 +377,7 @@ html, body {
   font-size: 100px;
 }
 
-#personal-pic-container {
+.personal-pic-container {
   position: relative;
 }
 
@@ -368,11 +398,11 @@ html, body {
   opacity: 0.7;
 }
 
-#personal-pic-container:hover #edit-image-button {
+.personal-pic-container:hover #edit-image-button {
   opacity: 1;
 }
 
-#personal-pic-container:hover #personal-pic {
+.personal-pic-container:hover #personal-pic {
   opacity: 0.5;
 }
 
