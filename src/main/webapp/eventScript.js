@@ -513,9 +513,9 @@ function displayAttendees(event, attendeeType) {
 function createNoAttendeesMessage(attendeeType) {
   const noAttendeesMessage = document.createElement('p');
   if (attendeeType === 'invited') {
-    noAttendeesMessage.innerText = 'No buddies are invited to this event.';
+    noAttendeesMessage.innerText = 'Buddies invited to this event will be displayed here.';
   } else {
-    noAttendeesMessage.innerText = 'No buddies are going to this event.';
+    noAttendeesMessage.innerText = 'Buddies going to this event will be displayed here.';
   }
   return noAttendeesMessage;
 }
