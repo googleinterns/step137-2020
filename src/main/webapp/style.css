@@ -80,6 +80,9 @@ html, body {
   transition: 0.3s;
   padding: 4px 16px;
   border-radius: 5px;
+  width: 350px;
+  height: 325px;
+  margin: 10px;
 }
 
 /* On mouse-over, add a deeper shadow */
@@ -418,8 +421,14 @@ html, body {
   margin: 10px 20px 20px 10px;
 }
 
+#attending-events {
+  display: flex;
+  flex-wrap: wrap;
+}
+
 #invited-events {
   display: none;
+  flex-wrap: wrap;
 }
 
 /* Buddy request button styling */

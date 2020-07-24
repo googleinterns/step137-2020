@@ -524,12 +524,12 @@ function displayPersonalEvents(user, eventsContainer) {
   invitedEvents.id = 'invited-events';
   
   dropDown.onchange = () => {
-    if (invitedEvents.style.display === 'block') {
+    if (invitedEvents.style.display === 'flex') {
       invitedEvents.style.display = 'none';
-      attendingEvents.style.display = 'block';
+      attendingEvents.style.display = 'flex';
     } else {
       attendingEvents.style.display = 'none';
-      invitedEvents.style.display = 'block';
+      invitedEvents.style.display = 'flex';
     }
   };
   dropDown.appendChild(attendingOption);
@@ -539,27 +539,27 @@ function displayPersonalEvents(user, eventsContainer) {
     let invitedEventsCount = 0;
     let attendingEventsCount = 0;
     for (let i = 0; i < events.length; i ++) {
-      if (events[i].invitedAttendees.includes(user.id)) {
-        invitedEvents.appendChild(createEventWithResponse(events[i], user.id, "false"));
-        invitedEventsCount ++;
-      } else if (events[i].rsvpAttendees.includes(user.id)) {
+      if (events[i].rsvpAttendees.includes(user.id)) {
         attendingEvents.appendChild(createEventWithResponse(events[i], user.id, "true"));
         attendingEventsCount ++;
+      } else if (events[i].invitedAttendees.includes(user.id)) {
+        invitedEvents.appendChild(createEventWithResponse(events[i], user.id, "false"));
+        invitedEventsCount ++;
       }
-    }
-    if (invitedEventsCount == 0) {
-      const invitedEventMessage = document.createElement('p');
-      invitedEventMessage.innerText = 'No invited events to show.';
-      invitedEvents.appendChild(invitedEventMessage);
     }
     if (attendingEventsCount == 0) {
       const attendingEventMessage = document.createElement('p');
       attendingEventMessage.innerText = 'No attending events to show.';
       attendingEvents.appendChild(attendingEventMessage);
     }
+    if (invitedEventsCount == 0) {
+      const invitedEventMessage = document.createElement('p');
+      invitedEventMessage.innerText = 'No invited events to show.';
+      invitedEvents.appendChild(invitedEventMessage);
+    }
     eventsContainer.append(dropDown);
-    eventsContainer.append(invitedEvents);
     eventsContainer.append(attendingEvents);
+    eventsContainer.append(invitedEvents);
   });
 }
 
