@@ -457,7 +457,6 @@ function displaySavedInterests(user, viewer) {
  * Returns a newly created saved interest element to be displayed on the page.
  */
 function createInterest(interest) {
-  
   const interestIcon = document.createElement('img');
   interestIcon.id = 'interest-icon';
   interestIcon.src = 'images/red-marker.png';
@@ -512,40 +511,58 @@ function displayEventsAndPosts(user, viewer) {
  * Displays events the user is invited to or attending on their personal profile.
  */
 function displayPersonalEvents(user, eventsContainer) {
-  const invitedEvents = document.createElement('div');
-  invitedEvents.className = 'events-tabcontent';
-  invitedEvents.id = 'invited-events';
+  // Create a dropdown to select between invited and attending events.
+  const dropDownContainer = document.createElement('div');
+  dropDownContainer.id = 'dropdown-container';
+  const dropDown = document.createElement('select');
+  const attendingOption = document.createElement('option');
+  attendingOption.innerText = 'Attending';
+  const invitedOption = document.createElement('option');
+  invitedOption.innerText = 'Invited';
+  
   const attendingEvents = document.createElement('div');
-  attendingEvents.className = 'events-tabcontent';
   attendingEvents.id = 'attending-events';
-  const tabContainer = createEventsTab();
+  const invitedEvents = document.createElement('div');
+  invitedEvents.id = 'invited-events';
+  
+  dropDown.onchange = () => {
+    if (invitedEvents.style.display === 'flex') {
+      invitedEvents.style.display = 'none';
+      attendingEvents.style.display = 'flex';
+    } else {
+      attendingEvents.style.display = 'none';
+      invitedEvents.style.display = 'flex';
+    }
+  };
+  dropDown.appendChild(attendingOption);
+  dropDown.appendChild(invitedOption);
+  dropDownContainer.appendChild(dropDown);
 
   fetch('/events').then(response => response.json()).then((events) => {
     let invitedEventsCount = 0;
     let attendingEventsCount = 0;
     for (let i = 0; i < events.length; i ++) {
-      if (events[i].invitedAttendees.includes(user.id)) {
-        invitedEvents.appendChild(createEventWithResponse(events[i], user.id, "false"));
-        invitedEventsCount ++;
-      } else if (events[i].rsvpAttendees.includes(user.id)) {
+      if (events[i].rsvpAttendees.includes(user.id)) {
         attendingEvents.appendChild(createEventWithResponse(events[i], user.id, "true"));
         attendingEventsCount ++;
+      } else if (events[i].invitedAttendees.includes(user.id)) {
+        invitedEvents.appendChild(createEventWithResponse(events[i], user.id, "false"));
+        invitedEventsCount ++;
       }
-    }
-    if (invitedEventsCount == 0) {
-      const invitedEventMessage = document.createElement('p');
-      invitedEventMessage.innerText = 'No events to show.';
-      invitedEvents.appendChild(invitedEventMessage);
     }
     if (attendingEventsCount == 0) {
       const attendingEventMessage = document.createElement('p');
-      attendingEventMessage.innerText = 'No events to show.';
+      attendingEventMessage.innerText = 'No attending events to show.';
       attendingEvents.appendChild(attendingEventMessage);
     }
-    eventsContainer.append(tabContainer);
-    eventsContainer.append(invitedEvents);
+    if (invitedEventsCount == 0) {
+      const invitedEventMessage = document.createElement('p');
+      invitedEventMessage.innerText = 'No invited events to show.';
+      invitedEvents.appendChild(invitedEventMessage);
+    }
+    eventsContainer.append(dropDownContainer);
     eventsContainer.append(attendingEvents);
-    document.getElementById('events-open').click();
+    eventsContainer.append(invitedEvents);
   });
 }
 
@@ -568,34 +585,6 @@ function displayBuddyEvents(user, eventsContainer) {
       }
     }
   });
-}
-
-/*
- * Creates the tab element that holds the invited and attending events tabs.
- */
-function createEventsTab() {
-  const tabContainer = document.createElement('div');
-  tabContainer.className = 'tab';
-  tabContainer.innerHTML = '';
-
-  const invitedButton = document.createElement('button');
-  invitedButton.innerText = 'Invited';
-  invitedButton.className = 'events-tablinks active';
-  invitedButton.id = 'events-open';
-  invitedButton.addEventListener('click', function(e) {
-    openEventsTab(e, 'invited-events');
-  })
-
-  const attendingButton = document.createElement('button');
-  attendingButton.innerText = 'Attending';
-  attendingButton.className = 'events-tablinks';
-  attendingButton.addEventListener('click', function(e) {
-    openEventsTab(e, 'attending-events');
-  })
-
-  tabContainer.appendChild(invitedButton);
-  tabContainer.appendChild(attendingButton);
-  return tabContainer;
 }
 
 /*
@@ -632,6 +621,8 @@ function createEventsPostsTab() {
 function displayPosts(user, viewer, postsContainer) {
   let count = 0; 
   const currentId = localStorage.getItem(LOCAL_STORAGE_ID);
+  const postsGrid = document.createElement('div');
+  postsGrid.id = 'posts-grid';
 
   fetch('/post')
     .then(response => response.json())
@@ -639,7 +630,7 @@ function displayPosts(user, viewer, postsContainer) {
       if (viewer === PROFILE_VIEWER_PERSONAL) {
         for (let i = 0; i < posts.length; i ++) {
           if (posts[i].creator === user.id) {
-            postsContainer.appendChild(createPostWithResponse(posts[i], currentId));
+            postsGrid.appendChild(createPostWithResponse(posts[i], currentId));
             count++;
           }
         }
@@ -648,7 +639,7 @@ function displayPosts(user, viewer, postsContainer) {
           if (posts[i].creator === user.id) {
             if (posts[i].privacy === "public" 
                 || posts[i].privacy === "buddies-only") {
-              postsContainer.appendChild(createPostWithResponse(posts[i], currentId));
+              postsGrid.appendChild(createPostWithResponse(posts[i], currentId));
               count++
             }
           }
@@ -658,7 +649,7 @@ function displayPosts(user, viewer, postsContainer) {
         for (let i = 0; i < posts.length; i ++) {
           if (posts[i].creator === currentId) {
             if (posts[i].privacy == "public") {
-              postsContainer.appendChild(createPostWithResponse(posts[i], user.id));
+              postsGrid.appendChild(createPostWithResponse(posts[i], user.id));
               count++
             }
           }
@@ -667,8 +658,9 @@ function displayPosts(user, viewer, postsContainer) {
       if (count === 0) {
         noPostElement = document.createElement('p');
         noPostElement.innerText = "No posts to show.";
-        postsContainer.appendChild(noPostElement);
+        postsGrid.appendChild(noPostElement);
       }
+      postsContainer.appendChild(postsGrid);
     });
 }
 
@@ -715,21 +707,4 @@ function showImageForm() {
     document.getElementById('image-form-container').style.display = 'block';
     document.getElementById('image-form').action = imageUploadUrl;
   });
-}
-
-/** Opens a specific events tab (Invited/Attending) when tab is clicked. */
-function openEventsTab(evt, tabName) {
-  var i, tabcontent, tablinks;
-  tabcontent = document.getElementsByClassName('events-tabcontent');
-  for (i = 0; i < tabcontent.length; i++) {
-    tabcontent[i].style.display = 'none';
-  }
-  tablinks = document.getElementsByClassName('events-tablinks');
-  for (i = 0; i < tablinks.length; i++) {
-    tablinks[i].className = tablinks[i].className.replace(' active', '');
-    tablinks[i].id = tablinks[i].id.replace('events-open', '');
-  }
-  document.getElementById(tabName).style.display = 'block';
-  evt.currentTarget.className += ' active';
-  evt.currentTarget.id += 'events-open';
 }
