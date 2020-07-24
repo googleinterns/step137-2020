@@ -58,6 +58,7 @@ html, body {
   font-family: 'Roboto';
   border-radius: 4px;
   transition: ease background-color 0.1s, ease color 0.1s;
+  cursor: pointer;
 }
 
 .button:hover {
@@ -202,6 +203,17 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: left;
+}
+
+#bottom-card {
+  display: inline-flex;
+  justify-content: space-between;
+}
+
+#likes-element {
+  display: inline-flex;
+  justify-content: space-between;
+  align-items: flex-end;
 }
 
 /**map styling */
@@ -366,6 +378,7 @@ html, body {
 #interest-element {
   display: flex;
   align-items: center;
+  clear: both;
   cursor: pointer;
 }
 
