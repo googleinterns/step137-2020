@@ -11,7 +11,7 @@
     <script src="profileScript.js"></script>
     <script src="mapScript.js"></script>
   </head>
-  <body onload="profileOnload()">
+  <body onload="profileOnload()" id="profile-body">
     <div class="navbar">
       <p class="navbar-text" onclick="window.location.href = 'map.html'">Social Map</p>
       <p class="navbar-text" onclick="window.location.href = 'searchUsers.html'">Search Users</p>
@@ -34,23 +34,21 @@
     </div>
     <div id="requests-popup" class="popup"></div>
     <div id="buddies-popup" class="popup"></div>
-    <div id="basic-info">
-      <div id="profile-pic-container"></div>
-      <div id="name-container"></div>
-      <div id="buddy-container"></div>
-    </div>
-    <div id="bottom-wrapper">
-      <div id="saved-interests" class="bottom-section">
-        <h2>Saved Interests</h2>
-        <div id="interests-container"></div>
+    <div id="profile-content">
+      <div id="basic-info" class="profile-section">
+        <div id="profile-pic-container"></div>
+        <div id="name-buddy-wrapper">
+          <div id="name-container"></div>
+          <div id="buddy-container"></div>
+        </div>
       </div>
-      <div id="events" class="bottom-section">
-        <h2>Events</h2>
-        <div id="events-container"></div>
-      </div>
-      <div id="posts" class="bottom-section">
-        <h2>Posts</h2>
-        <div id="posts-container"></div>
+      <div id="bottom-wrapper">
+        <div id="saved-interests" class="profile-section">
+          <div id="interests-container"></div>
+        </div>
+        <div id="events-and-posts" class="profile-section">
+          <div id="events-and-posts-container"></div>
+        </div>
       </div>
     </div>
   </body>

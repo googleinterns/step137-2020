@@ -46,16 +46,17 @@ function navbarLoginDisplay() {
               personalProfileButton.addEventListener('click', () => {
                 visitProfile(json['id']);
               });
-              const logoutButton = document.createElement('p');
-              logoutButton.className = 'navbar-text';
-              logoutButton.innerText = 'Logout';
-              logoutButton.addEventListener('click', () => {
-                window.location.href = json['logoutUrl'];
-              });
               userNavbarSection.appendChild(personalProfileButton);
-              userNavbarSection.appendChild(logoutButton);
+              break;
             }
           }
+          const logoutButton = document.createElement('p');
+          logoutButton.className = 'navbar-text';
+          logoutButton.innerText = 'Logout';
+          logoutButton.addEventListener('click', () => {
+            window.location.href = json['logoutUrl'];
+          });
+          userNavbarSection.appendChild(logoutButton);
         });
       }
     } else {
@@ -147,8 +148,7 @@ function displayContent(user, viewer) {
   displayBasicInfo(user, viewer);
   displayBuddies(user, viewer);
   displaySavedInterests(user, viewer);
-  displayEvents(user, viewer);
-  displayPosts(user, viewer);
+  displayEventsAndPosts(user, viewer);
 }
 
 /*
@@ -158,29 +158,38 @@ function displayBasicInfo(user, viewer) {
   const profilePicContainer = document.getElementById('profile-pic-container');
   displayProfilePicture(user, profilePicContainer, 'profile-pic-large');
 
+  const editImageButton = document.createElement('i');
+  editImageButton.id = 'edit-image-button';
+  editImageButton.className = 'fa fa-edit';
+
   const nameContainer = document.getElementById('name-container');
   nameContainer.innerHTML = '';
 
   const name = document.createElement('h1');
   name.innerText = user.name;
-  nameContainer.appendChild(name);
   
+  const editNameButton = document.createElement('i');
+  editNameButton.id = 'edit-name-button';
+  editNameButton.className = 'fa fa-edit';
+
   if (viewer === PROFILE_VIEWER_PERSONAL) {
-    // Add an option for the current user to change their display name.
-    const editNameButton = document.createElement('i');
-    editNameButton.className = 'fa fa-edit';
-    editNameButton.addEventListener('click', () => {
+    // On hover, display an option for the current user to change their name.
+    name.id = 'personal-name';
+    nameContainer.addEventListener('click', () => {
       showNameForm();
     });
-    nameContainer.append(editNameButton);
-    // Add an option for the current user to change their profile picture.
-    const editImageButton = document.createElement('button');
-    editImageButton.innerText = 'Change profile picture';
-    editImageButton.addEventListener('click', () => {
+    
+    // On hover, display an option for the current user to change their profile picture.
+    profilePicContainer.id = 'personal-pic-container'
+    profilePicContainer.addEventListener('click', () => {
       showImageForm();
     });
-    nameContainer.append(editImageButton);
+    const personalPic = profilePicContainer.childNodes[0];
+    personalPic.id = 'personal-pic';
   }
+  profilePicContainer.appendChild(editImageButton);
+  nameContainer.appendChild(name);
+  nameContainer.appendChild(editNameButton);
 }
 
 /**
@@ -233,7 +242,12 @@ function displayBuddies(user, viewer) {
   if (viewer === PROFILE_VIEWER_PERSONAL) {
     // Add a popup for the user's buddy requests.
     const requestHeading = document.createElement('h3');
-    requestHeading.innerText = (user.buddyRequests.length - 1) + ' buddy requests';
+    const numBuddyRequests = user.buddyRequests.length - 1;
+    if (numBuddyRequests == 1) {
+      requestHeading.innerText = numBuddyRequests + ' buddy request';  
+    } else {
+      requestHeading.innerText = numBuddyRequests + ' buddy requests';
+    }
     requestHeading.addEventListener('click', () => {
       displayBuddyRequests(user);
     });
@@ -243,7 +257,12 @@ function displayBuddies(user, viewer) {
     buddyContainer.appendChild(requestHeading);
     // Add a popup for the user's buddies list.
     const buddiesHeading = document.createElement('h3');
-    buddiesHeading.innerText = (user.buddies.length - 1) + ' buddies';
+    const numBuddies = user.buddies.length - 1;
+    if (numBuddies == 1) {
+      buddiesHeading.innerText = numBuddies + ' buddy';
+    } else {
+      buddiesHeading.innerText = numBuddies + ' buddies';
+    }
     buddiesHeading.addEventListener('click', () => {
       displayBuddiesList(user);
     });
@@ -252,6 +271,21 @@ function displayBuddies(user, viewer) {
     }
     buddyContainer.appendChild(buddiesHeading);
   } else if (viewer === PROFILE_VIEWER_BUDDY) {
+    // Add a popup for the profile user's buddies list.
+    const buddiesHeading = document.createElement('h3');
+    const numBuddies = user.buddies.length - 1;
+    if (numBuddies == 1) {
+      buddiesHeading.innerText = numBuddies + ' buddy';
+    } else {
+      buddiesHeading.innerText = numBuddies + ' buddies';
+    }
+    buddiesHeading.addEventListener('click', () => {
+      displayBuddiesList(user);
+    });
+    if (document.getElementById('buddies-popup').style.display === 'block') {
+      displayBuddiesList(user);
+    }
+    buddyContainer.appendChild(buddiesHeading);
     // Add a remove buddy option.
     const removeBuddyButton = document.createElement('button');
     removeBuddyButton.className = 'button';
@@ -260,16 +294,6 @@ function displayBuddies(user, viewer) {
       addOrRemoveBuddy(user, 'remove');
     });
     buddyContainer.appendChild(removeBuddyButton);
-    // Add a popup for the profile user's buddies list.
-    const buddiesHeading = document.createElement('h3');
-    buddiesHeading.innerText = (user.buddies.length - 1) + ' buddies';
-    buddiesHeading.addEventListener('click', () => {
-      displayBuddiesList(user);
-    });
-    if (document.getElementById('buddies-popup').style.display === 'block') {
-      displayBuddiesList(user);
-    }
-    buddyContainer.appendChild(buddiesHeading);
   } else if (viewer === PROFILE_VIEWER_PENDING_BUDDY) {
     // Add an option informing the user that a buddy request has been sent.
     const requestSentButton = document.createElement('button');
@@ -295,23 +319,26 @@ function displayBuddies(user, viewer) {
  * Displays the buddy requests of the specified user.
  */
 function displayBuddyRequests(user) {
-  // Create an empty popup with an exit button.
+  // Create an empty popup with a heading and an exit button.
   const requestsPopup = document.getElementById('requests-popup');
   requestsPopup.innerHTML = '';
   const buddyRequests = document.createElement('div');
   buddyRequests.className = 'popup-text';
+  const buddyRequestsHeading = document.createElement('h3');
+  buddyRequestsHeading.innerText = 'Buddy Requests';
   const exitButton = document.createElement('i');
   exitButton.className = 'fa fa-close';
   exitButton.addEventListener('click', () => {
     requestsPopup.style.display = 'none';
   });
+  buddyRequests.appendChild(buddyRequestsHeading)
+  buddyRequests.appendChild(exitButton);
 
   const requestIds = user.buddyRequests;
   if (requestIds.length == 1) { // length of 1 due to empty placeholder
     const requestMessage = document.createElement('p');
     requestMessage.innerText = 'No buddy requests to show.';
-    buddyRequests.append(requestMessage);
-    buddyRequests.append(exitButton);
+    buddyRequests.appendChild(requestMessage);
     requestsPopup.appendChild(buddyRequests);
   } else {
     fetch('/user').then(response => response.json()).then((users) => {
@@ -325,13 +352,13 @@ function displayBuddyRequests(user) {
           const requestButtons = document.createElement('div');
           requestButtons.className = 'request-buttons';
           const approveButton = document.createElement('button');
-          approveButton.className = 'button';
+          approveButton.className = 'request-button';
           approveButton.innerText = 'Approve';
           approveButton.addEventListener('click', () => {
             addOrRemoveBuddy(users[i], 'add');
           });
           const removeButton = document.createElement('button');
-          removeButton.className = 'button';
+          removeButton.className = 'request-button';
           removeButton.innerText = 'Remove';
           removeButton.addEventListener('click', () => {
             sendOrRemoveBuddyRequest(users[i], 'remove');
@@ -344,7 +371,6 @@ function displayBuddyRequests(user) {
         }
       }
     }).then(() => {
-      buddyRequests.append(exitButton);
       requestsPopup.appendChild(buddyRequests);
     });
   }
@@ -355,23 +381,26 @@ function displayBuddyRequests(user) {
  * Displays the buddies list of the specified user.
  */
 function displayBuddiesList(user, buddyContainer) {
-  // Create an empty popup with an exit button.
+  // Create an empty popup with a heading and an exit button.
   const buddiesPopup = document.getElementById('buddies-popup');
   buddiesPopup.innerHTML = '';
   const buddiesList = document.createElement('div');
   buddiesList.className = 'popup-text';
+  const buddiesHeading = document.createElement('h3');
+  buddiesHeading.innerText = 'Buddies';
   const exitButton = document.createElement('i');
   exitButton.className = 'fa fa-close';
   exitButton.addEventListener('click', () => {
     buddiesPopup.style.display = 'none';
   });
+  buddiesList.appendChild(buddiesHeading);
+  buddiesList.appendChild(exitButton);
 
   const buddyIds = user.buddies;
   if (buddyIds.length == 1) { // length of 1 due to empty placeholder
     const buddyMessage = document.createElement('p');
     buddyMessage.innerText = 'No buddies to show.';
     buddiesList.appendChild(buddyMessage);
-    buddiesList.appendChild(exitButton);
     buddiesPopup.appendChild(buddiesList);
   } else {
     fetch('/user').then(response => response.json()).then((users) => {
@@ -383,7 +412,6 @@ function displayBuddiesList(user, buddyContainer) {
         }
       }
     }).then(() => {
-      buddiesList.appendChild(exitButton);
       buddiesPopup.appendChild(buddiesList);
     });
   }
@@ -396,6 +424,11 @@ function displayBuddiesList(user, buddyContainer) {
 function displaySavedInterests(user, viewer) {
   const savedInterestsContainer = document.getElementById('interests-container');
   savedInterestsContainer.innerHTML = '';
+
+  const interestHeading = document.createElement('h1');
+  interestHeading.style = 'text-align: center';
+  interestHeading.innerText = 'Saved Interests';
+  savedInterestsContainer.appendChild(interestHeading);
 
   if (viewer === PROFILE_VIEWER_PERSONAL || viewer === PROFILE_VIEWER_BUDDY) {
     fetch('/interest').then(response => response.json()).then((interests) => {
@@ -424,7 +457,12 @@ function displaySavedInterests(user, viewer) {
  * Returns a newly created saved interest element to be displayed on the page.
  */
 function createInterest(interest) {
-  const interestName = document.createElement('h3');
+  
+  const interestIcon = document.createElement('img');
+  interestIcon.id = 'interest-icon';
+  interestIcon.src = 'images/red-marker.png';
+
+  const interestName = document.createElement('h4');
   interestName.innerText = interest.locationName;
   interestName.addEventListener('click', () => {
     sessionStorage.setItem(SESSION_STORAGE_CURRENT_LOCATION, interest.placeId);
@@ -432,6 +470,8 @@ function createInterest(interest) {
   });
 
   const interestElement = document.createElement('div');
+  interestElement.id = 'interest-element';
+  interestElement.append(interestIcon);
   interestElement.append(interestName);
   return interestElement;
 }
@@ -439,9 +479,17 @@ function createInterest(interest) {
 /*
  * Displays the events of the specified user.
  */
-function displayEvents(user, viewer) {
-  const eventsContainer = document.getElementById('events-container');
-  eventsContainer.innerHTML = '';
+function displayEventsAndPosts(user, viewer) {
+  const eventsAndPostsContainer = document.getElementById('events-and-posts-container');
+  eventsAndPostsContainer.innerHTML = '';
+
+  const eventsContainer = document.createElement('div');
+  eventsContainer.className = 'tabcontent';
+  eventsContainer.id = 'events-container';
+  const postsContainer = document.createElement('div');
+  postsContainer.className = 'tabcontent';
+  postsContainer.id = 'posts-container';
+  const tabContainer = createEventsPostsTab();
 
   if (viewer === PROFILE_VIEWER_PERSONAL) {
     displayPersonalEvents(user, eventsContainer);
@@ -453,6 +501,11 @@ function displayEvents(user, viewer) {
     eventMessage.innerText = 'You cannot see this user\'s events.';
     eventsContainer.appendChild(eventMessage);
   }
+  displayPosts(user, viewer, postsContainer);
+  eventsAndPostsContainer.append(tabContainer);
+  eventsAndPostsContainer.append(eventsContainer);
+  eventsAndPostsContainer.append(postsContainer);
+  document.getElementById('open').click();
 }
 
 /*
@@ -460,10 +513,10 @@ function displayEvents(user, viewer) {
  */
 function displayPersonalEvents(user, eventsContainer) {
   const invitedEvents = document.createElement('div');
-  invitedEvents.className = 'tabcontent';
+  invitedEvents.className = 'events-tabcontent';
   invitedEvents.id = 'invited-events';
   const attendingEvents = document.createElement('div');
-  attendingEvents.className = 'tabcontent';
+  attendingEvents.className = 'events-tabcontent';
   attendingEvents.id = 'attending-events';
   const tabContainer = createEventsTab();
 
@@ -492,7 +545,7 @@ function displayPersonalEvents(user, eventsContainer) {
     eventsContainer.append(tabContainer);
     eventsContainer.append(invitedEvents);
     eventsContainer.append(attendingEvents);
-    document.getElementById('open').click();
+    document.getElementById('events-open').click();
   });
 }
 
@@ -521,23 +574,23 @@ function displayBuddyEvents(user, eventsContainer) {
  * Creates the tab element that holds the invited and attending events tabs.
  */
 function createEventsTab() {
-  tabContainer = document.createElement('div');
+  const tabContainer = document.createElement('div');
   tabContainer.className = 'tab';
   tabContainer.innerHTML = '';
 
-  invitedButton = document.createElement('button');
+  const invitedButton = document.createElement('button');
   invitedButton.innerText = 'Invited';
-  invitedButton.className = 'tablinks active';
-  invitedButton.id = 'open';
+  invitedButton.className = 'events-tablinks active';
+  invitedButton.id = 'events-open';
   invitedButton.addEventListener('click', function(e) {
-    openTab(e, 'invited-events');
+    openEventsTab(e, 'invited-events');
   })
 
-  attendingButton = document.createElement('button');
+  const attendingButton = document.createElement('button');
   attendingButton.innerText = 'Attending';
-  attendingButton.className = 'tablinks';
+  attendingButton.className = 'events-tablinks';
   attendingButton.addEventListener('click', function(e) {
-    openTab(e, 'attending-events');
+    openEventsTab(e, 'attending-events');
   })
 
   tabContainer.appendChild(invitedButton);
@@ -546,11 +599,37 @@ function createEventsTab() {
 }
 
 /*
+ * Creates the tab element that hold the events and posts tabs.
+ */
+function createEventsPostsTab() {
+  const tabContainer = document.createElement('div');
+  tabContainer.className = 'tab';
+  tabContainer.innerHTML = '';
+
+  const eventsButton = document.createElement('button');
+  eventsButton.innerText = 'Events';
+  eventsButton.className = 'tablinks active';
+  eventsButton.id = 'open';
+  eventsButton.addEventListener('click', function(e) {
+    openTab(e, 'events-container');
+  })
+
+  const postsButton = document.createElement('button');
+  postsButton.innerText = 'Posts';
+  postsButton.className = 'tablinks';
+  postsButton.addEventListener('click', function(e) {
+    openTab(e, 'posts-container');
+  })
+
+  tabContainer.appendChild(eventsButton);
+  tabContainer.appendChild(postsButton);
+  return tabContainer;
+}
+
+/*
  * Displays the posts of the specified user.
  */
-function displayPosts(user, viewer) {
-  const postsContainer = document.getElementById('posts-container');
-  postsContainer.innerHTML = '';
+function displayPosts(user, viewer, postsContainer) {
   let count = 0; 
   const currentId = localStorage.getItem(LOCAL_STORAGE_ID);
 
@@ -560,7 +639,7 @@ function displayPosts(user, viewer) {
       if (viewer === PROFILE_VIEWER_PERSONAL) {
         for (let i = 0; i < posts.length; i ++) {
           if (posts[i].creator === user.id) {
-            postsContainer.appendChild(createPost(posts[i], currentId));
+            postsContainer.appendChild(createPostWithResponse(posts[i], currentId));
             count++;
           }
         }
@@ -569,7 +648,7 @@ function displayPosts(user, viewer) {
           if (posts[i].creator === user.id) {
             if (posts[i].privacy === "public" 
                 || posts[i].privacy === "buddies-only") {
-              postsContainer.appendChild(createPost(posts[i], currentId));
+              postsContainer.appendChild(createPostWithResponse(posts[i], currentId));
               count++
             }
           }
@@ -579,7 +658,7 @@ function displayPosts(user, viewer) {
         for (let i = 0; i < posts.length; i ++) {
           if (posts[i].creator === currentId) {
             if (posts[i].privacy == "public") {
-              postsContainer.appendChild(createPost(posts[i], user.id));
+              postsContainer.appendChild(createPostWithResponse(posts[i], user.id));
               count++
             }
           }
@@ -636,4 +715,21 @@ function showImageForm() {
     document.getElementById('image-form-container').style.display = 'block';
     document.getElementById('image-form').action = imageUploadUrl;
   });
+}
+
+/** Opens a specific events tab (Invited/Attending) when tab is clicked. */
+function openEventsTab(evt, tabName) {
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName('events-tabcontent');
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = 'none';
+  }
+  tablinks = document.getElementsByClassName('events-tablinks');
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(' active', '');
+    tablinks[i].id = tablinks[i].id.replace('events-open', '');
+  }
+  document.getElementById(tabName).style.display = 'block';
+  evt.currentTarget.className += ' active';
+  evt.currentTarget.id += 'events-open';
 }
