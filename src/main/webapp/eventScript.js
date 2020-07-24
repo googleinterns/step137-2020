@@ -343,7 +343,9 @@ function createEventNoResponse(event) {
 
   const eventDetails = document.createElement('p'); 
   eventDetails.className = "details-display";
-  eventDetails.innerText = 'Details: ' + event.eventDetails;
+  if (event.eventDetails.length > 0) {
+    eventDetails.innerText = 'Details: ' + event.eventDetails;
+  }
 
   const topOfEvent = document.createElement('div');
   topOfEvent.id = "top-event";
