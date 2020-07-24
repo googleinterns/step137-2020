@@ -308,6 +308,7 @@ function getAvailableEvents(userID) {
   return eventDivElement;
 }
 
+/* Creates a basic event with no option to RSVP. */
 function createEventNoResponse(event) {
   const eventElement = document.createElement('div');
   eventElement.className = "card";
@@ -342,7 +343,7 @@ function createEventNoResponse(event) {
 
   const eventDetails = document.createElement('p'); 
   eventDetails.className = "details-display";
-  eventDetails.innerText = event.eventDetails;
+  eventDetails.innerText = 'Details: ' + event.eventDetails;
 
   const topOfEvent = document.createElement('div');
   topOfEvent.id = "top-event";
@@ -356,6 +357,7 @@ function createEventNoResponse(event) {
         if (users[i].id === event.creator) {
           displayProfilePicture(users[i], creatorName, 'profile-pic-small');
           const name = document.createElement('p');
+          name.id = 'event-creator-name';
           name.innerText = "Created by " + users[i].name;
           creatorName.addEventListener('click', () => {
             visitProfile(users[i].id);
@@ -384,14 +386,56 @@ function createEventNoResponse(event) {
   return eventElement;
 }
 
+/* Creates an event for logged in users with the option to RSVP. */
 function createEventWithResponse(event, userID, going) {
   const eventElement = createEventNoResponse(event);
 
   const bottomCard = document.createElement('div');
   bottomCard.id = "bottom-event-wrapper";
 
+  const attendeeInfo = document.createElement('div');
+  attendeeInfo.id = 'attendee-info-container';
+
+  if (event.privacy === 'public') {
+    const publicIndicator = document.createElement('p');
+    publicIndicator.className = 'attendee-info';
+    publicIndicator.innerText = 'Public';
+    attendeeInfo.appendChild(publicIndicator);
+  } else {
+    const privateIndicator = document.createElement('p');
+    privateIndicator.className = 'attendee-info';
+    privateIndicator.innerText = 'Private';
+    attendeeInfo.appendChild(privateIndicator);
+
+    const invitedAttendees = document.createElement('p');
+    invitedAttendees.className = 'attendee-info';
+    invitedAttendees.innerText = (event.invitedAttendees.length - 1) + ' Invited';
+    invitedAttendees.addEventListener('click', () => {
+      displayAttendees(event, 'invited')
+    });
+    attendeeInfo.appendChild(invitedAttendees);
+  }
+  const goingAttendees = document.createElement('p');
+  goingAttendees.className = 'attendee-info';
+  goingAttendees.innerText = (event.rsvpAttendees.length - 1) + ' Going';
+  goingAttendees.addEventListener('click', () => {
+    displayAttendees(event, 'going')
+  });
+  attendeeInfo.appendChild(goingAttendees);
+  bottomCard.appendChild(attendeeInfo);
+  
+  const rsvpButton = document.createElement('button');
+  rsvpButton.id = 'rsvp-button';
+  rsvpButton.innerText = "Going";
+  setRSVPButtonColor(rsvpButton, going);
+  rsvpButton.addEventListener('click', () => {
+    addRemoveAttendee(event, rsvpButton);
+  });
+  bottomCard.appendChild(rsvpButton);
+
   if (userID === event.creator) {
     const deleteButton = document.createElement('button');
+    deleteButton.id = 'delete-button';
     deleteButton.className = "button icon-button";
     const deleteIcon = document.createElement('i');
     deleteIcon.className = 'fa fa-trash-o';
@@ -399,21 +443,77 @@ function createEventWithResponse(event, userID, going) {
     deleteButton.addEventListener('click', () => {
       deleteSingleEvent(event, eventElement);
     });
-
     bottomCard.append(deleteButton);
   }
-  
-  const rsvpButton = document.createElement('button');
-  rsvpButton.innerText = "Going";
-  setRSVPButtonColor(rsvpButton, going);
 
-  rsvpButton.addEventListener('click', () => {
-    addRemoveAttendee(event, rsvpButton);
-  }); 
-
-  bottomCard.append(rsvpButton);
   eventElement.append(bottomCard);
   return eventElement;
+}
+
+/** Displays a popup with the list of an event's attendees. */
+function displayAttendees(event, attendeeType) {
+  // Create an empty popup with a heading and an exit button.
+  const attendeesPopup = document.getElementById('attendees-popup');
+  attendeesPopup.innerHTML = '';
+  const attendees = document.createElement('div');
+  attendees.className = 'popup-text';
+  const attendeesHeading = document.createElement('h3');
+  if (attendeeType === 'invited') {
+    attendeesHeading.innerText = 'Buddies Invited';
+  } else {
+    attendeesHeading.innerText = 'Buddies Going';
+  }
+  const exitButton = document.createElement('i');
+  exitButton.className = 'fa fa-close';
+  exitButton.addEventListener('click', () => {
+    attendeesPopup.style.display = 'none';
+  });
+  attendees.appendChild(attendeesHeading)
+  attendees.appendChild(exitButton);
+
+  // Display attendees of the specified type that are buddies with the current user.
+  const currentId = localStorage.getItem(LOCAL_STORAGE_ID);
+  let buddyIds;
+  let attendeeUsers = [];
+  let attendeesCount = 0;
+  fetch('/user').then(response => response.json()).then((users) => {
+    for (let i = 0; i < users.length; i ++) {
+      if (users[i].id === currentId) {
+        buddyIds = users[i].buddies;
+      }
+      if (attendeeType === 'invited') {
+        if (event.invitedAttendees.includes(users[i].id)) {
+          attendeeUsers.push(users[i]);
+        }
+      } else {
+        if (event.rsvpAttendees.includes(users[i].id)) {
+          attendeeUsers.push(users[i]);
+        }
+      }  
+    }
+    for (let i = 0; i < attendeeUsers.length; i ++) {
+      if (buddyIds.includes(attendeeUsers[i].id)) {
+        attendees.appendChild(createUserElement(attendeeUsers[i]));
+        attendeesCount ++;
+      }
+    }
+    if (attendeesCount == 0) {
+      attendees.appendChild(createNoAttendeesMessage(attendeeType));
+    }
+    attendeesPopup.appendChild(attendees);
+  });
+  attendeesPopup.style.display = 'block';
+}
+
+/** Creates a message to be displayed when there are no attendees of the specified type. */
+function createNoAttendeesMessage(attendeeType) {
+  const noAttendeesMessage = document.createElement('p');
+  if (attendeeType === 'invited') {
+    noAttendeesMessage.innerText = 'No buddies are invited to this event.';
+  } else {
+    noAttendeesMessage.innerText = 'No buddies are going to this event.';
+  }
+  return noAttendeesMessage;
 }
 
 /**sets the color of the RSVP button on onload */
