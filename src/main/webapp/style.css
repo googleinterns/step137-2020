@@ -1,12 +1,14 @@
 :root {
   --option-color: #696969;
   --form-background: rgba(0,0,0,0.2);
-  --navbar-color: #002b54;
+  --navbar-color: #09280a;
   --button-color: rgba(248, 202, 210, 0.658);
   --button-color-selected: rgba(247, 162, 177, 0.979);
   --request-button-color: #006400;
   --sidebar-color: #f1f1f1;
   --red-marker-color: #F78F8F;
+  --base-font: 'Roboto';
+  --events-form-font: 'Helvetica';
 }
 
 img {
@@ -40,6 +42,7 @@ html, body {
   text-decoration: none;
   text-align: center;
   cursor: pointer;
+  font-family: var(--base-font);
 }
 
 #user-navbar-section {
@@ -55,7 +58,7 @@ html, body {
   font-size: 16px;
   padding: 5px 10px;
   font-weight: 450;
-  font-family: 'Roboto';
+  font-family: var(--base-font);
   border-radius: 4px;
   transition: ease background-color 0.1s, ease color 0.1s;
   cursor: pointer;
@@ -81,6 +84,9 @@ html, body {
   transition: 0.3s;
   padding: 4px 16px;
   border-radius: 5px;
+  width: 409px;
+  height: 325px;
+  max-width: 100%;
 }
 
 /* On mouse-over, add a deeper shadow */
@@ -259,7 +265,7 @@ html, body {
   padding: 10%;
   width: 100%;
   height: 100%;
-  overflow: auto;
+overflow: auto;
   background-color: rgba(0, 0, 0, 0.4);
 }
 
@@ -270,7 +276,7 @@ html, body {
   background-color: white;
   padding: 20px 20px 20px 30px;
   position: relative;
-  border-radius: 5%;
+  border-radius: 5px;
 }
 
 .request-element {
@@ -385,13 +391,33 @@ html, body {
   margin-right: 3px;
 }
 
+/* Profile fonts styling */
+#profile-body p {
+  font-family: var(--base-font);
+  font-style: normal;
+  font-weight: 300;
+}
+
+#profile-body h1, h2, h3 {
+  font-family: var(--base-font);
+  font-style: normal;
+  font-weight: 500;
+}
+
 /* Profile page styling */
 #profile-body {
   background-color: var(--sidebar-color);
 }
 
+#profile-content {
+  max-width: 1275px;
+  margin: 0 auto;
+  height: 100%;
+}
+
 .profile-section {
   background-color: white;
+  border-radius: 5px;
 }
 
 #basic-info {
@@ -419,6 +445,7 @@ html, body {
 #bottom-wrapper {
   display: flex;
   text-align: center;
+  height: 100%;
 }
 
 #saved-interests {
@@ -436,7 +463,7 @@ html, body {
   padding: 6px 12px;
   border: 1px solid #ccc;
   border-top: none;
-  font-family: 'Roboto';
+  font-family: var(--base-font);
 }
 
 /* Buddy request button styling */
@@ -447,7 +474,7 @@ html, body {
   font-size: 10px;
   padding: 5px 10px;
   font-weight: 400;
-  font-family: 'Roboto';
+  font-family: var(--base-font);
   border-radius: 4px;
   transition: ease background-color 0.1s, ease color 0.1s;
   margin-right: 2px;
@@ -493,18 +520,18 @@ html, body {
   padding: 6px 12px;
   border: 1px solid #ccc;
   border-top: none;
-  font-family: 'Roboto';
+  font-family: var(--base-font);
 }
 
 /* Style font for sidebar */
 #side p {
-  font-family: 'Roboto';
+  font-family: var(--base-font);
   font-style: normal;
   font-weight: 300;
 }
 
 #side h1, h2, h3 {
-  font-family: 'Roboto';
+  font-family: var(--base-font);
   font-style: normal;
   font-weight: 500;
 }
