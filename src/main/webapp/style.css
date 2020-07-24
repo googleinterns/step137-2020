@@ -202,6 +202,17 @@ html, body {
   justify-content: left;
 }
 
+#bottom-card {
+  display: inline-flex;
+  justify-content: space-between;
+}
+
+#likes-element {
+  display: inline-flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
 /**map styling */
 .row {
   height: 95%;

@@ -47,8 +47,12 @@ public class PostsServlet extends HttpServlet {
     String location = request.getParameter(Constants.LOCATION_PARAM);
     String placeId = request.getParameter(Constants.PLACE_ID_PARAM);
     String privacy = request.getParameter(Constants.PRIVACY_PARAM);
+    
     UserService userService = UserServiceFactory.getUserService();
     String creator = userService.getCurrentUser().getUserId();
+
+    List<String> likes = new ArrayList<>();
+    likes.add(""); //empty entry so the list cannot become a null entity;
 
     Entity postEntity = new Entity(Constants.POST_ENTITY_PARAM);
     postEntity.setProperty(Constants.CAPTION_PARAM, caption);
@@ -57,6 +61,7 @@ public class PostsServlet extends HttpServlet {
     postEntity.setProperty(Constants.PLACE_ID_PARAM, placeId);
     postEntity.setProperty(Constants.PRIVACY_PARAM, privacy);
     postEntity.setProperty(Constants.CREATOR_PARAM, creator);
+    postEntity.setProperty(Constants.LIKES_PARAM, likes);
  
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     datastore.put(postEntity);
@@ -80,6 +85,7 @@ public class PostsServlet extends HttpServlet {
       String placeId = (String) entity.getProperty(Constants.PLACE_ID_PARAM);
       String privacy = (String) entity.getProperty(Constants.PRIVACY_PARAM);
       String creator = (String) entity.getProperty(Constants.CREATOR_PARAM);
+      List<String> likes = (List<String>) entity.getProperty(Constants.LIKES_PARAM);
 
       Post post = new Post.PostBuilder(id)
           .setCaption(caption)
@@ -88,6 +94,7 @@ public class PostsServlet extends HttpServlet {
           .setLocation(location)
           .setPlaceId(placeId)
           .setPrivacy(privacy)
+          .setLikes(likes)
           .build();
       posts.add(post);
     }

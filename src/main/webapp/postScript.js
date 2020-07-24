@@ -122,23 +122,84 @@ const caption = document.createElement('p');
 function createPostWithResponse(post, userId) {
   const postElement = createPostNoResponse(post);
   const bottomCard = document.createElement('div');
+  bottomCard.id = "bottom-card";
+  const buttons = document.createElement('div');
 
   if (userId === post.creator) {
     const deleteButton = document.createElement('button');
-    deleteButton.className = "icon-button";
+    deleteButton.className = "button icon-button";
     const deleteIcon = document.createElement('i');
     deleteIcon.className = 'fa fa-trash-o';
     deleteButton.appendChild(deleteIcon);
     deleteButton.addEventListener('click', () => {
       deleteSinglePost(post, postElement);
     });
-    bottomCard.append(deleteButton);
+    buttons.append(deleteButton);
   }
+
+  const likesElement = document.createElement('div');
+  likesElement.id = "likes-element";
+
+  // need -1 to account for the empty value put in when initializing the comment
+  const likesCount = document.createElement('p');
+  const likesCountIcon = document.createElement('i');
+  if (post.likes.length - 1 > 0) {
+    likesCountIcon.className = 'fa fa-heart-o';
+    likesElement.appendChild(likesCountIcon);
+    likesCount.innerText = post.likes.length - 1;
+    likesCount.id = 'likes';
+    likesElement.appendChild(likesCount);
+  } 
+  
+  const likesButton = document.createElement('button');
+  likesButton.className = 'button icon-button';
+  const likeIcon = document.createElement('i');
+  likeIcon.className = 'fa fa-heart';
+  likesButton.appendChild(likeIcon);
+  likesButton.addEventListener('click', () => {
+    likePost(post, post.likes.length - 1, likesCount, likesCountIcon, postElement, likesElement);
+  }); 
+  buttons.appendChild(likesButton);
+
+  bottomCard.append(buttons);
+  bottomCard.append(likesElement);
   
   postElement.className = "card";
   postElement.append(bottomCard);
 
   return postElement;
+}
+
+function likePost(post, numLikes, likesCount, likesCountIcon, postElement, likesElement) {
+  const params = new URLSearchParams();
+  params.append("id", post.id);
+  fetch('/likes', {
+    method: 'POST', body: params
+  }).then(response => response.json())
+  .then(json => {
+    if (json["count"] === "decrease") {
+      var newLikes = numLikes - 1;
+      if (newLikes <= 0) {
+        likesElement.innerText = '';
+      }
+      else {
+        likesCount.innerText = newLikes;
+        likesElement.appendChild(likesCount);
+      }
+    }
+    else if (json["count"] === "increase") {
+      if (numLikes > 0) {
+        likesCount.innerText = numLikes + 1;
+      }
+      else {
+        likesCount.innerText = 1;
+      }
+      likesCountIcon.className = 'fa fa-heart-o';
+      likesElement.appendChild(likesCountIcon);
+      likesElement.appendChild(likesCount);
+    }
+    postElement.appendChild(likesElement);
+  })
 }
 
 function deleteSinglePost(post, postElement) {
@@ -149,7 +210,7 @@ function deleteSinglePost(post, postElement) {
   fetch('/delete-single-post', {
     method: 'POST', body: params
   }).then(postElement.style.display = "none")
-    .then(getPosts());
+    .then(getAvailablePosts());
 }
 
 function deleteBlob(blobkey) {
