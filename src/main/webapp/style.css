@@ -1,10 +1,24 @@
 :root {
-  --gray-icon-color: #808080;
+  --option-color: #696969;
   --form-background: rgba(0,0,0,0.2);
-  --navbar-color: #002b54;
+  --navbar-color: #09280a;
   --button-color: rgba(248, 202, 210, 0.658);
   --button-color-selected: rgba(247, 162, 177, 0.979);
-  --side-bar: #f1f1f1;
+  --request-button-color: #006400;
+  --sidebar-color: #f1f1f1;
+  --red-marker-color: #F78F8F;
+  --base-font: 'Roboto';
+  --events-form-font: 'Helvetica';
+}
+
+img {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+img {
+  max-width: 100%;
+  max-height: 100%;
 }
 
 * {
@@ -28,27 +42,30 @@ html, body {
   text-decoration: none;
   text-align: center;
   cursor: pointer;
+  font-family: var(--base-font);
 }
 
 #user-navbar-section {
   display: flex;
   margin-left: auto;
+  align-items: center;
 }
 
 .button {
   background-color: var(--button-color);
-  color: var(--side-bar);
+  color: var(--sidebar-color);
   border: 1.5px solid var(--button-color);
   font-size: 16px;
   padding: 5px 10px;
   font-weight: 450;
-  font-family: 'Roboto';
+  font-family: var(--base-font);
   border-radius: 4px;
   transition: ease background-color 0.1s, ease color 0.1s;
+  cursor: pointer;
 }
 
 .button:hover {
-  background-color: var(--side-bar);
+  background-color: var(--sidebar-color);
   color: var(--button-color);
 }
 
@@ -57,7 +74,7 @@ html, body {
 }
 
 .button-selected:hover {
-  background-color: var(--side-bar);
+  background-color: var(--sidebar-color);
   color: var(--button-color-selected);
 }
 
@@ -67,6 +84,11 @@ html, body {
   transition: 0.3s;
   padding: 4px 16px;
   border-radius: 5px;
+  margin: 10px;
+  width: 409px;
+  height: 325px;
+  max-width: 100%;
+  z-index: 3
 }
 
 /* On mouse-over, add a deeper shadow */
@@ -171,6 +193,34 @@ html, body {
   margin: 2px;
 }
 
+#event-creator {
+  display: flex;
+  align-items: center;
+  justify-content: left;
+}
+
+#top-event {
+  display: flex;
+  justify-content: space-between;
+}
+
+.user-display {
+  display: flex;
+  align-items: center;
+  justify-content: left;
+}
+
+#bottom-card {
+  display: inline-flex;
+  justify-content: space-between;
+}
+
+#likes-element {
+  display: inline-flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
 /**map styling */
 .row {
   height: 95%;
@@ -180,13 +230,15 @@ html, body {
 
 #side {
   flex: 20%;
+  flex-wrap: wrap;
   max-width: 20%;
-  background-color: var(--side-bar);
+  background-color: var(--sidebar-color);
   padding: 20px;
 }
 
 #map {
   height: 100%;
+  z-index: 1;
 }
 
 #map-snippet {
@@ -207,11 +259,11 @@ html, body {
   }
 }
 
-/* Profile syling */
+/* Popup styling */
 .popup {
   display: none;
   position: fixed;
-  z-index: 1;
+  z-index: 5;
   left: 0;
   top: 0;
   padding: 10%;
@@ -226,19 +278,34 @@ html, body {
   margin: auto;
   width: 350px;
   background-color: white;
-  padding: 20px;
+  padding: 20px 20px 20px 30px;
   position: relative;
+  border-radius: 5px;
 }
 
-#basic-info {
-  text-align: center;
+.request-element {
+  display: flex;
+  align-items: center;
 }
 
+.request-buttons {
+  margin-left: 10px;
+}
+
+.fa-close {
+  color: var(--option-color);
+  cursor: pointer;
+  display: block;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+/* Profile picture styling */
 .profile-pic-large {
   height: 200px;
   width: 200px;
   border-radius: 50%;
-  margin-top: 20px;
 }
 
 .profile-pic-small {
@@ -248,49 +315,189 @@ html, body {
   margin-right: 5px;
 }
 
+.user-element {
+  display: flex;
+  align-items: center;
+  clear: both;
+  cursor: pointer;
+}
+
+/* Profile options styling */
+.fa-edit {
+  color: var(--option-color);
+  cursor: pointer;
+}
+
+#edit-name-button {
+  transition: 0.5s ease;
+  opacity: 0;
+  padding-top: 8px;
+  padding-left: 8px;
+}
+
+#edit-image-button {
+  transition: 0.3s ease;
+  opacity: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  padding-left: 10px;
+  transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  font-size: 100px;
+}
+
+#personal-pic-container {
+  position: relative;
+}
+
+#personal-pic {
+  transition: 0.5s ease;
+  backface-visibility: hidden;
+}
+
+#personal-name {
+  transition: 0.5 ease;
+}
+
+#personal-name:hover + #edit-name-button {
+  opacity: 1;
+}
+
+#personal-name:hover {
+  opacity: 0.7;
+}
+
+#personal-pic-container:hover #edit-image-button {
+  opacity: 1;
+}
+
+#personal-pic-container:hover #personal-pic {
+  opacity: 0.5;
+}
+
+/* Profile saved interests styling */
+#interests-container {
+  text-align: left;
+  margin-left: 30px;
+}
+
+#interest-element {
+  display: flex;
+  align-items: center;
+  clear: both;
+  cursor: pointer;
+}
+
+#interest-icon {
+  width: 30px;
+  height: 30px;
+  margin-right: 3px;
+}
+
+/* Profile fonts styling */
+#profile-body p {
+  font-family: var(--base-font);
+  font-style: normal;
+  font-weight: 300;
+}
+
+#profile-body h1, h2, h3 {
+  font-family: var(--base-font);
+  font-style: normal;
+  font-weight: 500;
+}
+
+/* Profile page styling */
+#profile-body {
+  background-color: var(--sidebar-color);
+}
+
+#profile-content {
+  max-width: 1275px;
+  margin: 0 auto;
+  height: 100%;
+}
+
+.profile-section {
+  background-color: white;
+  border-radius: 5px;
+}
+
+#basic-info {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  margin: 20px 20px 10px 20px;
+}
+
+.request-buttons {
+  position: absolute;
+  right: 18px;
+}
+
+#name-buddy-wrapper {
+  margin-left: 20px;
+}
+
 #name-container {
   display: inline-flex;
   align-items: center;
 }
 
-.fa-edit {
-  color: var(--gray-icon-color);
-  cursor: pointer;
-  padding-left: 10px;
-  padding-top: 3px;
-}
-
 #bottom-wrapper {
   display: flex;
   text-align: center;
+  height: 100%;
 }
 
-.bottom-section {
+#saved-interests {
   flex: 1;
+  margin: 10px 10px 20px 20px;
 }
 
-.user-element {
+#events-and-posts {
+  flex: 3;
+  margin: 10px 20px 20px 10px;
+}
+
+#dropdown-container {
+  text-align: left;
+}
+
+#attending-events {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-wrap: wrap;
 }
 
-.request-element {
-  display: inline-flex;
-  align-items: center;
+#invited-events {
+  display: none;
+  flex-wrap: wrap;
 }
 
-.request-buttons {
-  margin-left: 10px;
+#posts-grid {
+  display: flex;
+  flex-wrap: wrap;
 }
 
-.fa-close {
-  color: var(--gray-icon-color);
-  cursor: pointer;
-  display: block;
-  position: absolute;
-  top: 10px;
-  right: 10px;
+/* Buddy request button styling */
+.request-button {
+  background-color: var(--request-button-color);
+  color: var(--side-bar);
+  border: 1.5px solid var(--request-button-color);
+  font-size: 10px;
+  padding: 5px 10px;
+  font-weight: 400;
+  font-family: var(--base-font);
+  border-radius: 4px;
+  transition: ease background-color 0.1s, ease color 0.1s;
+  margin-right: 2px;
+}
+
+.request-button:hover {
+  background-color: var(--side-bar);
+  color: var(--request-button-color);
 }
 
 /* Style the tab in sidebar */
@@ -328,18 +535,19 @@ html, body {
   padding: 6px 12px;
   border: 1px solid #ccc;
   border-top: none;
-  font-family: 'Roboto';
+  font-family: var(--base-font);
+  z-index: 2;
 }
 
 /* Style font for sidebar */
 #side p {
-  font-family: 'Roboto';
+  font-family: var(--base-font);
   font-style: normal;
   font-weight: 300;
 }
 
 #side h1, h2, h3 {
-  font-family: 'Roboto';
+  font-family: var(--base-font);
   font-style: normal;
   font-weight: 500;
 }
@@ -348,9 +556,24 @@ html, body {
   color: black;
 }
 
+#post-form {
+  display: none;
+}
+
 /* Search Users styling */
 #search-users-container {
   text-align: center;
+}
+
+#searched-users {
+  height: 100%;
+  width: 300px;
+  display: inline-block;
+  text-align: left;
+  background-color: var(--sidebar-color);
+  padding-left: 10px;
+  margin-top: 10px;
+  border-radius: 5px;
 }
 
 /* Styling for filter buttons. */
@@ -418,4 +641,27 @@ html, body {
 
 #found-location-text {
   display: none;
+}
+
+/* Styling for map saved interest */
+#map-interest-container {
+  display: flex;
+  align-items: center;
+  margin-top: -15px;
+  margin-bottom: 5px;
+}
+
+.fa-heart-o {
+  color: var(--red-marker-color);
+  font-size: 20px;
+  font-weight: 500;
+  margin-right: 5px;
+  cursor: pointer;
+}
+
+.fa-heart {
+  color: var(--red-marker-color);
+  font-size: 20px;
+  margin-right: 5px;
+  cursor: pointer;
 }

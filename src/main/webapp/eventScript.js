@@ -51,29 +51,82 @@ function displayUsers() {
   }
 }
 
-var attendeeNames = new Array();
+var attendees = new Array();
 var attendeeIDs = new Array();
 attendeeIDs.push("");
 
 function loadUser(user) {
-  const userDisplay = document.createElement('p');
-  userDisplay.innerText = user.name;
+  const userDisplay = document.createElement('div');
+  userDisplay.className = "user-display";
+  userDisplay.appendChild(createAttendeeDisplay(user, "no"));
   userDisplay.addEventListener('click', () => {
-    appendInfo(user.id, user.name);
+    appendInfo(user, userDisplay);
   });
+  
   return userDisplay;
 }
 
-function appendInfo(userId, userName) {
+function appendInfo(user, userDisplay) {
   document.getElementById("warning").innerHTML = "";
-  if (attendeeIDs.includes(userId)) {
+  
+  if (attendeeIDs.includes(user.id)) {
     document.getElementById("warning").innerHTML = 
     "<p>User is already added to list</p>";
   }
+
   else {
-    attendeeIDs.push(userId);
-    attendeeNames.push(userName);
-    document.getElementById("invited-attendee-list").value = attendeeNames;
+    attendees.push(user);
+    attendeeIDs.push(user.id);
+    
+    const displayAttendees = document.getElementById("display-invited-names");
+    displayAttendees.innerHTML = '';
+    displayAttendees.className = "user-display";
+    const selectedUser = document.createElement('div');
+    for (let i = 0; i < attendees.length; i ++) {
+      selectedUser.appendChild(createAttendeeDisplay(attendees[i], "yes"));
+    }
+    displayAttendees.appendChild(selectedUser);
+    
+    document.getElementById("invited-attendee-ID-list").value = attendeeIDs;
+  }
+}
+
+function createAttendeeDisplay(user, check) {
+  const selectedUser = document.createElement('div');
+  selectedUser.className = "user-display";
+  fetch("/user")
+    .then(response => response.json())
+    .then(users => {
+      for (let i = 0; i < users.length; i++) {
+        if (users[i].id === user.id) {
+          displayProfilePicture(users[i], selectedUser, 'profile-pic-small');
+          const name = document.createElement('p');
+          name.innerText = users[i].name;
+          selectedUser.append(name);
+        }
+      }
+      if (check === "yes") {
+        const checkIcon = document.createElement('i');
+        checkIcon.className = "fa fa-times";
+        checkIcon.addEventListener('click', () => {
+          deleteAttendee(selectedUser, user);
+        })
+        selectedUser.append(checkIcon);
+      }
+    });
+  return selectedUser;
+}
+
+function deleteAttendee(selectedUser, user) {
+  selectedUser.innerHTML = '';
+  //remove from all three lists 
+  index = attendees.indexOf(user);
+  if (index > -1) {
+    attendees.splice(index, 1);
+  }
+  index = attendeeIDs.indexOf(user.id);
+  if (index > -1) {
+    attendeeIDs.splice(index, 1);
     document.getElementById("invited-attendee-ID-list").value = attendeeIDs;
   }
 }
@@ -181,7 +234,7 @@ function getPublicEvents() {
   eventDivElement.innerText = '';
   locationName = sessionStorage.getItem(SESSION_STORE_LOCATION);
 
-  fetch("events")
+  fetch("/events")
     .then(response => response.json())
     .then(events => {
       if (events.length === 0) {
@@ -209,35 +262,38 @@ function getAvailableEvents(userID) {
   eventDivElement.innerText = '';
   locationName = sessionStorage.getItem(SESSION_STORE_LOCATION);
 
-  fetch("events")
+  fetch('/events')
     .then(response => response.json())
     .then(events => {
-      if (events.length === 0) {
-        noEventElement = document.createElement('p');
-        noEventElement.innerText = "No events to show.";
-        eventDivElement.appendChild(noEventElement);      }
-      else {
-        for (i = 0; i < events.length; i++) {
-          if (events[i].location == locationName) {
-            invitedAttendees = events[i].invitedAttendees;
-            rsvpAttendees = events[i].rsvpAttendees;
-            rsvpContains = rsvpAttendees.includes(userID);
-            if (events[i].privacy == "public") {
-              // Display public events even if user is not attending.
-              if (!rsvpContains) {
-                eventDivElement.appendChild(createEventWithResponse(events[i], userID, "false"));
-              }
-            }
-            if (rsvpContains) {
-              // Display events the user is attending.
-              eventDivElement.appendChild(createEventWithResponse(events[i], userID, "true"));
-            }
-            else if (invitedAttendees.includes(userID)) {
-              // Display events the user is invited to.
+      let count = 0;
+      for (i = 0; i < events.length; i++) {
+        if (events[i].location == locationName) {
+          invitedAttendees = events[i].invitedAttendees;
+          rsvpAttendees = events[i].rsvpAttendees;
+          rsvpContains = rsvpAttendees.includes(userID);
+          if (events[i].privacy == "public") {
+            // Display public events even if user is not attending.
+            if (!rsvpContains) {
               eventDivElement.appendChild(createEventWithResponse(events[i], userID, "false"));
+              count++;
             }
           }
+          if (rsvpContains) {
+            // Display events the user is attending.
+            eventDivElement.appendChild(createEventWithResponse(events[i], userID, "true"));
+            count++;
+          }
+          else if (invitedAttendees.includes(userID)) {
+            // Display events the user is invited to.
+            eventDivElement.appendChild(createEventWithResponse(events[i], userID, "false"));
+            count++;
+          }
         }
+      }
+      if (count === 0) {
+        noEventElement = document.createElement('p');
+        noEventElement.innerText = "No events to show.";
+        eventDivElement.appendChild(noEventElement);      
       }
     });
   return eventDivElement;
@@ -267,6 +323,7 @@ function createEventNoResponse(event) {
   eventLocation.innerText = event.location;
   locationDisplay.append(locationIcon);
   locationDisplay.append(eventLocation);
+  
   if (window.location.pathname === '/profile.html') {
     locationDisplay.addEventListener('click', () => {
       sessionStorage.setItem(SESSION_STORAGE_CURRENT_LOCATION, event.placeId);
@@ -278,7 +335,40 @@ function createEventNoResponse(event) {
   eventDetails.className = "details-display";
   eventDetails.innerText = event.eventDetails;
 
+  const topOfEvent = document.createElement('div');
+  topOfEvent.id = "top-event";
+
+  const creatorName = document.createElement('div');
+  creatorName.id = "event-creator";
+  fetch("/user")
+    .then(response => response.json())
+    .then(users => {
+      for (let i = 0; i < users.length; i++) {
+        if (users[i].id === event.creator) {
+          displayProfilePicture(users[i], creatorName, 'profile-pic-small');
+          const name = document.createElement('p');
+          name.innerText = "Created by " + users[i].name;
+          creatorName.addEventListener('click', () => {
+            visitProfile(users[i].id);
+          });
+          creatorName.append(name);
+        }
+      }
+    });
+  
+  topOfEvent.append(creatorName);
+  
+  if (event.yesCOVIDSafe === "yes") {
+    const covidBadge = document.createElement('img');
+    covidBadge.src = "images/mask.png";
+    covidBadge.height = 20;
+    covidBadge.width = 20;
+    covidBadge.id = "covid-badge";
+    topOfEvent.append(covidBadge);
+  }
+  
   eventElement.append(eventContents);
+  eventElement.append(topOfEvent);
   eventElement.append(eventName);
   eventElement.append(eventDate);
   eventElement.append(locationDisplay);
@@ -286,6 +376,7 @@ function createEventNoResponse(event) {
   return eventElement;
 }
 
+/** Additional event features for logged in users */
 function createEventWithResponse(event, userID, going) {
   const eventElement = createEventNoResponse(event);
 
@@ -312,8 +403,8 @@ function createEventWithResponse(event, userID, going) {
   rsvpButton.addEventListener('click', () => {
     addRemoveAttendee(event, rsvpButton);
   }); 
-
   bottomCard.append(rsvpButton);
+
   eventElement.append(bottomCard);
   return eventElement;
 }

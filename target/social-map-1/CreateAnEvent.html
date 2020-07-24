@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Create an Event</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="mapScript.js"></script>
+    <script src="profileScript.js"></script>
+    <script src="eventScript.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBf5E9ymEYBv6mAi78mFBOn8oUVvO8sph4&libraries=places"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  </head>
+  <body onload="onload()">
+    <div class="navbar">
+      <p class="navbar-text" onclick="window.location.href = 'map.html'">Social Map</p>
+      <p class="navbar-text" onclick="window.location.href = 'searchUsers.html'">Search Users</p>
+      <p class="navbar-text" onclick="window.location.href = 'nearme.html'">Near Me</p>
+      <div id="user-navbar-section"></div>
+    </div>
+    <div id="events-title">
+      <h1>Create An Event</h1>
+    </div>
+    <div id=event-body>
+      <div id="map-snippet"></div>
+      <div id=event-form class="shaded-box">
+        <form>
+          <label for="event-name">Event Name*: </label>
+          <input type="text" id="event-name" name="event-name" required></textarea>
+          <br><br>
+          
+          <label for="start-date">Start Date*: </label>
+          <input type="date" id="start-date" name="start-date" required>
+          <label for="start-time">Start Time*: </label>
+          <input type="time" id="start-time" name="start-time" required>
+          <br>
+
+          <div id="date-warning" class="warning"></div>
+          <label for="end-date">End Date*: </label>
+          <input type="date" id="end-date" name="end-date" required>
+          <label for="end-time">End Time*: </label>
+          <input type="time" id="end-time" name="end-time" required>
+          <label for="time-zone">Time Zone*: </label>
+          <select id="time-zone" name="time-zone" required>
+            <option value="AST">AST</option>
+            <option value="EST">EST</option>
+            <option value="EDT">EDT</option>
+            <option value="CST">CST</option>
+            <option value="CDT">CDT</option>
+            <option value="MST">MST</option>
+            <option value="MDT">MDT</option>
+            <option value="PST">PST</option>
+            <option value="PDT">PDT</option>
+            <option value="AKST">AKST</option>
+            <option value="AKDT">AKDT</option>
+            <option value="HST">HST</option>
+            <option value="HAST">HAST</option>
+            <option value="HADT">HADT</option>
+            <option value="SST">SST</option>
+            <option value="SDT">SDT</option>
+            <option value="CHST">CHST</option>
+          </select>
+          <br><br>
+
+          <label for="location">Location: </label>
+          <input type="text" id="location" name="location">
+          <input type="text" id="place-id" name="place-id">
+          <br><br>
+
+          <label for="event-details">Event Details: </label>
+          <input type="text" id="event-details" name="event-details">
+          <br><br>
+
+          <label for="privacy">Privacy*: (please choose one)</label>
+          <select id="privacy" onClick="specifiedAttendees(this.value)" name="privacy" required>
+            <option value="public">Public</option>
+            <option value="buddies-only">Buddies</option>
+            <option value="attendees">Specified Attendees</option>
+          </select>
+          <br><br>
+
+          <div id="attendees-wrap">
+            <p>Please select users you wish to invite from the list below:</p>
+            <div id="warning" class="warning"></div>
+            <input type="text" placeholder="Enter user name..." id="attendee-text" 
+              onkeyup="displayUsers()" autocomplete="off">
+            <div id="loaded-users"></div>
+            <input type="text" id="invited-attendee-list" name="invited-attendee-list"> <br>
+            <input type="text" id="invited-attendee-ID-list" name = "invited-attendee-ID-list">
+          </div>
+          <br>
+
+          <div id="COVID-notice">
+            <h3>COVID-19 Safety Notice*:</h3>
+            <p>Please indicate whether your event plans to 
+              follow government mandated COVID safety restrictions (masks, social distancing, etc).
+              <br>Please note that this information will not be reported to local authorities
+              and will in no way be used against you. <br>It is only for the use of other
+              users who would like to know the intended level of caution at this event.</p>
+            <select id="COVID-Safe" name="COVID-Safe" required>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+            </select>
+            <br><br>
+          </div>
+
+          <button type="button" onclick="submitForm()" class="button">Create Event</button>
+        </form>
+        <div id="success"></div>
+      </div>
+    </div>
+  </body>
+</html>

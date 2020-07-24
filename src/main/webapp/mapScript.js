@@ -9,6 +9,7 @@ var markers = [];
 function initialDisplay() {
   navbarLoginDisplay(); // This function is located in profileScript.js
   initMap();
+  fetchBlobstoreURL();
 }
 
 /** Initializes map and displays it. */
@@ -279,8 +280,15 @@ function displayPlaceInfo(place, placeId) {
   createEventElement.className = "button";
   createPostElement = document.createElement('button');
   createPostElement.className = "button";
-  interestButtonElement = document.createElement('button');
-  interestButtonElement.className = "button";
+
+  interestContainerElement = document.createElement('div');
+  interestContainerElement.id = 'map-interest-container';
+  interestButtonElement = document.createElement('i');
+  interestButtonElement.className = 'fa fa-heart-o';
+  interestTextElement = document.createElement('p');
+  interestTextElement.innerText = 'Save as interest';
+  interestContainerElement.appendChild(interestButtonElement);
+  interestContainerElement.appendChild(interestTextElement);
   
   nameElement.innerText = place.name;
   addressElement.innerText = 'Address: ' + place.formatted_address;
@@ -292,14 +300,15 @@ function displayPlaceInfo(place, placeId) {
   });
   createPostElement.innerText = "Create a Post";
   createPostElement.addEventListener('click', () => {
-    location.href = 'posts.html';
+    createPostForm();
+    document.getElementById("post-form").style.display = 'block';
   });
   if (place.business_status) {
     businessStatusElement = document.createElement('p');
     businessStatusElement.innerText = 'Business Status: ' + place.business_status;
   }
   interestButtonElement.addEventListener('click', () => {
-    saveOrRemoveInterest(place.name, placeId, interestButtonElement);
+    saveOrRemoveInterest(place.name, placeId, interestButtonElement, interestTextElement);
   });
 
   infoDivElement.appendChild(nameElement);
@@ -327,15 +336,16 @@ function displayPlaceInfo(place, placeId) {
 
   if (localStorage.getItem(LOCAL_STORAGE_STATUS) === 'true') {
     let userId = localStorage.getItem(LOCAL_STORAGE_ID);
-    setInterestButtonText(interestButtonElement, placeId, userId);
-    infoDivElement.appendChild(interestButtonElement);
+    setInterestButton(interestButtonElement, interestTextElement, placeId, userId);
+    infoDivElement.appendChild(interestContainerElement);
     eventsDivElement.appendChild(createEventElement);
     eventsDivElement.appendChild(getAvailableEvents(userId)); 
     userPostsDivElement.appendChild(createPostElement); 
-    userPostsDivElement.appendChild(getPosts(userId)); 
+    userPostsDivElement.appendChild(getAvailablePosts(userId)); 
   }
   else {
     eventsDivElement.appendChild(getPublicEvents());
+    userPostsDivElement.appendChild(getPublicPosts());
   }
   infoDivElement.appendChild(tabDivElement);
   infoDivElement.appendChild(eventsDivElement);
@@ -358,8 +368,8 @@ function createTabElement() {
   postsButtonElement.id = 'open';
   eventsButtonElement.innerText = 'Events'
   eventsButtonElement.className = 'tablinks';
-  tabDivElement.appendChild(postsButtonElement);
   tabDivElement.appendChild(eventsButtonElement);
+  tabDivElement.appendChild(postsButtonElement);
   postsButtonElement.addEventListener('click', function(e) {
           openTab(e, 'UserPosts');
         });
@@ -460,37 +470,37 @@ function createMapSnippet() {
 }
 
 /** Sends post request to store or remove saved interest. */
-function saveOrRemoveInterest(locationName, placeId, interestButtonElement) {
+function saveOrRemoveInterest(locationName, placeId, interestButtonElement, interestTextElement) {
   const params = new URLSearchParams()
   params.append('place-id', placeId);
   params.append('location-name', locationName);
   fetch('/interest', {
     method: 'POST', body: params
-  }).then(switchInterestButtonText(interestButtonElement));
+  }).then(switchInterestButton(interestButtonElement, interestTextElement));
 }
 
 /** Switches the text of the interest button. */
-function switchInterestButtonText(interestButtonElement) {
-  if (interestButtonElement.innerText === 'Remove as interest') {
-    interestButtonElement.innerText = 'Save as interest';
+function switchInterestButton(interestButtonElement) {
+  if (interestTextElement.innerText === 'Saved as interest') {
+    interestButtonElement.className = 'fa fa-heart-o';
+    interestTextElement.innerText = 'Save as interest';
   } else {
-    interestButtonElement.innerText = 'Remove as interest';
+    interestButtonElement.className = 'fa fa-heart';
+    interestTextElement.innerText = 'Saved as interest';
   }
 }
 
-/** Sets interest button's text based on whether it has already been saved by the user. */
-function setInterestButtonText(interestButtonElement, placeId, userId) {
+/** Sets interest button's display based on whether it has already been saved by the user. */
+function setInterestButton(interestButtonElement, interestTextElement, placeId, userId) {
   alreadySaved = false;
   fetch('/interest').then(response => response.json()).then((interests) => {
     for (let i = 0; i < interests.length; i ++) {
       if (interests[i].placeId === placeId && 
           interests[i].interestedUsers.includes(userId)) {
         alreadySaved = true;
-        interestButtonElement.innerText = 'Remove as interest';
+        interestButtonElement.className = 'fa fa-heart';
+        interestTextElement.innerText = 'Saved as interest';
       }
-    }
-    if (!alreadySaved) {
-      interestButtonElement.innerText = 'Save as interest';
     }
   });
 }
