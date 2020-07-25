@@ -586,7 +586,6 @@ function displayPersonalEvents(user, eventsContainer) {
     }
 
     // Display the events or the proper message if there are none to display.
-    const pastEventMessage = document.createElement('p')
     if (attendingEventsCount == 0) {
       const attendingEventMessage = document.createElement('p');
       attendingEventMessage.innerText = 'No attending events to show.';
@@ -635,16 +634,53 @@ function displayPersonalEvents(user, eventsContainer) {
  */
 function displayBuddyEvents(user, eventsContainer) {
   const currentId = localStorage.getItem(LOCAL_STORAGE_ID);
+  const upcomingEvents = document.createElement('div');
+  upcomingEvents.className = 'events-grid';
+  const pastEvents = document.createElement('div');
+  pastEvents.className = 'events-grid';
+  const upcomingHeading = document.createElement('h2');
+  upcomingHeading.innerText = 'Upcoming Events';
+  const pastHeading = document.createElement('h2');
+  pastHeading.innerText = 'Past Events';
+
   fetch('/events').then(response => response.json()).then((events) => {
     let eventsCount = 0;
+    let upcomingCount = 0;
+    let pastCount = 0;
     for (let i = 0; i < events.length; i ++) {
       if (events[i].rsvpAttendees.includes(user.id)) {
         if (events[i].rsvpAttendees.includes(currentId) || 
             events[i].invitedAttendees.includes(currentId) || 
                 events[i].privacy === 'public') {
-          eventsContainer.appendChild(createEventNoResponse(events[i]));
+          if (events[i].currency === 'current') {
+            upcomingEvents.appendChild(createEventNoResponse(events[i]));
+            upcomingCount ++;
+          } else {
+            pastEvents.appendChild(createEventNoResponse(events[i]));
+            pastCount ++;
+          }
           eventsCount ++;
         }
+      }
+    }
+    
+    // Display the events or the proper message if there are none to display.
+    if (eventsCount == 0) {
+      const eventMessage = document.createElement('p');
+      eventMessage.innerText = 'No events to show.';
+      eventsContainer.appendChild(eventMessage);
+    } else {
+      eventsContainer.appendChild(upcomingHeading);
+      if (upcomingCount == 0) {
+        const upcomingMessage = document.createElement('p');
+        upcomingMessage.innerText = 'No upcoming events to show.';
+        eventsContainer.appendChild(upcomingMessage);
+      } else {
+        eventsContainer.appendChild(upcomingEvents);
+      }
+      if (pastCount != 0) {
+        eventsContainer.appendChild(pastHeading);
+        eventsContainer.appendChild(pastEvents);
       }
     }
   });

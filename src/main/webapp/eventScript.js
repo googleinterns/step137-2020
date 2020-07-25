@@ -430,7 +430,7 @@ function createEventWithResponse(event, userID, going) {
   attendeeInfo.appendChild(goingAttendees);
   bottomCard.appendChild(attendeeInfo);
   
-  if (event.currency !== 'past') {
+  if (event.currency === 'current') {
     const rsvpButton = document.createElement('button');
     rsvpButton.id = 'rsvp-button';
     rsvpButton.innerText = "Going";
