@@ -522,16 +522,34 @@ function displayPersonalEvents(user, eventsContainer) {
   
   const attendingEvents = document.createElement('div');
   attendingEvents.id = 'attending-events';
+  const attendingUpcomingEvents = document.createElement('div');
+  attendingUpcomingEvents.id = 'attending-upcoming-events';
+  attendingUpcomingEvents.className = 'events-grid';
+  const attendingPastEvents = document.createElement('div');
+  attendingPastEvents.id = 'attending-past-events';
+  attendingPastEvents.className = 'events-grid';
+
   const invitedEvents = document.createElement('div');
   invitedEvents.id = 'invited-events';
+  const invitedUpcomingEvents = document.createElement('div');
+  invitedUpcomingEvents.id = 'invited-upcoming-events';
+  invitedUpcomingEvents.className = 'events-grid';
+  const invitedPastEvents = document.createElement('div');
+  invitedPastEvents.id = 'invited-past-events';
+  invitedPastEvents.className = 'events-grid';
   
+  const upcomingHeading = document.createElement('h2');
+  upcomingHeading.innerText = 'Upcoming Events';
+  const pastHeading = document.createElement('h2');
+  pastHeading.innerText = 'Past Events';
+
   dropDown.onchange = () => {
-    if (invitedEvents.style.display === 'flex') {
+    if (invitedEvents.style.display === 'block') {
       invitedEvents.style.display = 'none';
-      attendingEvents.style.display = 'flex';
+      attendingEvents.style.display = 'block';
     } else {
       attendingEvents.style.display = 'none';
-      invitedEvents.style.display = 'flex';
+      invitedEvents.style.display = 'block';
     }
   };
   dropDown.appendChild(attendingOption);
@@ -543,10 +561,18 @@ function displayPersonalEvents(user, eventsContainer) {
     let attendingEventsCount = 0;
     for (let i = 0; i < events.length; i ++) {
       if (events[i].rsvpAttendees.includes(user.id)) {
-        attendingEvents.appendChild(createEventWithResponse(events[i], user.id, "true"));
+        if (events[i].currency === 'current') {
+          attendingUpcomingEvents.appendChild(createEventWithResponse(events[i], user.id, 'true'));
+        } else {
+          attendingPastEvents.appendChild(createEventWithResponse(events[i], user.id, 'true'));
+        }
         attendingEventsCount ++;
       } else if (events[i].invitedAttendees.includes(user.id)) {
-        invitedEvents.appendChild(createEventWithResponse(events[i], user.id, "false"));
+        if (events[i].currency === 'current') {
+          invitedUpcomingEvents.appendChild(createEventWithResponse(events[i], user.id, 'false'));
+        } else {
+          invitedPastEvents.appendChild(createEventWithResponse(events[i], user.id, 'false'));
+        }
         invitedEventsCount ++;
       }
     }
@@ -554,11 +580,21 @@ function displayPersonalEvents(user, eventsContainer) {
       const attendingEventMessage = document.createElement('p');
       attendingEventMessage.innerText = 'No attending events to show.';
       attendingEvents.appendChild(attendingEventMessage);
+    } else {
+      attendingEvents.appendChild(upcomingHeading);
+      attendingEvents.appendChild(attendingUpcomingEvents);
+      attendingEvents.appendChild(pastHeading);
+      attendingEvents.appendChild(attendingPastEvents);
     }
     if (invitedEventsCount == 0) {
       const invitedEventMessage = document.createElement('p');
       invitedEventMessage.innerText = 'No invited events to show.';
       invitedEvents.appendChild(invitedEventMessage);
+    } else {
+      invitedEvents.appendChild(upcomingHeading);
+      invitedEvents.appendChild(invitedUpcomingEvents);
+      invitedEvents.appendChild(pastHeading);
+      invitedEvents.appendChild(invitedPastEvents);
     }
     eventsContainer.append(dropDownContainer);
     eventsContainer.append(attendingEvents);
