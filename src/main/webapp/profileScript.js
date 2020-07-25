@@ -557,34 +557,53 @@ function displayPersonalEvents(user, eventsContainer) {
   dropDownContainer.appendChild(dropDown);
 
   fetch('/events').then(response => response.json()).then((events) => {
-    let invitedEventsCount = 0;
     let attendingEventsCount = 0;
+    let attendingUpcomingCount = 0;
+    let attendingPastCount = 0;
+    let invitedEventsCount = 0;
+    let invitedUpcomingCount = 0;
+    let invitedPastCount = 0;
     for (let i = 0; i < events.length; i ++) {
       if (events[i].rsvpAttendees.includes(user.id)) {
         if (events[i].currency === 'current') {
           attendingUpcomingEvents.appendChild(createEventWithResponse(events[i], user.id, 'true'));
+          attendingUpcomingCount ++;
         } else {
           attendingPastEvents.appendChild(createEventWithResponse(events[i], user.id, 'true'));
+          attendingPastCount ++;
         }
         attendingEventsCount ++;
       } else if (events[i].invitedAttendees.includes(user.id)) {
         if (events[i].currency === 'current') {
           invitedUpcomingEvents.appendChild(createEventWithResponse(events[i], user.id, 'false'));
+          invitedUpcomingCount ++;
         } else {
           invitedPastEvents.appendChild(createEventWithResponse(events[i], user.id, 'false'));
+          invitedPastCount ++;
         }
         invitedEventsCount ++;
       }
     }
+
+    // Display the events or the proper message if there are none to display.
+    const pastEventMessage = document.createElement('p')
     if (attendingEventsCount == 0) {
       const attendingEventMessage = document.createElement('p');
       attendingEventMessage.innerText = 'No attending events to show.';
       attendingEvents.appendChild(attendingEventMessage);
     } else {
       attendingEvents.appendChild(upcomingHeading);
-      attendingEvents.appendChild(attendingUpcomingEvents);
-      attendingEvents.appendChild(pastHeading);
-      attendingEvents.appendChild(attendingPastEvents);
+      if (attendingUpcomingCount == 0) {
+        const attendingUpcomingMessage = document.createElement('p');
+        attendingUpcomingMessage.innerText = 'No upcoming attending events to show.';
+        attendingEvents.appendChild(attendingUpcomingMessage);
+      } else {
+        attendingEvents.appendChild(attendingUpcomingEvents);
+      }
+      if (attendingPastCount != 0) {
+        attendingEvents.appendChild(pastHeading);
+        attendingEvents.appendChild(attendingPastEvents);
+      }
     }
     if (invitedEventsCount == 0) {
       const invitedEventMessage = document.createElement('p');
@@ -592,9 +611,17 @@ function displayPersonalEvents(user, eventsContainer) {
       invitedEvents.appendChild(invitedEventMessage);
     } else {
       invitedEvents.appendChild(upcomingHeading);
-      invitedEvents.appendChild(invitedUpcomingEvents);
-      invitedEvents.appendChild(pastHeading);
-      invitedEvents.appendChild(invitedPastEvents);
+      if (invitedUpcomingCount == 0) {
+        const invitedUpcomingMessage = document.createElement('p');
+        invitedUpcomingMessage.innerText = 'No upcoming invited events to show.';
+        invitedEvents.appendChild(invitedUpcomingMessage);
+      } else {
+        invitedEvents.appendChild(invitedUpcomingEvents);
+      }
+      if (invitedPastCount != 0) {
+        invitedEvents.appendChild(pastHeading);
+        invitedEvents.appendChild(invitedPastEvents);
+      }
     }
     eventsContainer.append(dropDownContainer);
     eventsContainer.append(attendingEvents);
