@@ -708,3 +708,10 @@ function showImageForm() {
     document.getElementById('image-form').action = imageUploadUrl;
   });
 }
+
+/*
+ * Hides the form for the user to change their profile picture.
+ */
+function hideImageForm() {
+  document.getElementById('image-form-container').style.display = 'none';
+}
