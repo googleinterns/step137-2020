@@ -522,16 +522,34 @@ function displayPersonalEvents(user, eventsContainer) {
   
   const attendingEvents = document.createElement('div');
   attendingEvents.id = 'attending-events';
+  const attendingUpcomingEvents = document.createElement('div');
+  attendingUpcomingEvents.id = 'attending-upcoming-events';
+  attendingUpcomingEvents.className = 'events-grid';
+  const attendingPastEvents = document.createElement('div');
+  attendingPastEvents.id = 'attending-past-events';
+  attendingPastEvents.className = 'events-grid';
+
   const invitedEvents = document.createElement('div');
   invitedEvents.id = 'invited-events';
+  const invitedUpcomingEvents = document.createElement('div');
+  invitedUpcomingEvents.id = 'invited-upcoming-events';
+  invitedUpcomingEvents.className = 'events-grid';
+  const invitedPastEvents = document.createElement('div');
+  invitedPastEvents.id = 'invited-past-events';
+  invitedPastEvents.className = 'events-grid';
   
+  const upcomingHeading = document.createElement('h2');
+  upcomingHeading.innerText = 'Upcoming Events';
+  const pastHeading = document.createElement('h2');
+  pastHeading.innerText = 'Past Events';
+
   dropDown.onchange = () => {
-    if (invitedEvents.style.display === 'flex') {
+    if (invitedEvents.style.display === 'block') {
       invitedEvents.style.display = 'none';
-      attendingEvents.style.display = 'flex';
+      attendingEvents.style.display = 'block';
     } else {
       attendingEvents.style.display = 'none';
-      invitedEvents.style.display = 'flex';
+      invitedEvents.style.display = 'block';
     }
   };
   dropDown.appendChild(attendingOption);
@@ -539,26 +557,70 @@ function displayPersonalEvents(user, eventsContainer) {
   dropDownContainer.appendChild(dropDown);
 
   fetch('/events').then(response => response.json()).then((events) => {
-    let invitedEventsCount = 0;
     let attendingEventsCount = 0;
+    let attendingUpcomingCount = 0;
+    let attendingPastCount = 0;
+    let invitedEventsCount = 0;
+    let invitedUpcomingCount = 0;
+    let invitedPastCount = 0;
     for (let i = 0; i < events.length; i ++) {
       if (events[i].rsvpAttendees.includes(user.id)) {
-        attendingEvents.appendChild(createEventWithResponse(events[i], user.id, "true"));
+        if (events[i].currency === 'current') {
+          attendingUpcomingEvents.appendChild(createEventWithResponse(events[i], user.id, 'true'));
+          attendingUpcomingCount ++;
+        } else {
+          attendingPastEvents.appendChild(createEventWithResponse(events[i], user.id, 'true'));
+          attendingPastCount ++;
+        }
         attendingEventsCount ++;
       } else if (events[i].invitedAttendees.includes(user.id)) {
-        invitedEvents.appendChild(createEventWithResponse(events[i], user.id, "false"));
+        if (events[i].currency === 'current') {
+          invitedUpcomingEvents.appendChild(createEventWithResponse(events[i], user.id, 'false'));
+          invitedUpcomingCount ++;
+        } else {
+          invitedPastEvents.appendChild(createEventWithResponse(events[i], user.id, 'false'));
+          invitedPastCount ++;
+        }
         invitedEventsCount ++;
       }
     }
+
+    // Display the events or the proper message if there are none to display.
     if (attendingEventsCount == 0) {
       const attendingEventMessage = document.createElement('p');
       attendingEventMessage.innerText = 'No attending events to show.';
       attendingEvents.appendChild(attendingEventMessage);
+    } else {
+      attendingEvents.appendChild(upcomingHeading);
+      if (attendingUpcomingCount == 0) {
+        const attendingUpcomingMessage = document.createElement('p');
+        attendingUpcomingMessage.innerText = 'No upcoming attending events to show.';
+        attendingEvents.appendChild(attendingUpcomingMessage);
+      } else {
+        attendingEvents.appendChild(attendingUpcomingEvents);
+      }
+      if (attendingPastCount != 0) {
+        attendingEvents.appendChild(pastHeading);
+        attendingEvents.appendChild(attendingPastEvents);
+      }
     }
     if (invitedEventsCount == 0) {
       const invitedEventMessage = document.createElement('p');
       invitedEventMessage.innerText = 'No invited events to show.';
       invitedEvents.appendChild(invitedEventMessage);
+    } else {
+      invitedEvents.appendChild(upcomingHeading);
+      if (invitedUpcomingCount == 0) {
+        const invitedUpcomingMessage = document.createElement('p');
+        invitedUpcomingMessage.innerText = 'No upcoming invited events to show.';
+        invitedEvents.appendChild(invitedUpcomingMessage);
+      } else {
+        invitedEvents.appendChild(invitedUpcomingEvents);
+      }
+      if (invitedPastCount != 0) {
+        invitedEvents.appendChild(pastHeading);
+        invitedEvents.appendChild(invitedPastEvents);
+      }
     }
     eventsContainer.append(dropDownContainer);
     eventsContainer.append(attendingEvents);
@@ -572,16 +634,53 @@ function displayPersonalEvents(user, eventsContainer) {
  */
 function displayBuddyEvents(user, eventsContainer) {
   const currentId = localStorage.getItem(LOCAL_STORAGE_ID);
+  const upcomingEvents = document.createElement('div');
+  upcomingEvents.className = 'events-grid';
+  const pastEvents = document.createElement('div');
+  pastEvents.className = 'events-grid';
+  const upcomingHeading = document.createElement('h2');
+  upcomingHeading.innerText = 'Upcoming Events';
+  const pastHeading = document.createElement('h2');
+  pastHeading.innerText = 'Past Events';
+
   fetch('/events').then(response => response.json()).then((events) => {
     let eventsCount = 0;
+    let upcomingCount = 0;
+    let pastCount = 0;
     for (let i = 0; i < events.length; i ++) {
       if (events[i].rsvpAttendees.includes(user.id)) {
         if (events[i].rsvpAttendees.includes(currentId) || 
             events[i].invitedAttendees.includes(currentId) || 
                 events[i].privacy === 'public') {
-          eventsContainer.appendChild(createEventNoResponse(events[i]));
+          if (events[i].currency === 'current') {
+            upcomingEvents.appendChild(createEventNoResponse(events[i]));
+            upcomingCount ++;
+          } else {
+            pastEvents.appendChild(createEventNoResponse(events[i]));
+            pastCount ++;
+          }
           eventsCount ++;
         }
+      }
+    }
+    
+    // Display the events or the proper message if there are none to display.
+    if (eventsCount == 0) {
+      const eventMessage = document.createElement('p');
+      eventMessage.innerText = 'No events to show.';
+      eventsContainer.appendChild(eventMessage);
+    } else {
+      eventsContainer.appendChild(upcomingHeading);
+      if (upcomingCount == 0) {
+        const upcomingMessage = document.createElement('p');
+        upcomingMessage.innerText = 'No upcoming events to show.';
+        eventsContainer.appendChild(upcomingMessage);
+      } else {
+        eventsContainer.appendChild(upcomingEvents);
+      }
+      if (pastCount != 0) {
+        eventsContainer.appendChild(pastHeading);
+        eventsContainer.appendChild(pastEvents);
       }
     }
   });

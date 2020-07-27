@@ -497,12 +497,15 @@ html, body {
 }
 
 #attending-events {
-  display: flex;
-  flex-wrap: wrap;
+  display: block;
 }
 
 #invited-events {
   display: none;
+}
+
+.events-grid {
+  display: flex;
   flex-wrap: wrap;
 }
 
