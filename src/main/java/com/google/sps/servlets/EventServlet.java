@@ -266,7 +266,7 @@ public class EventServlet extends HttpServlet {
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     datastore.put(eventEntity);
 
-    if (isEventEditing != "yes") {  
+    if (isEventEditing.equals("yes")) {  
       json.put("success", "edit");
     }
     else {
