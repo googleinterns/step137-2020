@@ -19,12 +19,21 @@
       <p class="navbar-text" onclick="window.location.href = 'nearme.html'">Near Me</p>
       <div id="user-navbar-section"></div>
     </div>
-    <div id="name-form-container" class="popup">
+    <div id="initial-name-form-container" class="popup">
       <form action="/user-name" method="POST" onsubmit="profileOnload()" class="popup-text">
       <label for="name">Enter a name for your account:</label><br>
-      <input type="text" name="name" class="input"></input>
+      <input type="text" name="name" id="set-name" class="input"></input>
       <br></br>
-      <input type="submit">
+      <input type="submit" onclick="updateSetName()">
+      </form>
+    </div>
+    <div id="name-form-container" class="popup">
+      <form action="/user-name" method="POST" onsubmit="profileOnload()" class="popup-text">
+      <i class="fa fa-close" onclick="hideNameForm()"></i>
+      <label for="name">Enter a name for your account:</label><br>
+      <input type="text" name="name" id="changed-name" class="input"></input>
+      <br></br>
+      <input type="submit" onclick="updateChangedName()">
       </form>
     </div>
     <div id="image-form-container" class="popup">

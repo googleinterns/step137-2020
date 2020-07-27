@@ -32,7 +32,7 @@ function navbarLoginDisplay() {
       // then add logout and profile buttons to the navbar.
       localStorage.setItem(LOCAL_STORAGE_ID, json['id']);
       const name = localStorage.getItem(LOCAL_STORAGE_NAME);
-      if (name == null || name === '' || name === 'justChanged') {
+      if (name == null || name === '') {
         confirmUserName();
       } else {
         fetch('/user').then(response => response.json()).then((users) => {
@@ -87,9 +87,9 @@ function confirmUserName(personalProfileButton) {
   fetch('/user-name').then(response => response.text()).then((name) => {
     if (name === '\n') {
     // If the user has not yet set their name, display the form.
-      showNameForm();
+      showNameForm('set');
     } else {
-      // If the user's updated name is not yet in local storage, store it.
+      // If the user's name is not yet in local storage, store it.
       localStorage.setItem(LOCAL_STORAGE_NAME, name);
       profileOnload();
     }
@@ -176,7 +176,7 @@ function displayBasicInfo(user, viewer) {
     // On hover, display an option for the current user to change their name.
     name.id = 'personal-name';
     nameContainer.addEventListener('click', () => {
-      showNameForm();
+      showNameForm('change');
     });
     
     // On hover, display an option for the current user to change their profile picture.
@@ -690,11 +690,14 @@ function sendOrRemoveBuddyRequest(user, action) {
 }
 
 /*
- * Presents the user with a form to change their display name.
+ * Presents the user with a form to set or change their display name.
  */
-function showNameForm() {
-  localStorage.setItem(LOCAL_STORAGE_NAME, 'justChanged');
-  document.getElementById('name-form-container').style.display = 'block';
+function showNameForm(type) {
+  if (type === 'set') {
+    document.getElementById('initial-name-form-container').style.display = 'block';
+  } else {
+    document.getElementById('name-form-container').style.display = 'block';
+  }
 }
 
 /*
@@ -714,4 +717,25 @@ function showImageForm() {
  */
 function hideImageForm() {
   document.getElementById('image-form-container').style.display = 'none';
+}
+
+/*
+ * Hides the form for the user to change their display name.
+ */
+function hideNameForm() {
+  document.getElementById('name-form-container').style.display = 'none';
+}
+
+/*
+ * Updates local storage once the user has set their display name.
+ */
+function updateSetName() {
+  localStorage.setItem(LOCAL_STORAGE_NAME, document.getElementById('set-name').value);
+}
+
+/*
+ * Updates local storage once the user has changed their display name.
+ */
+function updateChangedName() {
+  localStorage.setItem(LOCAL_STORAGE_NAME, document.getElementById('changed-name').value);
 }
