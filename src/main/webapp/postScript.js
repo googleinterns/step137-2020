@@ -217,6 +217,7 @@ function deleteBlob(blobkey) {
 
 function hideForm() {
   // set sessionStorage so that the map reloads to this location
+  sessionStorage.setItem("whichTabToOpen", "Posts");
   postPlaceId = sessionStorage.getItem('postPlaceId');
   sessionStorage.setItem('currentLocationId', postPlaceId);
   document.getElementById("post-form").style.display = 'none';

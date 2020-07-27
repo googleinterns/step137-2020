@@ -181,7 +181,7 @@ function submitForm() {
           document.getElementById("date-warning").innerHTML = "";
           var placeId = document.getElementById('place-id').value;
           sessionStorage.setItem("currentLocationId", placeId);
-          sessionStorage.setItem("whichTabToOpen2", "Events");
+          sessionStorage.setItem("whichTabToOpen", "Events");
           document.getElementById("success").style.color = "black";
           document.getElementById("success").innerHTML = 
             "<p>Event created successfully. Click <a href=\"/map.html\">here</a>" +

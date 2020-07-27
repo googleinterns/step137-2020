@@ -4,7 +4,7 @@ const CREATE_EVENT_PAGE = 'createEventPage';
 const EXPLORE_MAP_PAGE = 'exploreMapPage';
 const SESSION_STORE_LOCATION = 'locationName';
 const SESSION_STORE_PLACEID = 'placeId';
-const SESSION_STORAGE_OPENTAB = 'whichTabToOpen2';
+const SESSION_STORAGE_OPENTAB = 'whichTabToOpen';
 var markers = [];
 /** Initial display of screen */
 function initialDisplay() {
@@ -265,7 +265,7 @@ function displayPlaceInfo(place, placeId) {
   sessionStorage.setItem(SESSION_STORE_PLACEID, placeId);
   sideBarElement = document.getElementById('side');
   infoDivElement = document.getElementById('place-info');
-  userPostsDivElement = document.getElementById('UserPosts');
+  userPostsDivElement = document.getElementById('Posts');
   eventsDivElement = document.getElementById('Events');
   whichTabToOpen = sessionStorage.getItem(SESSION_STORAGE_OPENTAB);
   infoDivElement.innerHTML = '';
@@ -356,8 +356,7 @@ function displayPlaceInfo(place, placeId) {
     sessionStorage.removeItem(SESSION_STORAGE_OPENTAB);
   }
   sideBarElement.appendChild(infoDivElement);
-  console.log(document.getElementById('open'))
-  // document.getElementById('open').click();
+  document.getElementById('open').click();
   return sideBarElement;
 }
 
@@ -371,14 +370,14 @@ function createTabElement() {
   postsButtonElement = document.createElement('button');
   eventsButtonElement = document.createElement('button');
   postsButtonElement.innerText = 'Posts';
-  postsButtonElement.className = 'tablinks active';
-  postsButtonElement.id = 'open';
+  postsButtonElement.className = 'tablinks';
   eventsButtonElement.innerText = 'Events'
-  eventsButtonElement.className = 'tablinks';
+  eventsButtonElement.className = 'tablinks active';
+  eventsButtonElement.id = 'open';
   tabDivElement.appendChild(eventsButtonElement);
   tabDivElement.appendChild(postsButtonElement);
   postsButtonElement.addEventListener('click', function(e) {
-          openTab(e, 'UserPosts');
+          openTab(e, 'Posts');
         });
   eventsButtonElement.addEventListener('click', function(e) {
           openTab(e, 'Events');
@@ -400,12 +399,14 @@ function openTab(evt, tabName) {
   }
   document.getElementById(tabName).style.display = 'block';
   if (evt == null) {
-    for (tablink in tablinks) {
-      if (tablink.innerText == whichTabToOpen) {
-        tablink.className += ' active';
-        tablink.id += 'open';
-      }
+    if (tabName == 'Events') {
+      tablinks[0].className += ' active';
+      tablinks[0].id += 'open';
     }
+    else if (tabName == 'Posts') {
+      tablinks[1].className += ' active';
+      tablinks[1].id += 'open';
+    }  
   }
   else {
     evt.currentTarget.className += ' active';
