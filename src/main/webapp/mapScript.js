@@ -4,6 +4,7 @@ const CREATE_EVENT_PAGE = 'createEventPage';
 const EXPLORE_MAP_PAGE = 'exploreMapPage';
 const SESSION_STORE_LOCATION = 'locationName';
 const SESSION_STORE_PLACEID = 'placeId';
+
 var markers = [];
 /** Initial display of screen */
 function initialDisplay() {
@@ -496,3 +497,4 @@ function setInterestButton(interestButtonElement, interestTextElement, placeId, 
     }
   });
 }
+

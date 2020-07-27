@@ -1,3 +1,6 @@
+// Global Variables
+const CURRENT_EVENT = "event";
+
 /**
   function calls for body onload
  */
@@ -5,6 +8,11 @@ function onload() {
   navbarLoginDisplay();
   getLocationInfo();
   createMapSnippet();
+  //determine whether to fill in form 
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('fillIn') === "yes") {
+    displayEventFormFilledIn();
+  }
 }
 
 /**
@@ -449,7 +457,16 @@ function createEventWithResponse(event, userID, going) {
     deleteButton.addEventListener('click', () => {
       deleteSingleEvent(event, eventElement);
     });
+    
+    const editEventButton = document.createElement('i');
+    editEventButton.id = 'edit-event-button';
+    editEventButton.className = 'fa fa-edit';
+    editEventButton.addEventListener('click', () => {
+      storeEventThenEdit(event);
+    });
+
     bottomCard.append(deleteButton);
+    bottomCard.append(editEventButton);
   }
 
   eventElement.append(bottomCard);
@@ -564,6 +581,7 @@ function deleteSingleEvent(event, eventElement) {
   }).then(eventElement.style.display = "none");
 }
 
+
 /** Updates the attendee count when a user RSVPs. */
 function updateAttendeeCount(event, decision) {
   const goingAttendees = document.getElementById('going-attendees');
@@ -590,4 +608,15 @@ function updateAttendeeCount(event, decision) {
     const newGoingCount = currentGoingCount - 1;
     goingAttendees.innerText = newGoingCount + ' Going';
   }
+}
+
+function storeEventThenEdit(event) {
+  sessionStorage.setItem(CURRENT_EVENT, JSON.stringify(event));
+  window.location.href = "CreateAnEvent.html?fillIn=yes";
+}
+
+function displayEventFormFilledIn() {
+  var event = JSON.parse(sessionStorage.getItem(CURRENT_EVENT));
+  document.getElementById("event-name").value = event.eventName;
+  document.getElementById("start-date").value = event.startDate;
 }
