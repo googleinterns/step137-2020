@@ -93,9 +93,6 @@ function initMap() {
       loaderElement.style.display = 'none';
       findLocationTextElement.style.display = 'none';
       foundLocationTextElement.style.display = 'block';
-      infoWindow.setPosition(pos);
-      infoWindow.setContent('Your current location has been found.');
-      infoWindow.open(map);
       map.setCenter(pos);
       }, function() {
         handleLocationError(true, map.getCenter());

@@ -41,7 +41,14 @@ function findNearbyEvents(map, currentLocation) {
     center: currentLocation,
     radius: 2000 
   });
-  
+  // display loading icon with text.
+  nearmeLoaderElement = document.getElementById('loader-icon-nearme');
+  findingNearbyEventsText = document.getElementById('finding-events-nearme');
+  foundNearbyEventsText = document.getElementById('found-events-nearme');
+  nearmeLoaderElement.style.display = 'block';
+  findingNearbyEventsText.style.display = 'block';
+  foundNearbyEventsText.style.display = 'none';
+
   fetch('/events')
   .then(response => response.json())
   .then(events => {
@@ -91,6 +98,10 @@ function findNearbyEvents(map, currentLocation) {
         for (var i = 0; i < results.length; i++) {
           eventsDivElement.appendChild(displayEvents(results[i].value));
         }
+        // take away loading icon.
+        nearmeLoaderElement.style.display = 'none';
+        findingNearbyEventsText.style.display = 'none';
+        foundNearbyEventsText.style.display = 'block';
       });
     });
   });
