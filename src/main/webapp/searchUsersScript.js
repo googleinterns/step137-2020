@@ -20,7 +20,7 @@ function displaySearchedUsers() {
       searchedUsers.innerHTML = '';
       let userCount = 0;
       for (let i = 0; i < users.length; i ++) {
-        if (users[i].name.includes(searchText)) {
+        if (users[i].name.toLowerCase().includes(searchText.toLowerCase())) {
           // Display any users whose name contains the search text.
           searchedUsers.appendChild(createUserElement(users[i]));
           userCount ++;
