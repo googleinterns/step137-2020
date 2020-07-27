@@ -198,7 +198,9 @@ public class EventServlet extends HttpServlet {
     String invitedAttendeesString = request.getParameter(Constants.INVITED_ATTENDEES_PARAM);
     List<String> invitedAttendeesList = Arrays.asList(invitedAttendeesString.split("\\s*,\\s*"));
     ArrayList<String> invitedAttendees = new ArrayList<String>(invitedAttendeesList);
-    invitedAttendees.add(""); // Placeholder entry to prevent empty list from becoming null.
+    if (invitedAttendeesList.isEmpty()) {
+      invitedAttendees.add(""); // Placeholder entry to prevent empty list from becoming null.
+    }
 
     UserService userService = UserServiceFactory.getUserService();
     String currentUserID = userService.getCurrentUser().getUserId();

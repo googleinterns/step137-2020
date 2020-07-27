@@ -14,7 +14,6 @@ function specifiedAttendees(value) {
   if (value == "attendees") {
     document.getElementById("attendees-wrap").style.display = "block";
     document.getElementById("invited-attendee-ID-list").style.display = "none";
-    document.getElementById("invited-attendee-list").style.display = "none";
   }
   else if (value == "buddies-only") {
     buddiesOnly();
@@ -53,7 +52,6 @@ function displayUsers() {
 }
 
 var attendees = new Array();
-var attendeeNames = new Array();
 var attendeeIDs = new Array();
 attendeeIDs.push("");
 
@@ -79,7 +77,6 @@ function appendInfo(user, userDisplay) {
   else {
     attendees.push(user);
     attendeeIDs.push(user.id);
-    attendeeNames.push(user.name);
     
     const displayAttendees = document.getElementById("display-invited-names");
     displayAttendees.innerHTML = '';
@@ -90,7 +87,6 @@ function appendInfo(user, userDisplay) {
     }
     displayAttendees.appendChild(selectedUser);
     
-    document.getElementById("invited-attendee-list").value = attendeeNames;
     document.getElementById("invited-attendee-ID-list").value = attendeeIDs;
   }
 }
@@ -132,11 +128,6 @@ function deleteAttendee(selectedUser, user) {
   if (index > -1) {
     attendeeIDs.splice(index, 1);
     document.getElementById("invited-attendee-ID-list").value = attendeeIDs;
-  }
-  index = attendeeNames.indexOf(user.name);
-  if (index > -1) {
-    attendeeNames.splice(index, 1);
-    document.getElementById("invited-attendee-list").value = attendeeNames;
   }
 }
 
