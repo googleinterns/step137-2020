@@ -4,6 +4,7 @@ const CREATE_EVENT_PAGE = 'createEventPage';
 const EXPLORE_MAP_PAGE = 'exploreMapPage';
 const SESSION_STORE_LOCATION = 'locationName';
 const SESSION_STORE_PLACEID = 'placeId';
+const SESSION_STORAGE_OPENTAB = 'whichTabToOpen2';
 var markers = [];
 /** Initial display of screen */
 function initialDisplay() {
@@ -207,7 +208,6 @@ function fetchPlaceInformation(place_id, map, where) {
         response.json().then(place => {
           if (where == EXPLORE_MAP_PAGE) {
             displayPlaceInfo(place, place_id);
-            return;
           }
           else if (where == CREATE_EVENT_PAGE) {
             // Updates sessionStorage and update input forms.
@@ -239,8 +239,7 @@ function fetchPlaceInformation(place_id, map, where) {
               cache.put(myRequest, response);
             })
             if (where == EXPLORE_MAP_PAGE) {
-            displayPlaceInfo(place, place_id);
-            return;
+              displayPlaceInfo(place, place_id);
             }
             else if (where == CREATE_EVENT_PAGE) {
               // Updates sessionStorage and update input forms.
@@ -268,6 +267,7 @@ function displayPlaceInfo(place, placeId) {
   infoDivElement = document.getElementById('place-info');
   userPostsDivElement = document.getElementById('UserPosts');
   eventsDivElement = document.getElementById('Events');
+  whichTabToOpen = sessionStorage.getItem(SESSION_STORAGE_OPENTAB);
   infoDivElement.innerHTML = '';
   userPostsDivElement.innerHTML = '';
   eventsDivElement.innerHTML = '';
@@ -351,13 +351,19 @@ function displayPlaceInfo(place, placeId) {
   infoDivElement.appendChild(tabDivElement);
   infoDivElement.appendChild(eventsDivElement);
   infoDivElement.appendChild(userPostsDivElement);
-  document.getElementById('open').click();
+  if (whichTabToOpen) {
+    openTab(null, whichTabToOpen);
+    sessionStorage.removeItem(SESSION_STORAGE_OPENTAB);
+  }
   sideBarElement.appendChild(infoDivElement);
+  console.log(document.getElementById('open'))
+  // document.getElementById('open').click();
   return sideBarElement;
 }
 
 /** Creates tab element to display user posts and events in. */
 function createTabElement() {
+  whichTabToOpen = sessionStorage.getItem(SESSION_STORAGE_OPENTAB);
   tabDivElement = document.createElement('div');
   tabDivElement.id = 'tab';
   tabDivElement.className = 'tab';
@@ -393,8 +399,18 @@ function openTab(evt, tabName) {
     tablinks[i].id = tablinks[i].id.replace('open', '');
   }
   document.getElementById(tabName).style.display = 'block';
-  evt.currentTarget.className += ' active';
-  evt.currentTarget.id += 'open';
+  if (evt == null) {
+    for (tablink in tablinks) {
+      if (tablink.innerText == whichTabToOpen) {
+        tablink.className += ' active';
+        tablink.id += 'open';
+      }
+    }
+  }
+  else {
+    evt.currentTarget.className += ' active';
+    evt.currentTarget.id += 'open';
+  }
 }
 
 /** Converts place rating to stars. */
