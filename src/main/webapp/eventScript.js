@@ -477,7 +477,8 @@ function createEventWithResponse(event, userID, going) {
     goingButton.addEventListener('click', () => {
       addRemoveAttendee(event, goingButton, updatedGoing);
     });
-    notGoingButton.id = 'not-going-button';
+    bottomCard.appendChild(rsvpButton);
+        notGoingButton.id = 'not-going-button';
     notGoingButton.innerText = "Not Going";
     setRSVPButtonColor(notGoingButton, notGoingButton, going);
     if (event.privacy === "public") {
@@ -491,6 +492,10 @@ function createEventWithResponse(event, userID, going) {
     });
     bottomCard.appendChild(goingButton);
     bottomCard.appendChild(notGoingButton);
+  } else {
+    const pastMessage = document.createElement('p');
+    pastMessage.innerText = 'This event has already occurred.';
+    bottomCard.appendChild(pastMessage);
   }
 
   if (userID === event.creator) {
