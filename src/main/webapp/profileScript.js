@@ -483,10 +483,10 @@ function displayEventsAndPosts(user, viewer) {
   eventsAndPostsContainer.innerHTML = '';
 
   const eventsContainer = document.createElement('div');
-  eventsContainer.className = 'tabcontent';
+  eventsContainer.className = 'tabcontent profile-tab';
   eventsContainer.id = 'events-container';
   const postsContainer = document.createElement('div');
-  postsContainer.className = 'tabcontent';
+  postsContainer.className = 'tabcontent profile-tab';
   postsContainer.id = 'posts-container';
   const tabContainer = createEventsPostsTab();
 

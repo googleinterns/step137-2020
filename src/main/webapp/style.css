@@ -479,7 +479,7 @@ html, body {
 #bottom-wrapper {
   display: flex;
   text-align: center;
-  height: 100%;
+  min-height: 100%;
 }
 
 #saved-interests {
@@ -570,6 +570,10 @@ html, body {
   border-top: none;
   font-family: var(--base-font);
   z-index: 2;
+}
+
+.profile-tab{
+  border: none;
 }
 
 /* Style font for sidebar */
