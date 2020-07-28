@@ -430,6 +430,10 @@ function createEventWithResponse(event, userID, going) {
       addRemoveAttendee(event, rsvpButton);
     });
     bottomCard.appendChild(rsvpButton);
+  } else {
+    const pastMessage = document.createElement('p');
+    pastMessage.innerText = 'This event has already occurred.';
+    bottomCard.appendChild(pastMessage);
   }
 
   if (userID === event.creator) {
