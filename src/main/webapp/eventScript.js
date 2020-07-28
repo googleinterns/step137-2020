@@ -337,15 +337,19 @@ function createEventNoResponse(event) {
   locationDisplay.append(locationIcon);
   locationDisplay.append(eventLocation);
 
-  const privacyDisplay = document.createElement('p');
-  privacyDisplay.className = "privacy-display";
-  privacyDisplay.innerText = event.privacy;
-  
   if (window.location.pathname === '/profile.html') {
     locationDisplay.addEventListener('click', () => {
       sessionStorage.setItem(SESSION_STORAGE_CURRENT_LOCATION, event.placeId);
       window.location.href = 'map.html';
     });
+  }
+
+  const privacyDisplay = document.createElement('p');
+  privacyDisplay.className = "privacy-display";
+  if (event.privacy === 'public') {
+    privacyDisplay.innerText = 'Public';
+  } else {
+    privacyDisplay.innerText = 'Private';
   }
 
   const eventDetails = document.createElement('p'); 
@@ -390,8 +394,8 @@ function createEventNoResponse(event) {
   eventElement.append(topOfEvent);
   eventElement.append(eventName);
   eventElement.append(eventDate);
-  eventElement.append(privacyDisplay);
   eventElement.append(locationDisplay);
+  eventElement.append(privacyDisplay);
   eventElement.append(eventDetails);
   return eventElement;
 }
@@ -405,38 +409,42 @@ function createEventWithResponse(event, userID) {
   const bottomCard = document.createElement('div');
   bottomCard.id = "bottom-event-wrapper";
 
-//   const attendeeInfo = document.createElement('div');
-//   attendeeInfo.id = 'attendee-info-container';
+  const attendeeInfo = document.createElement('div');
+  attendeeInfo.id = 'attendee-info-container';
 
-//   const goingAttendees = document.createElement('p');
-//   goingAttendees.id = 'going-attendees';
-//   goingAttendees.className = 'attendee-info';
-//   goingAttendees.innerText = (event.goingAttendees.length - 1) + ' Going';
-//   goingAttendees.addEventListener('click', () => {
-//     displayAttendees(event, 'going')
-//   });
-//   attendeeInfo.appendChild(goingAttendees);
+  const goingAttendees = document.createElement('p');
+  goingAttendees.id = 'going-attendees';
+  goingAttendees.className = 'attendee-info';
+  const numGoing = event.goingAttendees.length - 1
+  goingAttendees.innerText = numGoing + ' Going';
+  goingAttendees.addEventListener('click', () => {
+    displayAttendees(event, 'going')
+  });
+  attendeeInfo.appendChild(goingAttendees);
 
-//   if (event.privacy !== "public") {
-//     const notGoingAttendees = document.createElement('p');
-//     notGoingAttendees.id = 'not-going-attendees';
-//     notGoingAttendees.className = 'attendee-info';
-//     notGoingAttendees.innerText = (event.notGoingAttendees.length - 1) + 'Not Going';
-//     notGoingAttendees.addEventListener('click', () => {
-//       displayAttendees(event, 'not-going')
-//     });
-//     attendeeInfo.appendChild(notGoingAttendees);
+  const notGoingAttendees = document.createElement('p');
+  const undecidedAttendees = document.createElement('p');
 
-//     const invitedAttendees = document.createElement('p');
-//     invitedAttendees.id = 'invited-attendees';
-//     invitedAttendees.className = 'attendee-info';
-//     invitedAttendees.innerText = (event.invitedAttendees.length - 1) + 'Undecided';
-//     invitedAttendees.addEventListener('click', () => {
-//       displayAttendees(event, 'invited')
-//     });
-//     attendeeInfo.appendChild(invitedAttendees);
-//   }
-//   bottomCard.appendChild(attendeeInfo);
+  if (event.privacy !== "public") {
+    notGoingAttendees.id = 'not-going-attendees';
+    notGoingAttendees.className = 'attendee-info';
+    const numNotGoing = event.notGoingAttendees.length - 1
+    notGoingAttendees.innerText = numNotGoing + ' Not Going';
+    notGoingAttendees.addEventListener('click', () => {
+      displayAttendees(event, 'not-going')
+    });
+    attendeeInfo.appendChild(notGoingAttendees);
+
+    undecidedAttendees.id = 'undecided-attendees';
+    undecidedAttendees.className = 'attendee-info';
+    numUndecided = event.invitedAttendees.length - numGoing - numNotGoing - 1;
+    undecidedAttendees.innerText = numUndecided + ' Undecided';
+    undecidedAttendees.addEventListener('click', () => {
+      displayAttendees(event, 'undecided')
+    });
+    attendeeInfo.appendChild(undecidedAttendees);
+  }
+  bottomCard.appendChild(attendeeInfo);
   
   if (event.currency === 'current') {
     const goingButton = document.createElement('button');
@@ -450,10 +458,12 @@ function createEventWithResponse(event, userID) {
     setRSVPButtonColor(goingStatus, goingButton, notGoingButton);
 
     goingButton.addEventListener('click', () => {
-      addRemoveAttendee(event, 'going', goingButton, notGoingButton);
+      addRemoveAttendee(event, 'going', goingButton, notGoingButton, 
+          goingAttendees, notGoingAttendees, undecidedAttendees);
     })
     notGoingButton.addEventListener('click', () => {
-      addRemoveAttendee(event, 'not-going', goingButton, notGoingButton);
+      addRemoveAttendee(event, 'not-going', goingButton, notGoingButton, 
+          goingAttendees, notGoingAttendees, undecidedAttendees);
     });
 
     bottomCard.appendChild(goingButton);
@@ -510,12 +520,12 @@ function displayAttendees(event, attendeeType) {
   const attendees = document.createElement('div');
   attendees.className = 'popup-text';
   const attendeesHeading = document.createElement('h3');
-  if (attendeeType === 'undecided') {
-    attendeesHeading.innerText = 'Buddies Undecided';
-  } else if (attendeeType === 'going') {
+  if (attendeeType === 'going') {
     attendeesHeading.innerText = 'Buddies Going';
-  } else {
+  } else if (attendeeType === 'not-going') {
     attendeesHeading.innerText = 'Buddies Not Going';
+  } else {
+    attendeesHeading.innerText = 'Buddies Undecided';
   }
   const exitButton = document.createElement('i');
   exitButton.className = 'fa fa-close';
@@ -535,19 +545,19 @@ function displayAttendees(event, attendeeType) {
       if (users[i].id === currentId) {
         buddyIds = users[i].buddies;
       }
-      if (attendeeType === 'undecided') {
-        if (event.invitedAttendees.includes(users[i].id)) {
-          attendeeUsers.push(users[i]);
-        }
-      } else if (attendeeType === 'going') {
+      if (attendeeType === 'going') {
         if (event.goingAttendees.includes(users[i].id)) {
           attendeeUsers.push(users[i]);
         } 
-      } else {
+      } else if (attendeeType === 'not-going') {
         if (event.notGoingAttendees.includes(users[i].id)) {
           attendeeUsers.push(users[i]);
         }
-      } 
+      } else if (attendeeType === 'undecided') {
+        if (event.invitedAttendees.includes(users[i].id)) {
+          attendeeUsers.push(users[i]);
+        }
+      }
     }
     for (let i = 0; i < attendeeUsers.length; i ++) {
       if (buddyIds.includes(attendeeUsers[i].id)) {
@@ -566,12 +576,12 @@ function displayAttendees(event, attendeeType) {
 /** Creates a message to be displayed when there are no attendees of the specified type. */
 function createNoAttendeesMessage(attendeeType) {
   const noAttendeesMessage = document.createElement('p');
-  if (attendeeType === 'invited') {
-    noAttendeesMessage.innerText = 'Buddies invited to the event will be displayed here.';
-  } else if (attendeeType === 'going') {
+  if (attendeeType === 'going') {
     noAttendeesMessage.innerText = 'Buddies going to the event will be displayed here.';
-  } else {
+  } else if (attendeeType === 'not-going') {
     noAttendeesMessage.innerText = 'Buddies not going to the event will be displayed here.';
+  } else {
+    noAttendeesMessage.innerText = 'Buddies invited to the event who have not responded will be displayed here.';
   }
   return noAttendeesMessage;
 }
@@ -591,17 +601,26 @@ function setRSVPButtonColor(goingStatus, goingButton, notGoingButton) {
 }
 
 /** Adds or removes the user as a Going or Not Going attendee. */
-function addRemoveAttendee(event, buttonClicked, goingButton, notGoingButton) {
+function addRemoveAttendee(event, buttonClicked, goingButton, notGoingButton,
+    goingAttendees, notGoingAttendees, undecidedAttendees) {
   const params = new URLSearchParams();
   params.append('eventId', event.eventId);
   if (buttonClicked === 'going') {
     fetch('/going-attendee', {
       method: 'POST', body: params
-    }).then(switchRSVPButtonColor(event, buttonClicked, goingButton, notGoingButton));
+    }).then(() => {
+      updateAttendeeCount(event, buttonClicked, goingButton, notGoingButton, 
+          goingAttendees, notGoingAttendees, undecidedAttendees);
+      switchRSVPButtonColor(event, buttonClicked, goingButton, notGoingButton);
+    });
   } else {
     fetch('/not-going-attendee', {
       method: 'POST', body: params
-    }).then(switchRSVPButtonColor(event, buttonClicked, goingButton, notGoingButton));
+    }).then(() => {
+      updateAttendeeCount(event, buttonClicked, goingButton, notGoingButton, 
+          goingAttendees, notGoingAttendees, undecidedAttendees);
+      switchRSVPButtonColor(event, buttonClicked, goingButton, notGoingButton);
+    });
   }
 }
 
@@ -638,32 +657,50 @@ function deleteSingleEvent(event, eventElement) {
 }
 
 
-/** Updates the attendee count when a user RSVPs. */
-function updateAttendeeCount(event, decision) {
-  const goingAttendees = document.getElementById('going-attendees');
-  const goingText = goingAttendees.innerText;
-  const currentGoingCount = parseInt(goingText.substr(0, goingText.indexOf(' ')));
-  if (event.privacy !== 'public') {
-    // Update count of invited users.
-    const invitedAttendees = document.getElementById('invited-attendees');
-    const invitedText = invitedAttendees.innerText;
-    const currentInvitedCount = parseInt(invitedText.substr(0, invitedText.indexOf(' ')));
-    if (decision === 'going') {
-      const newInvitedCount = currentInvitedCount - 1;
-      invitedAttendees.innerText = newInvitedCount + ' Invited';
+/** Checks and updates all the attendee counts when a user responds to an event. */
+function updateAttendeeCount(event, buttonClicked, goingButton, notGoingButton, 
+    goingAttendees, notGoingAttendees, undecidedAttendees) {
+  if (buttonClicked === 'going') {
+    if (goingButton.classList.contains('button-selected')) {
+      // If the Going button is clicked when already selected, remove a count from Going
+      // and add a count to Undecided.
+      updateSingleAttendeeCount(goingAttendees, -1, ' Going');
+      updateSingleAttendeeCount(undecidedAttendees, 1, ' Undecided');
     } else {
-      const newInvitedCount = currentInvitedCount + 1;
-      invitedAttendees.innerText = newInvitedCount + ' Invited';
+      // If the Going button is clicked when not selected, add a count to Going
+      // and remove a count from either Not Going or Undecided.
+      updateSingleAttendeeCount(goingAttendees, 1, ' Going');
+      if (notGoingButton.classList.contains('button-selected')) {
+        updateSingleAttendeeCount(notGoingAttendees, -1, ' Not Going');
+      } else {
+        updateSingleAttendeeCount(undecidedAttendees, -1, ' Undecided');
+      }
+    }
+  } else {
+    if (notGoingButton.classList.contains('button-selected')) {
+      // If the Not Going button is clicked when already selected, remove a count from 
+      // Not Going and add a count to Undecided.
+      updateSingleAttendeeCount(notGoingAttendees, -1, ' Not Going');
+      updateSingleAttendeeCount(undecidedAttendees, 1, ' Undecided');
+    } else {
+      // If the Not Going button is clicked when not selected, add a count to
+      // Not Going and remove a count from either Going or Undecided.
+      updateSingleAttendeeCount(notGoingAttendees, 1, ' Not Going');
+      if (goingButton.classList.contains('button-selected')) {
+        updateSingleAttendeeCount(goingAttendees, -1, ' Going');
+      } else {
+        updateSingleAttendeeCount(undecidedAttendees, -1, ' Undecided');
+      }
     }
   }
-  // Update count of going users.
-  if (decision === 'going') {
-    const newGoingCount = currentGoingCount + 1;
-    goingAttendees.innerText = newGoingCount + ' Going';
-  } else {
-    const newGoingCount = currentGoingCount - 1;
-    goingAttendees.innerText = newGoingCount + ' Going';
-  }
+}
+
+/** Increments the specified attendee count by the specified amount. */
+function updateSingleAttendeeCount(attendeeType, amount, label) {
+  const currentText = attendeeType.innerText;
+  const currentCount = parseInt(currentText.substr(0, currentText.indexOf(' ')));
+  const newCount = currentCount + amount;
+  attendeeType.innerText = newCount + label;
 }
 
 function storeEventThenEdit(event) {
