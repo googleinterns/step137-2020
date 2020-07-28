@@ -124,13 +124,13 @@ function handleLocationError(browserHasGeolocation, pos) {
 
 /** Searches nearby for a type of location and places markers there. */
 function highlightNearbyLocation(map, placeType, currentLocation) {
-  errorMessage = document.getElementById('error_message');
-  errorMessage.innerText = '';
+  message = document.getElementById('message');
+  message.innerText = '';
   deleteAllMarkers();
   var image = '/images/blue-marker.png';
   var request = {
     location: currentLocation,
-    radius: '2000',
+    radius: '3500',
     type: [placeType]
   };
   service = new google.maps.places.PlacesService(map);
@@ -141,6 +141,8 @@ function highlightNearbyLocation(map, placeType, currentLocation) {
       for (var i = 0; i < results.length; i++) {
         createMarker(map, results[i].geometry.location, results[i].place_id);
       }
+      message.innerText = results.length - 1 + ' location(s) found.';
+      message.style.color = 'var(--request-button-color)';
       function createMarker(thisMap, location, markerPlaceId) {
         var marker = new google.maps.Marker({
           position: location,
@@ -156,7 +158,7 @@ function highlightNearbyLocation(map, placeType, currentLocation) {
     }
     else {
       if (status == "ZERO_RESULTS") {
-        errorMessage.innerText = 'No locations of this category found.';     
+        message.innerText = 'No locations of this category found.';     
       };
     }
   } 
@@ -168,6 +170,7 @@ function updateActiveStatus(listOfElements, evt) {
     listOfElements[i].className = listOfElements[i].className.replace(' active', '');
   }
   if (evt) { evt.currentTarget.className += ' active'; }
+  else { document.getElementById('message').innerText = '';}
 }
 
 /** Deletes all markers on map. */
@@ -194,7 +197,8 @@ function fetchPlaceInformation(place_id, map, where) {
         'rating',
         'formatted_address',
         'website',
-        'business_status'
+        'business_status',
+        'icon'
       ]
     };
 
@@ -227,6 +231,7 @@ function fetchPlaceInformation(place_id, map, where) {
             placeClone.formatted_address = place.formatted_address;
             placeClone.website = place.website;
             placeClone.business_status = place.business_status;
+            placeClone.icon = place.icon;
             placeBlob = new Blob(
               [JSON.stringify(placeClone, null, 2)], 
               {type : 'application/json'}
@@ -273,7 +278,10 @@ function displayPlaceInfo(place, placeId) {
   nameElement = document.createElement('h2');
   ratingElement = document.createElement('span');
   ratingElement.id = 'stars';
-  addressElement = document.createElement('p');
+  addressDiv = document.createElement('div');
+  addressIcon = document.createElement('img');
+  addressIcon.src = '/images/black-marker.png';
+  addressElement = document.createElement('h5');
   createEventElement = document.createElement('button');
   createEventElement.className = "button";
   createPostElement = document.createElement('button');
@@ -288,8 +296,10 @@ function displayPlaceInfo(place, placeId) {
   interestContainerElement.appendChild(interestButtonElement);
   interestContainerElement.appendChild(interestTextElement);
   
-  nameElement.innerText = place.name;
-  addressElement.innerText = 'Address: ' + place.formatted_address;
+  addressElement.innerText = place.formatted_address;
+  addressDiv.className = 'place-info';
+  addressDiv.append(addressIcon);
+  addressDiv.append(addressElement);
   // function to create tab and return tab div element
   tabDivElement = createTabElement();
   createEventElement.innerText = 'Create an Event';
@@ -303,29 +313,53 @@ function displayPlaceInfo(place, placeId) {
     document.getElementById("post-form").style.display = 'block';
   });
 
-  if (place.business_status) {
-    businessStatusElement = document.createElement('p');
-    businessStatusElement.innerText = 'Business Status: ' + place.business_status;
-  }
   interestButtonElement.addEventListener('click', () => {
     saveOrRemoveInterest(place.name, placeId, interestButtonElement, interestTextElement);
   });
 
-  infoDivElement.appendChild(nameElement);
+  nameDiv = document.createElement('div');
+  nameDiv.className = 'place-info';
+  nameIcon = document.createElement('img');
+  nameElement.innerText = place.name;
+  nameIcon.src = place.icon;
+  nameIcon.className= 'icon';
+  nameDiv.append(nameIcon);
+  nameDiv.append(nameElement);
+  infoDivElement.appendChild(nameDiv);
 
   if (place.website) {
+    websiteDiv = document.createElement('div');
+    websiteDiv.className = 'place-info';
+    websiteIcon = document.createElement('img');
+    websiteIcon.src = 'images/website.png';
     websiteElement = document.createElement('a');
-    websiteElement.innerText = place.website;
+    websiteElement.innerText = ' ' + place.website;
     websiteElement.href = place.website;
-    infoDivElement.appendChild(websiteElement);
+    websiteDiv.append(websiteIcon);
+    websiteDiv.append(websiteElement);
+    infoDivElement.appendChild(websiteDiv);
   }
 
-  infoDivElement.appendChild(addressElement);
+  infoDivElement.appendChild(addressDiv);
 
   if (place.business_status) {
+    businessStatusDiv = document.createElement('div');
+    businessStatusIcon = document.createElement('img');
     businessStatusElement = document.createElement('p');
-    businessStatusElement.innerText = 'Business Status: ' + place.business_status;
-    infoDivElement.appendChild(businessStatusElement);
+    businessStatusIcon.src = 'images/businessStatus.png';
+    if (place.business_status == 'OPERATIONAL') {
+      businessStatusElement.innerText = ' operational';
+    }
+    else if (place.business_status == 'CLOSED_TEMPORARILY')  {
+      businessStatusElement.innerText = ' closed temporarily';
+    }
+    else if (place.business_status == 'CLOSED_PERMANENTLY') {
+      businessStatusElement.innerText = ' closed permanently';
+    }
+    businessStatusDiv.className = 'place-info';
+    businessStatusDiv.append(businessStatusIcon);
+    businessStatusDiv.append(businessStatusElement);
+    infoDivElement.appendChild(businessStatusDiv);
   }
 
   if (place.rating) {
