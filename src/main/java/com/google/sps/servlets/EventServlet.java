@@ -57,12 +57,15 @@ public class EventServlet extends HttpServlet {
         json, 
         requestStartTime, 
         requestEndTime, 
+        requestStartDate,
+        requestEndDate,
         timeZone);  
     }
 
     response.setContentType("application/json;");
     response.getWriter().println(json);
   }
+
 
 
   @Override
@@ -72,9 +75,10 @@ public class EventServlet extends HttpServlet {
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     PreparedQuery results = datastore.prepare(query);
  
-     // Converting the list of entities to a list of events .
+     // Converting the list of entities to a list of events.
     List<Event> events = new ArrayList<>();
     for (Entity entity : results.asIterable()) {
+      // Main features of event 
       long eventID = entity.getKey().getId();
       String eventName = 
           (String) entity.getProperty(Constants.EVENT_NAME_PARAM);
@@ -92,18 +96,32 @@ public class EventServlet extends HttpServlet {
           (String) entity.getProperty(Constants.COVID_SAFE_PARAM);
       List<String> invitedAttendees = 
           (List<String>) entity.getProperty(Constants.INVITED_ATTENDEES_PARAM);
-      List<String> rsvpAttendees = 
-          (List<String>) entity.getProperty(Constants.RSVP_ATTENDEES_PARAM);
+      List<String> goingAttendees = 
+          (List<String>) entity.getProperty(Constants.GOING_ATTENDEES_PARAM);
+      List<String> notGoingAttendees = 
+          (List<String>) entity.getProperty(Constants.NOT_GOING_ATTENDEES_PARAM);
       String creator = 
           (String) entity.getProperty(Constants.CREATOR_PARAM);
-      Date startDateTime = (Date) entity.getProperty(Constants.START_DATE_PARAM);
-      Date endDateTime = (Date) entity.getProperty(Constants.END_DATE_PARAM);
+
+      // Stored so events can be sorted by start time (makes display easier).
+      Date startDateTime = (Date) entity.getProperty(Constants.START_DATE_TIME_PARAM);
+      Date endDateTime = (Date) entity.getProperty(Constants.END_DATE_TIME_PARAM);
       String timeZone = (String) entity.getProperty(Constants.TIME_ZONE_PARAM);
       String currency = eventCurrency(endDateTime, timeZone);
+
+      // Original date/time request strings (for display in form if user edits event).
+      String originalStartDate = (String) entity.getProperty(Constants.START_DATE_PARAM);
+      String originalEndDate = (String) entity.getProperty(Constants.END_DATE_PARAM);
+      String originalStartTime = (String) entity.getProperty(Constants.START_TIME_PARAM);
+      String originalEndTime = (String) entity.getProperty(Constants.END_TIME_PARAM);
 
       Event event = new Event.EventBuilder(eventID)
           .setEventName(eventName) 
           .setDateTime(dateTime)
+          .setStartDate(originalStartDate)
+          .setStartTime(originalStartTime)
+          .setEndDate(originalEndDate)
+          .setEndTime(originalEndTime)
           .setStartDateTime(startDateTime)
           .setLocation(location) 
           .setPlaceId(placeId) 
@@ -111,7 +129,8 @@ public class EventServlet extends HttpServlet {
           .setYesCOVIDSafe(yesCOVIDSafe)
           .setPrivacy(privacy)
           .setInvitedAttendees(invitedAttendees)
-          .setRsvpAttendees(rsvpAttendees)
+          .setGoingAttendees(goingAttendees)
+          .setNotGoingAttendees(notGoingAttendees)
           .setCreator(creator)
           .setCurrency(currency)
           .build();
@@ -187,6 +206,8 @@ public class EventServlet extends HttpServlet {
       JSONObject json, 
       String startTime, 
       String endTime, 
+      String originalStartDate, 
+      String originalEndDate, 
       String timeZone) {
 
     String eventName = request.getParameter(Constants.EVENT_NAME_PARAM);
@@ -206,23 +227,31 @@ public class EventServlet extends HttpServlet {
     String currentUserID = userService.getCurrentUser().getUserId();
 
     // List of people who said they will come. Creator is assumed to be attending.
-    List<String> rsvpAttendees = new ArrayList<>();
-    rsvpAttendees.add(""); // Placeholder entry to prevent empty list from becoming null.
-    rsvpAttendees.add(currentUserID);
+    List<String> goingAttendees = new ArrayList<>();
+    goingAttendees.add(""); // Placeholder entry to prevent empty list from becoming null.
+    goingAttendees.add(currentUserID);
+
+    // List of people who say they will not come.
+    List<String> notGoingAttendees = new ArrayList<>();
+    notGoingAttendees.add(""); // Placeholder entry to prevent empty list from becoming null.
 
     // Get formatted start and end times.
     String startTimeFormatted = getTimeDisplay(startTime);
     String endTimeFormatted = getTimeDisplay(endTime);
-
+    
     // Get formatted dates and times for display.
     String dateTimeFormatted = createDateTimeDisplay(startDate, startTimeFormatted, 
           endDate, endTimeFormatted, timeZone);
 
     Entity eventEntity = new Entity(Constants.EVENT_ENTITY_PARAM);
     eventEntity.setProperty(Constants.EVENT_NAME_PARAM, eventName);
-    eventEntity.setProperty(Constants.END_DATE_PARAM, endDateTime);
-    eventEntity.setProperty(Constants.START_DATE_PARAM, startDateTime);
+    eventEntity.setProperty(Constants.END_DATE_TIME_PARAM, endDateTime);
+    eventEntity.setProperty(Constants.START_DATE_TIME_PARAM, startDateTime);
     eventEntity.setProperty(Constants.TIME_ZONE_PARAM, timeZone);
+    eventEntity.setProperty(Constants.START_DATE_PARAM, originalStartDate);
+    eventEntity.setProperty(Constants.END_DATE_PARAM, originalEndDate);
+    eventEntity.setProperty(Constants.START_TIME_PARAM, startTime);
+    eventEntity.setProperty(Constants.END_TIME_PARAM, endTime);
     eventEntity.setProperty(Constants.DATE_TIME_PARAM, dateTimeFormatted);
     eventEntity.setProperty(Constants.LOCATION_PARAM, location);
     eventEntity.setProperty(Constants.PLACE_ID_PARAM, placeId);
@@ -230,7 +259,8 @@ public class EventServlet extends HttpServlet {
     eventEntity.setProperty(Constants.COVID_SAFE_PARAM, yesCOVIDSafe);
     eventEntity.setProperty(Constants.PRIVACY_PARAM, privacy);
     eventEntity.setProperty(Constants.INVITED_ATTENDEES_PARAM, invitedAttendees);
-    eventEntity.setProperty(Constants.RSVP_ATTENDEES_PARAM, rsvpAttendees);
+    eventEntity.setProperty(Constants.GOING_ATTENDEES_PARAM, goingAttendees);
+    eventEntity.setProperty(Constants.NOT_GOING_ATTENDEES_PARAM, notGoingAttendees);
     eventEntity.setProperty(Constants.CREATOR_PARAM, currentUserID);
 
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
