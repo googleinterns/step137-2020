@@ -40,33 +40,21 @@ public class NotGoingAttendeeServlet extends HttpServlet {
         // Get not going attendees.
         List<String> notGoingAttendees = 
             (List<String>) eventEntity.getProperty(Constants.NOT_GOING_ATTENDEES_PARAM);
-        // Get invited attendees
-        List<String> invitedAttendees =
-            (List<String>) eventEntity.getProperty(Constants.INVITED_ATTENDEES_PARAM);
         // Get going attendees.
         List<String> goingAttendees = 
             (List<String>) eventEntity.getProperty(Constants.GOING_ATTENDEES_PARAM);
-        // Get privacy 
-        String privacy = (String) eventEntity.getProperty(Constants.PRIVACY_PARAM);
         
         if (notGoingAttendees.contains(currentUserId)) {
-          // Remove the user from the list of not going attendees, and add it to the list of
-          // invited attendees if it's a private event .
+          // Remove the user from the list of not going attendees.
           notGoingAttendees.remove(currentUserId);
-          if (privacy.equals("attendees") || privacy.equals("buddies-only")) {
-           invitedAttendees.add(currentUserId);
-          }
         } else {
           // Add the user to the list of not going attendees and remove it from its previous list.
           notGoingAttendees.add(currentUserId);
           if (goingAttendees.contains(currentUserId)) {
             goingAttendees.remove(currentUserId);
-          } else if (invitedAttendees.contains(currentUserId)) {
-            invitedAttendees.remove(currentUserId);
           }
         }
         eventEntity.setProperty(Constants.NOT_GOING_ATTENDEES_PARAM, notGoingAttendees);
-        eventEntity.setProperty(Constants.INVITED_ATTENDEES_PARAM, invitedAttendees);
         eventEntity.setProperty(Constants.GOING_ATTENDEES_PARAM, goingAttendees);
         datastore.put(eventEntity);
         break;
