@@ -101,7 +101,7 @@ function appendInfo(user, userDisplay) {
       selectedUser.appendChild(createAttendeeDisplay(attendees[i], "yes"));
     }
     displayAttendees.appendChild(selectedUser);
-   
+
     document.getElementById("invited-attendee-ID-list").value = attendeeIDs;
   }
 }
@@ -451,14 +451,16 @@ function createEventWithResponse(event, userID, going) {
   attendeeInfo.appendChild(goingAttendees);
   bottomCard.appendChild(attendeeInfo);
   
-  const rsvpButton = document.createElement('button');
-  rsvpButton.id = 'rsvp-button';
-  rsvpButton.innerText = "Going";
-  setRSVPButtonColor(rsvpButton, going);
-  rsvpButton.addEventListener('click', () => {
-    addRemoveAttendee(event, rsvpButton);
-  });
-  bottomCard.appendChild(rsvpButton);
+  if (event.currency === 'current') {
+    const rsvpButton = document.createElement('button');
+    rsvpButton.id = 'rsvp-button';
+    rsvpButton.innerText = "Going";
+    setRSVPButtonColor(rsvpButton, going);
+    rsvpButton.addEventListener('click', () => {
+      addRemoveAttendee(event, rsvpButton);
+    });
+    bottomCard.appendChild(rsvpButton);
+  }
 
   if (userID === event.creator) {
     const deleteButton = document.createElement('button');
@@ -483,6 +485,7 @@ function createEventWithResponse(event, userID, going) {
   }
 
   eventElement.append(bottomCard);
+
   return eventElement;
 }
 
@@ -545,9 +548,9 @@ function displayAttendees(event, attendeeType) {
 function createNoAttendeesMessage(attendeeType) {
   const noAttendeesMessage = document.createElement('p');
   if (attendeeType === 'invited') {
-    noAttendeesMessage.innerText = 'Buddies invited to this event will be displayed here.';
+    noAttendeesMessage.innerText = 'Buddies invited to the event will be displayed here.';
   } else {
-    noAttendeesMessage.innerText = 'Buddies going to this event will be displayed here.';
+    noAttendeesMessage.innerText = 'Buddies going to the event will be displayed here.';
   }
   return noAttendeesMessage;
 }
