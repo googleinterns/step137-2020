@@ -4,7 +4,7 @@ function onLoad() {
   initializeMap();
 }
 
-/** Initializes map and displays it. */
+/** Initializes map. */
 function initializeMap() {
   mapCenter = { lat: 122.0841, lng: 37.4220 };
   var map = new google.maps.Map(document.getElementById('nearMeMap'), {
@@ -41,7 +41,14 @@ function findNearbyEvents(map, currentLocation) {
     center: currentLocation,
     radius: 2000 
   });
-  
+  // display loading icon with text.
+  nearmeLoaderElement = document.getElementById('loader-icon-nearme');
+  findingNearbyEventsText = document.getElementById('finding-events-nearme');
+  foundNearbyEventsText = document.getElementById('found-events-nearme');
+  nearmeLoaderElement.style.display = 'block';
+  findingNearbyEventsText.style.display = 'block';
+  foundNearbyEventsText.style.display = 'none';
+
   fetch('/events')
   .then(response => response.json())
   .then(events => {
@@ -57,9 +64,7 @@ function findNearbyEvents(map, currentLocation) {
       for (var i = 0; i < events.length; i++) {
         if (events[i].currency === "current") {
           var currentEvent = events[i];
-          var currentEventPromise = new Promise((resolveFn, rejectFn) => {
-            isNearby(geocoder, currentEvent, locationCircle, userId, resolveFn, rejectFn);
-          });
+          var currentEventPromise = isNearby(geocoder, currentEvent, locationCircle, userId);
           eventPromises.push(currentEventPromise);
         } 
       }
@@ -70,9 +75,7 @@ function findNearbyEvents(map, currentLocation) {
       for (var i = 0; i < events.length; i++) {
         if (events[i].currency === "current") {
           var currentEvent = events[i];
-          var currentEventPromise = new Promise((resolveFn, rejectFn) => {
-            isNearby(geocoder, currentEvent, locationCircle, '', resolveFn, rejectFn);
-          });
+          var currentEventPromise = isNearby(geocoder, currentEvent, locationCircle, '');
           eventPromises.push(currentEventPromise);
         }
       }
@@ -89,20 +92,26 @@ function findNearbyEvents(map, currentLocation) {
                    ]
         }
     */  
-    Promise.all(eventPromises).then((listOfEventObjects) => {
+    Promise.allSettled(eventPromises).then((listOfEventObjects) => {
       calculateDistances(currentLocation, listOfEventObjects).then((results) => {
         results.sort( compareDistanceToCurrLocation );
-        for (var i = 0; i < listOfEventObjects.length; i++) {
-          eventsDivElement.appendChild(displayEvents(listOfEventObjects[i]));
+        for (var i = 0; i < results.length; i++) {
+          eventsDivElement.appendChild(displayEvents(results[i].value));
         }
+        // take away loading icon.
+        nearmeLoaderElement.style.display = 'none';
+        findingNearbyEventsText.style.display = 'none';
+        foundNearbyEventsText.style.display = 'block';
       });
     });
   });
 }
 
 /** Checks to see if an event is nearby */
-function isNearby(geocoder, event, locationCircle, userId, resolveFn, rejectFn) {
-  geocoder.geocode( {'placeId' : event.placeId}, function(results, status) {
+function isNearby(geocoder, event, locationCircle, userId) {
+  return new Promise(function(resolveFn, rejectFn) {
+    const timeout = setTimeout(() => rejectFn(), 1000);
+    geocoder.geocode( {'placeId' : event.placeId}, function(results, status) {
     if (status !== google.maps.GeocoderStatus.OK) {
       alert('Geocode was not successful for the following reason: ' + status);
       // Reject the promise.
@@ -121,6 +130,7 @@ function isNearby(geocoder, event, locationCircle, userId, resolveFn, rejectFn) 
           eventObj.event = event;
           eventObj.latLng = eventLatLng;
           resolveFn(eventObj);
+          clearTimeout(timeout);
         }
       }
       else {
@@ -129,22 +139,28 @@ function isNearby(geocoder, event, locationCircle, userId, resolveFn, rejectFn) 
           eventObj.event = event;
           eventObj.latLng = eventLatLng;
           resolveFn(eventObj);
+          clearTimeout(timeout);
         }
       } 
       
     }
   });
+  });  
 }
 
 /** Calculates distances between all event locations and the current location. */
 function calculateDistances(currentLocation, listOfEventObjects) {
   return new Promise(function(resolveFn, reject) {
+    results = [];
     origin = currentLocation;
     destinations = [];
     for (var i = 0; i < listOfEventObjects.length; i++) {
-      destinations.push(listOfEventObjects[i].latLng);
+      // Checks to see if the promise was resolved.
+      // Resolved promises have values.
+      if (listOfEventObjects[i].value) { 
+        destinations.push(listOfEventObjects[i].value.latLng);
+      }
     } 
-    
     var service = new google.maps.DistanceMatrixService();
     service.getDistanceMatrix(
       {
@@ -157,11 +173,18 @@ function calculateDistances(currentLocation, listOfEventObjects) {
     function callback(response, status) {
       if (status == 'OK') {
         distances = response.rows[0].elements;
+        var distanceIndex = 0;
         for (var i = 0; i < listOfEventObjects.length; i ++) {
-          listOfEventObjects[i].distanceText = distances[i].distance.text;
-          listOfEventObjects[i].distanceValue = distances[i].distance.value; 
+          // Checks to see if the promise was resolved.
+          // Resolved promises have values.
+          if (listOfEventObjects[i].value) {
+            listOfEventObjects[i].value.distanceText = distances[distanceIndex].distance.text;
+            listOfEventObjects[i].value.distanceValue = distances[distanceIndex].distance.value;
+            distanceIndex++;
+            results.push(listOfEventObjects[i]);
+          }
         }
-        resolveFn(listOfEventObjects);
+        resolveFn(results);
       }
       else { 
         reject(); 
@@ -172,10 +195,10 @@ function calculateDistances(currentLocation, listOfEventObjects) {
 
 /** Compares events by their distance to the current location */
 function compareDistanceToCurrLocation(eventObj1, eventObj2) {
-  if (eventObj1.distanceValue < eventObj2.distanceValue) {
+  if (eventObj1.value.distanceValue < eventObj2.value.distanceValue) {
     return -1;
   }
-  if (eventObj1.distanceValue > eventObj2.distanceValue) {
+  if (eventObj1.value.distanceValue > eventObj2.value.distanceValue) {
     return 1;
   }
   return 0;

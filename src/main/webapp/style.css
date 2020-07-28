@@ -650,6 +650,32 @@ html, body {
   background-color: plum;
 }
 
+/* Loading icon functionality */
+.loader {
+  border: 16px solid #f3f3f3;
+  border-top: 16px solid #0928;
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  animation: spin 2s linear infinite;
+  margin: auto;
+  display: none;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+#finding-location-text {
+  text-align: center;
+  display: none;
+}
+
+#found-location-text {
+  display: none;
+}
+
 /* Styling for map saved interest */
 #map-interest-container {
   display: flex;
