@@ -5,7 +5,14 @@ import java.util.Date;
 public class Event implements Comparable<Event> {
   private long eventId;
   private String eventName;
+  // Start/end date/time represented in a string
   private String dateTime;
+  // Original request date/time strings for when user wants to edit their event
+  private String startDate;
+  private String startTime;
+  private String endDate;
+  private String endTime;
+  // Start date/time for sorting
   private Date startDateTime;
   private String location;
   private String placeId;
@@ -21,6 +28,10 @@ public class Event implements Comparable<Event> {
     this.eventId = builder.eventId;
     this.eventName = builder.eventName;
     this.dateTime = builder.dateTime;
+    this.startDate = builder.startDate;
+    this.startTime = builder.startTime;
+    this.endDate = builder.endDate;
+    this.endTime = builder.endTime;
     this.startDateTime  = builder.startDateTime;
     this.location = builder.location;
     this.placeId = builder.placeId;
@@ -49,6 +60,10 @@ public class Event implements Comparable<Event> {
     private String eventName;
     // String of the date and time of event for display purposes.
     private String dateTime;
+    private String startDate;
+    private String startTime;
+    private String endDate;
+    private String endTime;
     // Start date of event for sorting comparison (displaying events by start date).
     private Date startDateTime;
     private String location;
@@ -72,6 +87,27 @@ public class Event implements Comparable<Event> {
 
     public EventBuilder setDateTime (String dateTime) {
       this.dateTime = dateTime;
+      return this;
+    }
+
+    public EventBuilder setStartDate (String startDate) {
+      this.startDate = startDate;
+      return this;
+    }
+
+    public EventBuilder setStartTime (String startTime) {
+      this.startTime = startTime;
+      return this;
+    }
+
+    public EventBuilder setEndDate (String endDate) {
+      this.endDate = endDate;
+      return this;
+    }
+
+
+    public EventBuilder setEndTime (String endTime) {
+      this.endTime = endTime;
       return this;
     }
 

@@ -1,3 +1,7 @@
+// Global Variables
+const CURRENT_EVENT = "event";
+let EDITING;
+
 /**
   function calls for body onload
  */
@@ -5,6 +9,17 @@ function onload() {
   navbarLoginDisplay();
   getLocationInfo();
   createMapSnippet();
+  //determine whether to fill in form 
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('fillIn') === "yes") {
+    displayEventFormFilledIn();
+  }
+  if (urlParams.get('editing') === "yes") {
+    EDITING = "yes";
+  }
+  else {
+    EDITING = "no";
+  }
 }
 
 /**
@@ -86,7 +101,7 @@ function appendInfo(user, userDisplay) {
       selectedUser.appendChild(createAttendeeDisplay(attendees[i], "yes"));
     }
     displayAttendees.appendChild(selectedUser);
-    
+
     document.getElementById("invited-attendee-ID-list").value = attendeeIDs;
   }
 }
@@ -138,6 +153,7 @@ function buddiesOnly() {
   fetch("/buddy")
     .then(response => response.json())
     .then(buddies => {
+      buddyIds.push("");
       for (let i = 1; i < buddies.length; i++) {
         buddyIds.push(buddies[i]);
       }
@@ -157,13 +173,17 @@ function submitForm() {
     params.append("start-time", document.getElementById("start-time").value);
     params.append("end-date", document.getElementById("end-date").value);
     params.append("end-time", document.getElementById("end-time").value);
-    params.append("time-zone", document.getElementById("time-zone").value);
     params.append("location", document.getElementById("location").value);
     params.append("place-id", document.getElementById("place-id").value);
     params.append("event-details", document.getElementById("event-details").value);
     params.append("privacy", document.getElementById("privacy").value);
     params.append("invited-attendee-ID-list", document.getElementById("invited-attendee-ID-list").value);
     params.append("COVID-Safe", document.getElementById("COVID-Safe").value);
+    params.append("event-editing", EDITING);
+    if (EDITING === "yes") {
+      var event = JSON.parse(sessionStorage.getItem(CURRENT_EVENT));
+      params.append("id", event.eventId);
+    }
 
     const request = new Request('/events', {method: 'POST', body: params});
     fetch(request)
@@ -184,6 +204,16 @@ function submitForm() {
           document.getElementById("success").style.color = "black";
           document.getElementById("success").innerHTML = 
             "<p>Event created successfully. Click <a href=\"/map.html\">here</a>" +
+            " to return to the map</p>";
+        }
+        else if (json['success'] === 'edit') {
+          document.getElementById("success").innerHTML = "";
+          document.getElementById("date-warning").innerHTML = "";
+          var placeId = document.getElementById('place-id').value;
+          sessionStorage.setItem("currentLocationId", placeId);
+          document.getElementById("success").style.color = "black";
+          document.getElementById("success").innerHTML = 
+            "<p>Event edited successfully. Click <a href=\"/map.html\">here</a>" +
             " to return to the map</p>";
         }
       });
@@ -442,7 +472,16 @@ function createEventWithResponse(event, userID, going) {
     deleteButton.addEventListener('click', () => {
       deleteSingleEvent(event, eventElement);
     });
+    
+    const editEventButton = document.createElement('i');
+    editEventButton.id = 'edit-event-button';
+    editEventButton.className = 'fa fa-edit';
+    editEventButton.addEventListener('click', () => {
+      storeEventThenEdit(event);
+    });
+
     bottomCard.append(deleteButton);
+    bottomCard.append(editEventButton);
   }
 
   eventElement.append(bottomCard);
@@ -558,6 +597,7 @@ function deleteSingleEvent(event, eventElement) {
   }).then(eventElement.style.display = "none");
 }
 
+
 /** Updates the attendee count when a user RSVPs. */
 function updateAttendeeCount(event, decision) {
   const goingAttendees = document.getElementById('going-attendees');
@@ -584,4 +624,49 @@ function updateAttendeeCount(event, decision) {
     const newGoingCount = currentGoingCount - 1;
     goingAttendees.innerText = newGoingCount + ' Going';
   }
+}
+
+function storeEventThenEdit(event) {
+  sessionStorage.setItem(CURRENT_EVENT, JSON.stringify(event));
+  window.location.href = "CreateAnEvent.html?fillIn=yes&editing=yes";
+}
+
+function displayEventFormFilledIn() {
+  var event = JSON.parse(sessionStorage.getItem(CURRENT_EVENT));
+  document.getElementById("event-name").value = event.eventName;
+  document.getElementById("start-date").value = event.startDate;
+  document.getElementById("start-time").value = event.startTime;
+  document.getElementById("end-date").value = event.endDate;
+  document.getElementById("end-time").value = event.endTime;
+  document.getElementById("location").value = event.location;
+  document.getElementById("place-id").value = event.placeId;
+  document.getElementById("event-details").value = event.eventDetails;
+  document.getElementById("privacy").value = event.privacy;
+  if (event.privacy === "attendees") {
+    document.getElementById("attendees-wrap").style.display = "block";
+    document.getElementById("invited-attendee-ID-list").style.display = "none";
+    document.getElementById("invited-attendee-ID-list").value = event.invitedAttendees;
+    let allUsers = new Array();
+    invitedAttendees = event.invitedAttendees;
+    displayAttendees = document.getElementById("display-invited-attendees");
+
+    fetch('/user')
+      .then(response => response.json())
+      .then(users => {
+        allUsers = users;
+        
+        for (let i = 1; i < invitedAttendees.length; i ++) {
+          for (let j = 0; j < allUsers.length; j ++) {
+            if (invitedAttendees[i] === allUsers[j].id) {
+              const userDisplay = document.createElement('div');
+              userDisplay.className = "user-display";
+              appendInfo(allUsers[i], userDisplay);
+            }
+          }
+        }
+      });
+  }
+
+  submitButton = document.getElementById("event-button");
+  submitButton.innerText = "Edit Event";
 }
