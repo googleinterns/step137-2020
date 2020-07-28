@@ -5,6 +5,7 @@ const EXPLORE_MAP_PAGE = 'exploreMapPage';
 const SESSION_STORE_LOCATION = 'locationName';
 const SESSION_STORE_PLACEID = 'placeId';
 const SESSION_STORAGE_OPENTAB = 'whichTabToOpen';
+
 var markers = [];
 /** Initial display of screen */
 function initialDisplay() {
@@ -301,6 +302,7 @@ function displayPlaceInfo(place, placeId) {
     createPostForm();
     document.getElementById("post-form").style.display = 'block';
   });
+
   if (place.business_status) {
     businessStatusElement = document.createElement('p');
     businessStatusElement.innerText = 'Business Status: ' + place.business_status;
@@ -339,6 +341,7 @@ function displayPlaceInfo(place, placeId) {
     eventsDivElement.appendChild(createEventElement);
     eventsDivElement.appendChild(getAvailableEvents(userId)); 
     userPostsDivElement.appendChild(createPostElement); 
+    userPostsDivElement.appendChild(sortPostElement);
     userPostsDivElement.appendChild(getAvailablePosts(userId)); 
   }
   else {
@@ -519,3 +522,4 @@ function setInterestButton(interestButtonElement, interestTextElement, placeId, 
     }
   });
 }
+

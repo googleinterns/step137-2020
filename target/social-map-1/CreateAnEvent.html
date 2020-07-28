@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Create an Event</title>
     <link rel="stylesheet" href="style.css">
+    <script src="api_key.js"></script>
     <script src="mapScript.js"></script>
     <script src="profileScript.js"></script>
     <script src="eventScript.js"></script>
@@ -81,12 +82,13 @@
 
           <div id="attendees-wrap">
             <p>Please select users you wish to invite from the list below:</p>
-            <div id="warning" class="warning"></div>
-            <input type="text" placeholder="Enter user name..." id="attendee-text" 
+            <input type="text" placeholder="Add guest..." id="attendee-text" 
               onkeyup="displayUsers()" autocomplete="off">
             <div id="loaded-users"></div>
-            <input type="text" id="invited-attendee-list" name="invited-attendee-list"> <br>
+            <br>
+            <div id="display-invited-names"></div>
             <input type="text" id="invited-attendee-ID-list" name = "invited-attendee-ID-list">
+            <div id="warning" class="warning"></div>
           </div>
           <br>
 

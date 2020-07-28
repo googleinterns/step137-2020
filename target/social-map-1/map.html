@@ -10,7 +10,8 @@
     <script src="profileScript.js"></script>
     <script src="postScript.js"></script>
     <script src="eventScript.js"></script>
-    <script src="mapScript.js"></script>
+    <script src="api_key.js"></script>
+    <script src="mapScript.js"></script>  
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   </head>
   <body onload="initialDisplay()">
@@ -28,6 +29,7 @@
           <div id="park" class="filter-button">park</div>
           <div id="shopping_mall" class="filter-button">shopping mall</div>
           <div id="movie_theater" class="filter-button">movie theater</div>
+          <p id="error_message"></p>
         </div> 
         <h1>Information Bar</h1>
         <div id="place-info">
@@ -36,6 +38,31 @@
           </p>
           <div id="UserPosts" class="tabcontent"> </div>
           <div id="Events" class="tabcontent"> </div>
+        </div>
+        <div id="post-form" class="popup">
+          <div id="form-body" class = "popup-text">
+            <div id="exit-button"></div>
+            <h1>Make a Post</h1>
+            <p>Type a message and click submit:</p>
+            <form id="post" method="POST" enctype="multipart/form-data">
+              <p>Location: </p>
+              <input type="text" id="location" name="location">
+              <input type="text" id="place-id" name="place-id">
+              <h2>Upload an image: </h2>
+              <input type="file" name="image">
+              <br/>
+              <h2>Caption: </h2>
+              <textarea name="caption"></textarea>
+              <br/><br/>
+              <h3>Privacy</h3>
+              <select id="privacy" name="privacy" required>
+                <option value="public">Public</option>
+                <option value="buddies-only">Buddies</option>
+                <option value="private">Private</option>
+              </select>
+              <button onclick="hideForm()">Submit</button>
+            </form>
+          </div>
         </div>
       </div>
       <div class="main">

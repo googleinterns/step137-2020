@@ -372,7 +372,7 @@ function createEventNoResponse(event) {
   }
 
   const topOfEvent = document.createElement('div');
-  topOfEvent.id = "top-event";
+  topOfEvent.className = "top-card";
 
   const creatorName = document.createElement('div');
   creatorName.id = "event-creator";
@@ -480,7 +480,7 @@ function createEventWithResponse(event, userID, going) {
     editEventButton.addEventListener('click', () => {
       storeEventThenEdit(event);
     });
-
+    
     bottomCard.append(deleteButton);
     bottomCard.append(editEventButton);
   }
