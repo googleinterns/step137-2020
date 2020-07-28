@@ -45,9 +45,11 @@ function findNearbyEvents(map, currentLocation) {
   nearmeLoaderElement = document.getElementById('loader-icon-nearme');
   findingNearbyEventsText = document.getElementById('finding-events-nearme');
   foundNearbyEventsText = document.getElementById('found-events-nearme');
+  noNearbyEventsText = document.getElementById('no-events-nearme');
   nearmeLoaderElement.style.display = 'block';
   findingNearbyEventsText.style.display = 'block';
   foundNearbyEventsText.style.display = 'none';
+  noNearbyEventsText.style.display = 'none';
 
   fetch('/events')
   .then(response => response.json())
@@ -55,6 +57,9 @@ function findNearbyEvents(map, currentLocation) {
     var eventPromises = [];
     if (events.length == 0) {
       eventsDivElement.innerHTML = '<p>No nearby events to show.</p>';
+      nearmeLoaderElement.style.display = 'none';
+      findingNearbyEventsText.style.display = 'none';
+      noNearbyEventsText.style.display = 'block';
       return;
     }
 
@@ -123,8 +128,7 @@ function isNearby(geocoder, event, locationCircle, userId) {
     var isNearby = locationCircle.getBounds().contains(eventLatLng)
     if (isNearby) {
       if (userId) {
-        if (event.rsvpAttendees.includes(userId) ||
-        event.invitedAttendees.includes(userId) || 
+        if (event.invitedAttendees.includes(userId) || 
         event.privacy == 'public') {
           eventObj = new Object();
           eventObj.event = event;
@@ -133,16 +137,13 @@ function isNearby(geocoder, event, locationCircle, userId) {
           clearTimeout(timeout);
         }
       }
-      else {
-        if (event.privacy == 'public'){
-          eventObj = new Object();
-          eventObj.event = event;
-          eventObj.latLng = eventLatLng;
-          resolveFn(eventObj);
-          clearTimeout(timeout);
-        }
+      else if (event.privacy == 'public') {
+        eventObj = new Object();
+        eventObj.event = event;
+        eventObj.latLng = eventLatLng;
+        resolveFn(eventObj);
+        clearTimeout(timeout);
       } 
-      
     }
   });
   });  
