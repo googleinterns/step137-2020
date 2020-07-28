@@ -87,7 +87,38 @@ function getAvailablePosts(userId) {
 }
 
 function createPostNoResponse(post) {
-const caption = document.createElement('p');
+  const topOfPost = document.createElement('div');
+  topOfPost.className = "top-card:"
+  const creatorName = document.createElement('div');
+  creatorName.id = "event-creator";
+  fetch("/user")
+    .then(response => response.json())
+    .then(users => {
+      for (let i = 0; i < users.length; i++) {
+        if (users[i].id === post.creator) {
+          displayProfilePicture(users[i], creatorName, 'profile-pic-small');
+          const name = document.createElement('p');
+          name.id = 'event-creator-name';
+          name.innerText = "Created by " + users[i].name;
+          creatorName.addEventListener('click', () => {
+            visitProfile(users[i].id);
+          });
+          creatorName.append(name);
+        }
+      }
+    });
+  
+  topOfPost.append(creatorName);
+
+  if (post.COVIDInfo === "yes") {
+    const covidBadge = document.createElement('img');
+    covidBadge.src = "images/mask.png";
+    covidBadge.height = 20;
+    covidBadge.width = 20;
+    covidBadge.id = "covid-badge";
+    topOfPost.append(covidBadge);
+  }
+  const caption = document.createElement('p');
   caption.id = "caption";
   caption.innerText = post.caption;
 
@@ -107,6 +138,7 @@ const caption = document.createElement('p');
   
   const postElement = document.createElement('div');
   postElement.className = "card";
+  postElement.append(topOfPost);
   postElement.append(imageElement);
   postElement.append(caption);
 

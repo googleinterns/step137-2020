@@ -2,6 +2,7 @@ package com.google.sps.data;
 
 import com.google.appengine.api.blobstore.BlobKey;
 import java.util.List;
+import java.util.Date;
 
 public final class Post implements Comparable<Post>{
   private long id;
@@ -12,6 +13,10 @@ public final class Post implements Comparable<Post>{
   private String placeId;
   private String privacy;
   private List<String> likes;
+  private String COVIDInfo;
+  // Date is necessary for sorting  when user wants to display posts by when they 
+  // were created.
+  private Date creationDateTime;
 
   public Post(PostBuilder builder) {
     this.id = builder.id;
@@ -22,6 +27,8 @@ public final class Post implements Comparable<Post>{
     this.placeId = builder.placeId;
     this.privacy = builder.privacy;
     this.likes = builder.likes;
+    this.COVIDInfo = builder.COVIDInfo;
+    this.creationDateTime = builder.creationDateTime;
   }
 
   @Override
@@ -38,6 +45,8 @@ public final class Post implements Comparable<Post>{
     private String placeId;
     private String privacy;
     private List<String> likes;
+    private String COVIDInfo;
+    private Date creationDateTime;
 
     public PostBuilder (long id) {
       this.id = id;
@@ -75,6 +84,16 @@ public final class Post implements Comparable<Post>{
 
     public PostBuilder setLikes (List<String> likes) {
       this.likes = likes;
+      return this;
+    }
+
+    public PostBuilder setCOVIDInfo(String COVIDInfo) {
+      this.COVIDInfo = COVIDInfo;
+      return this;
+    }
+
+    public PostBuilder setCreationDateTime(Date creationDateTime) {
+      this.creationDateTime = creationDateTime;
       return this;
     }
 

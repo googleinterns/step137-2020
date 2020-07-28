@@ -30,8 +30,11 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
+import java.text.ParseException; 
  
 /**
  * When the user submits the form, Blobstore processes the file upload and then forwards the request
@@ -48,6 +51,15 @@ public class PostsServlet extends HttpServlet {
     String location = request.getParameter(Constants.LOCATION_PARAM);
     String placeId = request.getParameter(Constants.PLACE_ID_PARAM);
     String privacy = request.getParameter(Constants.PRIVACY_PARAM);
+    String COVIDInfo = request.getParameter(Constants.COVID_INFO_PARAM);
+    
+    // Format the current system time.
+    SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy HH:mm");
+    Date creationDateTime = new Date();
+    try {
+      String currentDateString = formatter.format(creationDateTime);
+      creationDateTime = formatter.parse(currentDateString);
+    } catch (ParseException e) {e.printStackTrace();}
     
     UserService userService = UserServiceFactory.getUserService();
     String creator = userService.getCurrentUser().getUserId();
@@ -63,6 +75,8 @@ public class PostsServlet extends HttpServlet {
     postEntity.setProperty(Constants.PRIVACY_PARAM, privacy);
     postEntity.setProperty(Constants.CREATOR_PARAM, creator);
     postEntity.setProperty(Constants.LIKES_PARAM, likes);
+    postEntity.setProperty(Constants.COVID_INFO_PARAM, COVIDInfo);
+    postEntity.setProperty(Constants.CREATION_DATE_TIME_PARAM, creationDateTime);
  
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     datastore.put(postEntity);
@@ -87,6 +101,8 @@ public class PostsServlet extends HttpServlet {
       String privacy = (String) entity.getProperty(Constants.PRIVACY_PARAM);
       String creator = (String) entity.getProperty(Constants.CREATOR_PARAM);
       List<String> likes = (List<String>) entity.getProperty(Constants.LIKES_PARAM);
+      String COVIDInfo = (String) entity.getProperty(Constants.COVID_INFO_PARAM);
+      Date creationDateTime = (Date) entity.getProperty(Constants.CREATION_DATE_TIME_PARAM);
 
       Post post = new Post.PostBuilder(id)
           .setCaption(caption)
@@ -96,6 +112,8 @@ public class PostsServlet extends HttpServlet {
           .setPlaceId(placeId)
           .setPrivacy(privacy)
           .setLikes(likes)
+          .setCOVIDInfo(COVIDInfo)
+          .setCreationDateTime(creationDateTime)
           .build();
       posts.add(post);
     }

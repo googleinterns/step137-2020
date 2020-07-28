@@ -57,4 +57,6 @@ public final class Constants {
   public static final String CAPTION_PARAM = "caption";
   public static final String POST_ID_PARAM = "id";
   public static final String LIKES_PARAM = "likes";
+  public static final String COVID_INFO_PARAM = "COVID-Info";
+  public static final String CREATION_DATE_TIME_PARAM = "creation-date-time";
 }

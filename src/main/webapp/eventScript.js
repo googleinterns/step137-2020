@@ -341,7 +341,7 @@ function createEventNoResponse(event) {
   }
 
   const topOfEvent = document.createElement('div');
-  topOfEvent.id = "top-event";
+  topOfEvent.className = "top-card";
 
   const creatorName = document.createElement('div');
   creatorName.id = "event-creator";
