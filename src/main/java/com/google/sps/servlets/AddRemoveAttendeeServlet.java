@@ -28,43 +28,54 @@ public class AddRemoveAttendeeServlet extends HttpServlet {
     UserService userService = UserServiceFactory.getUserService();
     String currentUserId = userService.getCurrentUser().getUserId();
     long eventId = Long.parseLong(request.getParameter("eventId"));
-
+    //Key eventEntityKey = KeyFactory.createKey(Constants.EVENT_ENTITY_PARAM, eventId);
+    //Entity eventEntity = getEventEntity(eventEntityKey);
+    
     Query query = new Query(Constants.EVENT_ENTITY_PARAM);
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     PreparedQuery results = datastore.prepare(query);
 
-    for (Entity entity : results.asIterable()) {
-      if (entity.getKey().getId() == eventId) {
-        //get rsvp attendees
-        List<String> rsvpAttendees = 
-            (List<String>) entity.getProperty(Constants.RSVP_ATTENDEES_PARAM);
-        
-        //get invited attendees
-        List<String> invitedAttendees = 
-            (List<String>) entity.getProperty(Constants.INVITED_ATTENDEES_PARAM);
+    for (Entity eventEntity : results.asIterable()) {
+      if (eventEntity.getKey().getId() == eventId) {
+        // Get going attendees.
+        List<String> goingAttendees = 
+            (List<String>) eventEntity.getProperty(Constants.GOING_ATTENDEES_PARAM);
+
+        // Get not going attendees.
+        List<String> notGoingAttendees = 
+            (List<String>) eventEntity.getProperty(Constants.NOT_GOING_ATTENDEES_PARAM);
         
         //get privacy 
-        String privacy = (String) entity.getProperty(Constants.PRIVACY_PARAM);
+        String privacy = (String) eventEntity.getProperty(Constants.PRIVACY_PARAM);
 
-        if (rsvpAttendees.contains(currentUserId)) {
-          rsvpAttendees.remove(currentUserId);
+        if (goingAttendees.contains(currentUserId)) {
+          goingAttendees.remove(currentUserId);
           if(privacy.equals("attendees") || privacy.equals("buddies-only")) {
-            invitedAttendees.add(currentUserId);
+            notGoingAttendees.add(currentUserId);
           }
         }
         else {
-          rsvpAttendees.add(currentUserId);
-          if(privacy.equals("attendees") || privacy.equals("buddies-only")) {
-            invitedAttendees.remove(currentUserId);
+          goingAttendees.add(currentUserId);
+          if((privacy.equals("attendees") || privacy.equals("buddies-only")) 
+              && notGoingAttendees.contains(currentUserId)) {
+            notGoingAttendees.remove(currentUserId);
           }
         }
 
-        entity.setProperty(Constants.RSVP_ATTENDEES_PARAM, rsvpAttendees);
-        entity.setProperty(Constants.INVITED_ATTENDEES_PARAM, invitedAttendees);
-        datastore.put(entity);
-
+        eventEntity.setProperty(Constants.GOING_ATTENDEES_PARAM, goingAttendees);
+        eventEntity.setProperty(Constants.NOT_GOING_ATTENDEES_PARAM, notGoingAttendees);
+        datastore.put(eventEntity);
         break;
       }
     }
   }
+
+  /*private Entity getEventEntity(Key eventEntityKey) {
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    Query query = new Query(Constants.EVENT_ENTITY_PARAM)
+        .setFilter(new Query.FilterPredicate(Constants.EVENT_KEY_PARAM, 
+            Query.FilterOperator.EQUAL, eventEntityKey));
+    PreparedQuery results = datastore.prepare(query);
+    return results.asSingleEntity();
+  }*/
 }

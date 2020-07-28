@@ -178,11 +178,7 @@ function submitForm() {
     params.append("privacy", document.getElementById("privacy").value);
     params.append("invited-attendee-ID-list", document.getElementById("invited-attendee-ID-list").value);
     params.append("COVID-Safe", document.getElementById("COVID-Safe").value);
-    params.append("event-editing", EDITING);
-    if (EDITING === "yes") {
-      var event = JSON.parse(sessionStorage.getItem(CURRENT_EVENT));
-      params.append("id", event.eventId);
-    }
+    params.append("time-zone", document.getElementById("time-zone").value);
 
     const request = new Request('/events', {method: 'POST', body: params});
     fetch(request)
@@ -296,27 +292,38 @@ function getAvailableEvents(userID) {
     .then(events => {
       let count = 0;
       for (i = 0; i < events.length; i++) {
+        console.log(events[i].currency);
         if (events[i].currency === "current") {
           if (events[i].location == locationName) {
             invitedAttendees = events[i].invitedAttendees;
-            rsvpAttendees = events[i].rsvpAttendees;
-            rsvpContains = rsvpAttendees.includes(userID);
+            goingAttendees = events[i].goingAttendees;
+            notGoingAttendees = events[i].notGoingAttendees;
+            invitedContains = invitedAttendees.includes(userID);
+            goingContains = goingAttendees.includes(userID);
+            notGoingContains = notGoingAttendees.includes(userID);
             if (events[i].privacy == "public") {
               // Display public events even if user is not attending.
-              if (!rsvpContains) {
-                eventDivElement.appendChild(createEventWithResponse(events[i], userID, "false"));
+              if (!goingContains) {
+                eventDivElement.appendChild(createEventWithResponse(events[i], userID, "undecided"));
                 count++;
               }
             }
-            if (rsvpContains) {
+            if (goingContains) {
               // Display events the user is attending.
               eventDivElement.appendChild(createEventWithResponse(events[i], userID, "true"));
               count++;
             }
             else if (invitedAttendees.includes(userID)) {
-              // Display events the user is invited to.
-              eventDivElement.appendChild(createEventWithResponse(events[i], userID, "false"));
-              count++;
+              // Display events the user is invited to but has said they aren't going to.
+              if (notGoingContains) {
+                eventDivElement.appendChild(createEventWithResponse(events[i], userID, "false"));
+                count++;
+              }
+              // Display events the user is invited to but has not yet indicated their attendance at.
+              else {
+                eventDivElement.appendChild(createEventWithResponse(events[i], userID, "undecided"));
+                count++;
+              }
             }
           }
         }
@@ -345,6 +352,10 @@ function createEventNoResponse(event) {
   const eventDate = document.createElement('p');
   eventDate.className = "date-display";
   eventDate.innerText = event.dateTime;
+
+  const privacyDisplay = document.createElement('p');
+  privacyDisplay.className = "date-display";
+  privacyDisplay.innerText = event.privacy;
 
   const locationDisplay = document.createElement('div');
   locationDisplay.className = "location-display";
@@ -405,6 +416,7 @@ function createEventNoResponse(event) {
   eventElement.append(topOfEvent);
   eventElement.append(eventName);
   eventElement.append(eventDate);
+  eventElement.append(privacyDisplay);
   eventElement.append(locationDisplay);
   eventElement.append(eventDetails);
   return eventElement;
@@ -412,6 +424,7 @@ function createEventNoResponse(event) {
 
 /* Creates an event for logged in users with the option to RSVP. */
 function createEventWithResponse(event, userID, going) {
+  console.log(going);
   const eventElement = createEventNoResponse(event);
 
   const bottomCard = document.createElement('div');
@@ -420,21 +433,11 @@ function createEventWithResponse(event, userID, going) {
   const attendeeInfo = document.createElement('div');
   attendeeInfo.id = 'attendee-info-container';
 
-  if (event.privacy === 'public') {
-    const publicIndicator = document.createElement('p');
-    publicIndicator.className = 'attendee-info';
-    publicIndicator.innerText = 'Public';
-    attendeeInfo.appendChild(publicIndicator);
-  } else {
-    const privateIndicator = document.createElement('p');
-    privateIndicator.className = 'attendee-info';
-    privateIndicator.innerText = 'Private';
-    attendeeInfo.appendChild(privateIndicator);
-
+  if (event.privacy !== "public") {
     const invitedAttendees = document.createElement('p');
     invitedAttendees.id = 'invited-attendees';
     invitedAttendees.className = 'attendee-info';
-    invitedAttendees.innerText = (event.invitedAttendees.length - 1) + ' Invited';
+    invitedAttendees.innerText = (event.invitedAttendees.length - 1) + 'Undecided';
     invitedAttendees.addEventListener('click', () => {
       displayAttendees(event, 'invited')
     });
@@ -443,27 +446,47 @@ function createEventWithResponse(event, userID, going) {
   const goingAttendees = document.createElement('p');
   goingAttendees.id = 'going-attendees';
   goingAttendees.className = 'attendee-info';
-  goingAttendees.innerText = (event.rsvpAttendees.length - 1) + ' Going';
+  goingAttendees.innerText = (event.goingAttendees.length - 1) + ' Going';
   goingAttendees.addEventListener('click', () => {
     displayAttendees(event, 'going')
   });
   attendeeInfo.appendChild(goingAttendees);
+
+  if (event.privacy !== "public") {
+    const notGoingAttendees = document.createElement('p');
+    notGoingAttendees.id = 'not-going-attendees';
+    notGoingAttendees.className = 'attendee-info';
+    notGoingAttendees.innerText = (event.notGoingAttendees.length - 1) + 'Not Going';
+    notGoingAttendees.addEventListener('click', () => {
+      displayAttendees(event, 'not-going')
+    });
+    attendeeInfo.appendChild(notGoingAttendees);
+  }
   bottomCard.appendChild(attendeeInfo);
   
+  let updatedGoing = going;
+
   if (event.currency === 'current') {
+    console.log(going);
     const goingButton = document.createElement('button');
+    const notGoingButton = document.createElement('button');
     goingButton.id = 'going-button';
     goingButton.innerText = "Going";
-    setRSVPButtonColor(goingButton, going);
-    rsvpButton.addEventListener('click', () => {
-      addRemoveAttendee(event, goingButton);
+    setRSVPButtonColor(goingButton, notGoingButton, going);
+    goingButton.addEventListener('click', () => {
+      addRemoveAttendee(event, goingButton, updatedGoing);
     });
-    const notGoingButton = document.createElement('button');
     notGoingButton.id = 'not-going-button';
     notGoingButton.innerText = "Not Going";
-    setRSVPButtonColor(notGoingButton, going);
-    rsvpButton.addEventListener('click', () => {
-      addRemoveAttendee(event, notGoingButton);
+    setRSVPButtonColor(notGoingButton, notGoingButton, going);
+    if (event.privacy === "public") {
+      updatedGoing = "undecided";
+    }
+    else {
+      updatedGoing = "false";
+    }
+    notGoingButton.addEventListener('click', () => {
+      addRemoveAttendee(event, notGoingButton, updatedGoing);
     });
     bottomCard.appendChild(goingButton);
     bottomCard.appendChild(notGoingButton);
@@ -504,10 +527,12 @@ function displayAttendees(event, attendeeType) {
   const attendees = document.createElement('div');
   attendees.className = 'popup-text';
   const attendeesHeading = document.createElement('h3');
-  if (attendeeType === 'invited') {
-    attendeesHeading.innerText = 'Buddies Invited';
-  } else {
+  if (attendeeType === 'undecided') {
+    attendeesHeading.innerText = 'Buddies Undecided';
+  } else if (attendeeType === 'going') {
     attendeesHeading.innerText = 'Buddies Going';
+  } else {
+    attendeesHeading.innerText = 'Buddies Not Going';
   }
   const exitButton = document.createElement('i');
   exitButton.className = 'fa fa-close';
@@ -527,15 +552,19 @@ function displayAttendees(event, attendeeType) {
       if (users[i].id === currentId) {
         buddyIds = users[i].buddies;
       }
-      if (attendeeType === 'invited') {
+      if (attendeeType === 'undecided') {
         if (event.invitedAttendees.includes(users[i].id)) {
           attendeeUsers.push(users[i]);
         }
+      } else if (attendeeType === 'going') {
+        if (event.goingAttendees.includes(users[i].id)) {
+          attendeeUsers.push(users[i]);
+        } 
       } else {
-        if (event.rsvpAttendees.includes(users[i].id)) {
+        if (event.notGoingAttendees.includes(users[i].id)) {
           attendeeUsers.push(users[i]);
         }
-      }  
+      } 
     }
     for (let i = 0; i < attendeeUsers.length; i ++) {
       if (buddyIds.includes(attendeeUsers[i].id)) {
@@ -556,38 +585,54 @@ function createNoAttendeesMessage(attendeeType) {
   const noAttendeesMessage = document.createElement('p');
   if (attendeeType === 'invited') {
     noAttendeesMessage.innerText = 'Buddies invited to the event will be displayed here.';
-  } else {
+  } else if (attendeeType === 'going') {
     noAttendeesMessage.innerText = 'Buddies going to the event will be displayed here.';
+  } else {
+    noAttendeesMessage.innerText = 'Buddies not going to the event will be displayed here.';
   }
   return noAttendeesMessage;
 }
 
 /**sets the color of the RSVP button on onload */
-function setRSVPButtonColor(rsvpButton, going) {
+function setRSVPButtonColor(goingButton, notGoingButton, going) {
+  console.log(going);
   if (going === "true") {
-    rsvpButton.className = "button button-selected";
+    goingButton.className = "button button-selected";
+    notGoingButton.className = "button";
+  }
+  else if (going === "undecided") {
+    goingButton.className = "button";
+    notGoingButton.className = "button";
   }
   else {
-    rsvpButton.className = "button";
+    goingButton.className = "button";
+    notGoingButton.className = "button button-selected";
   }
 }
 
-function addRemoveAttendee(event, rsvpButton) {
+function addRemoveAttendee(event, goingButton, notGoingButton, going) {
   const params = new URLSearchParams();
   params.append('eventId', event.eventId);
   fetch('/add-remove-attendee', {
     method: 'POST', body: params
-  }).then(switchRSVPButtonColor(event, rsvpButton));
+  }).then(switchRSVPButtonColor(event, goingButton, notGoingButton, going));
 }
 
 /**change color in RSVP button when user clicks it */
-function switchRSVPButtonColor(event, rsvpButton) {
-  if (rsvpButton.className === "button") {
-    rsvpButton.className = " button button-selected";
+function switchRSVPButtonColor(event, goingButton, notGoingButton, going) {
+  if (going === "true") {
+    goingButton.className = " button button-selected";
+    notGoingButton.className = "button";
     updateAttendeeCount(event, 'going');
   }
+  else if (going === "undecided") {
+    goingButton.className = "button";
+    notGoingButton.className = "button";
+    updateAttendeeCount(event, 'not-going');
+  }
   else {
-    rsvpButton.className = "button";
+    goingButton.className = "button";
+    notGoingButton.className = "button button-selected";
     updateAttendeeCount(event, 'not-going');
   }
   if (window.location.pathname === '/profile.html') {

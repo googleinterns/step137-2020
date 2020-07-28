@@ -17,9 +17,11 @@ public final class Constants {
 
   // Event constants
   public static final String EVENT_ENTITY_PARAM = "Event";
+  public static final String EVENT_KEY_PARAM = "ID/Name";
   public static final String EVENT_NAME_PARAM = "event-name";
   public static final String START_DATE_PARAM = "start-date";
   public static final String START_TIME_PARAM = "start-time";
+  public static final String TIME_ZONE_PARAM = "time-zone";
   public static final String END_DATE_PARAM = "end-date";
   public static final String END_TIME_PARAM = "end-time";
   public static final String START_DATE_TIME_PARAM = "start-date-time";
@@ -31,11 +33,11 @@ public final class Constants {
   public static final String COVID_SAFE_PARAM = "COVID-Safe";
   public static final String PRIVACY_PARAM = "privacy";
   public static final String INVITED_ATTENDEES_PARAM = "invited-attendee-ID-list";
-  public static final String RSVP_ATTENDEES_PARAM = "rsvp-attendees";
+  public static final String GOING_ATTENDEES_PARAM = "going-attendees";
+  public static final String NOT_GOING_ATTENDEES_PARAM = "not-going-attendees";
   public static final String CREATOR_PARAM = "creator";
   public static final String CURRENCY_PARAM = "currency";
   public static final String EVENT_ID_PARAM = "id";
-  public static final String EVENT_EDITING_PARAM = "event-editing";
 
   // Interest constants
   public static final String INTEREST_ENTITY_PARAM = "Interest";

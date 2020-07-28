@@ -24,6 +24,7 @@ import java.lang.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 import java.text.ParseException; 
 import org.json.JSONObject;
 
@@ -36,11 +37,10 @@ public class EventServlet extends HttpServlet {
     String requestStartTime = request.getParameter(Constants.START_TIME_PARAM);
     String requestEndDate = request.getParameter(Constants.END_DATE_PARAM);
     String requestEndTime = request.getParameter(Constants.END_TIME_PARAM);
+    String timeZone = request.getParameter(Constants.TIME_ZONE_PARAM);
 
-    String isEventEditing = request.getParameter(Constants.EVENT_EDITING_PARAM);
-
-    Date startDateTime = parseInputDateTime(requestStartDate, requestStartTime);
-    Date endDateTime = parseInputDateTime(requestEndDate, requestEndTime);
+    Date startDateTime = parseInputDateTime(requestStartDate, requestStartTime, timeZone);
+    Date endDateTime = parseInputDateTime(requestEndDate, requestEndTime, timeZone);
     // Create dates without times for event currency comparison.
     Date startDate = parseInputDate(requestStartDate);
     Date endDate = parseInputDate(requestEndDate);
@@ -57,14 +57,15 @@ public class EventServlet extends HttpServlet {
         json, 
         requestStartTime, 
         requestEndTime, 
-        requestStartDate, 
-        requestEndDate, 
-        isEventEditing);  
+        requestStartDate,
+        requestEndDate,
+        timeZone);  
     }
 
     response.setContentType("application/json;");
     response.getWriter().println(json);
   }
+
 
 
   @Override
@@ -95,15 +96,18 @@ public class EventServlet extends HttpServlet {
           (String) entity.getProperty(Constants.COVID_SAFE_PARAM);
       List<String> invitedAttendees = 
           (List<String>) entity.getProperty(Constants.INVITED_ATTENDEES_PARAM);
-      List<String> rsvpAttendees = 
-          (List<String>) entity.getProperty(Constants.RSVP_ATTENDEES_PARAM);
+      List<String> goingAttendees = 
+          (List<String>) entity.getProperty(Constants.GOING_ATTENDEES_PARAM);
+      List<String> notGoingAttendees = 
+          (List<String>) entity.getProperty(Constants.NOT_GOING_ATTENDEES_PARAM);
       String creator = 
           (String) entity.getProperty(Constants.CREATOR_PARAM);
 
       // Stored so events can be sorted by start time (makes display easier).
       Date startDateTime = (Date) entity.getProperty(Constants.START_DATE_TIME_PARAM);
       Date endDateTime = (Date) entity.getProperty(Constants.END_DATE_TIME_PARAM);
-      String currency = eventCurrency(endDateTime);
+      String timeZone = (String) entity.getProperty(Constants.TIME_ZONE_PARAM);
+      String currency = eventCurrency(endDateTime, timeZone);
 
       // Original date/time request strings (for display in form if user edits event).
       String originalStartDate = (String) entity.getProperty(Constants.START_DATE_PARAM);
@@ -125,7 +129,8 @@ public class EventServlet extends HttpServlet {
           .setYesCOVIDSafe(yesCOVIDSafe)
           .setPrivacy(privacy)
           .setInvitedAttendees(invitedAttendees)
-          .setRsvpAttendees(rsvpAttendees)
+          .setGoingAttendees(goingAttendees)
+          .setNotGoingAttendees(notGoingAttendees)
           .setCreator(creator)
           .setCurrency(currency)
           .build();
@@ -151,12 +156,12 @@ public class EventServlet extends HttpServlet {
 
   Using these pieces of the input the date can be parsed and formatted as desired.
 */
-  private Date parseInputDateTime(String inputDate, String time) {
+  private Date parseInputDateTime(String inputDate, String time, String timeZone) {
     String year = inputDate.substring(0, 4);
     String month = inputDate.substring(5, 7);
     String day = inputDate.substring(8);
 
-    return createDateTime(year, month, day, time);
+    return createDateTime(year, month, day, time, timeZone);
   }
 
   private Date parseInputDate(String inputDate) {
@@ -180,9 +185,10 @@ public class EventServlet extends HttpServlet {
 
 /** Turns inputted strings into date time. */
   private Date createDateTime(String year, String month, String day, 
-            String time) {
-    String dateString = month + "-" + day + "-" + year + " " + time;
-    SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy HH:mm");
+            String time, String timeZone) {
+    String dateString = month + "-" + day + "-" + year + " " + time + " " + timeZone;
+    SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy HH:mm z");
+    formatter.setTimeZone(TimeZone.getTimeZone(timeZone));
     Date dateTime = new Date();
     try {
       dateTime = formatter.parse(dateString);
@@ -201,8 +207,8 @@ public class EventServlet extends HttpServlet {
       String startTime, 
       String endTime, 
       String originalStartDate, 
-      String originalEndDate,
-      String isEventEditing) {
+      String originalEndDate, 
+      String timeZone) {
 
     String eventName = request.getParameter(Constants.EVENT_NAME_PARAM);
     String location = request.getParameter(Constants.LOCATION_PARAM);
@@ -221,35 +227,27 @@ public class EventServlet extends HttpServlet {
     String currentUserID = userService.getCurrentUser().getUserId();
 
     // List of people who said they will come. Creator is assumed to be attending.
-    List<String> rsvpAttendees = new ArrayList<>();
-    rsvpAttendees.add(""); // Placeholder entry to prevent empty list from becoming null.
-    rsvpAttendees.add(currentUserID);
+    List<String> goingAttendees = new ArrayList<>();
+    goingAttendees.add(""); // Placeholder entry to prevent empty list from becoming null.
+    goingAttendees.add(currentUserID);
+
+    // List of people who say they will not come.
+    List<String> notGoingAttendees = new ArrayList<>();
+    notGoingAttendees.add(""); // Placeholder entry to prevent empty list from becoming null.
 
     // Get formatted start and end times.
     String startTimeFormatted = getTimeDisplay(startTime);
     String endTimeFormatted = getTimeDisplay(endTime);
-
+    
     // Get formatted dates and times for display.
     String dateTimeFormatted = createDateTimeDisplay(startDate, startTimeFormatted, 
-          endDate, endTimeFormatted);
+          endDate, endTimeFormatted, timeZone);
 
     Entity eventEntity = new Entity(Constants.EVENT_ENTITY_PARAM);
-    if (isEventEditing.equals("yes")) {
-      long eventId = Long.parseLong(request.getParameter(Constants.EVENT_ID_PARAM));
-      Query query = new Query(Constants.EVENT_ENTITY_PARAM);
-      DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-      PreparedQuery results = datastore.prepare(query);
-
-      for (Entity entity : results.asIterable()) {
-        if (entity.getKey().getId() == eventId) {
-          eventEntity = entity;
-        }
-      }
-    }
-
     eventEntity.setProperty(Constants.EVENT_NAME_PARAM, eventName);
     eventEntity.setProperty(Constants.END_DATE_TIME_PARAM, endDateTime);
     eventEntity.setProperty(Constants.START_DATE_TIME_PARAM, startDateTime);
+    eventEntity.setProperty(Constants.TIME_ZONE_PARAM, timeZone);
     eventEntity.setProperty(Constants.START_DATE_PARAM, originalStartDate);
     eventEntity.setProperty(Constants.END_DATE_PARAM, originalEndDate);
     eventEntity.setProperty(Constants.START_TIME_PARAM, startTime);
@@ -261,18 +259,15 @@ public class EventServlet extends HttpServlet {
     eventEntity.setProperty(Constants.COVID_SAFE_PARAM, yesCOVIDSafe);
     eventEntity.setProperty(Constants.PRIVACY_PARAM, privacy);
     eventEntity.setProperty(Constants.INVITED_ATTENDEES_PARAM, invitedAttendees);
-    eventEntity.setProperty(Constants.RSVP_ATTENDEES_PARAM, rsvpAttendees);
+    eventEntity.setProperty(Constants.GOING_ATTENDEES_PARAM, goingAttendees);
+    eventEntity.setProperty(Constants.NOT_GOING_ATTENDEES_PARAM, notGoingAttendees);
     eventEntity.setProperty(Constants.CREATOR_PARAM, currentUserID);
 
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     datastore.put(eventEntity);
 
-    if (isEventEditing != "yes") {  
-      json.put("success", "edit");
-    }
-    else {
-      json.put("success", "true");
-    }
+
+    json.put("success", "true");
     json.put("bad-time", "false");
   }
 
@@ -284,20 +279,21 @@ public class EventServlet extends HttpServlet {
 
 */
   private String createDateTimeDisplay(Date startDate, String startTime, Date endDate,
-                                String endTime) {
+                                String endTime, String timeZone) {
     String dateTime = "";
     String dateString;
     SimpleDateFormat formatter = new SimpleDateFormat("EEE MMM dd, yyyy"); 
 
     if (startDate.equals(endDate)) {
       dateString = formatter.format(startDate);
-      dateTime += dateString + ", " + startTime + " - " + endTime;
+      dateTime += dateString + ", " + startTime + " - " + endTime + " " + 
+                  timeZone;
     }
     else {
       String startDateString = formatter.format(startDate);
       String endDateString = formatter.format(endDate);
       dateTime += startDateString + ", " + startTime + " - " + endDateString;
-      dateTime += ", " + endTime;
+      dateTime += ", " + endTime + " " + timeZone;
     }
 
     return dateTime;
@@ -355,8 +351,9 @@ public class EventServlet extends HttpServlet {
   }
 
   /** Determines if the event is current or past. */
-  private String eventCurrency(Date endDate) {
-    SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy HH:mm");
+  private String eventCurrency(Date endDate, String timeZone) {
+    SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy HH:mm z");
+    formatter.setTimeZone(TimeZone.getTimeZone(timeZone));
     Date date = new Date();
     Date currentDate = new Date();
     try {
