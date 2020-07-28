@@ -266,7 +266,6 @@ public class EventServlet extends HttpServlet {
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     datastore.put(eventEntity);
 
-
     json.put("success", "true");
     json.put("bad-time", "false");
   }
