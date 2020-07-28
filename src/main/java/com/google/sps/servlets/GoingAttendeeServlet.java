@@ -1,5 +1,9 @@
 package com.google.sps.servlets;
 
+import com.google.sps.data.Constants;
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
@@ -7,21 +11,17 @@ import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import com.google.sps.data.Constants;
-import com.google.appengine.api.datastore.DatastoreService;
-import com.google.appengine.api.datastore.DatastoreServiceFactory;
-import com.google.appengine.api.datastore.Entity;
-import java.util.ArrayList;
-import java.util.List;
 import org.json.JSONObject;
 
-/** Servlet responsible for adding and removing attendees from a specified event */
-@WebServlet("/add-remove-attendee")
-public class AddRemoveAttendeeServlet extends HttpServlet {
+/** Servlet responsible for handling attendees' responses of "Going" to specified events */
+@WebServlet("/going-attendee")
+public class GoingAttendeeServlet extends HttpServlet {
 
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -40,29 +40,33 @@ public class AddRemoveAttendeeServlet extends HttpServlet {
         // Get going attendees.
         List<String> goingAttendees = 
             (List<String>) eventEntity.getProperty(Constants.GOING_ATTENDEES_PARAM);
-
+        // Get invited attendees
+        List<String> invitedAttendees =
+            (List<String>) eventEntity.getProperty(Constants.INVITED_ATTENDEES_PARAM);
         // Get not going attendees.
         List<String> notGoingAttendees = 
             (List<String>) eventEntity.getProperty(Constants.NOT_GOING_ATTENDEES_PARAM);
-        
-        //get privacy 
+        // Get privacy 
         String privacy = (String) eventEntity.getProperty(Constants.PRIVACY_PARAM);
-
+        
         if (goingAttendees.contains(currentUserId)) {
+          // Remove the user from the list of going attendees, and add it to the list of
+          // invited attendees if it's a private event .
           goingAttendees.remove(currentUserId);
-          if(privacy.equals("attendees") || privacy.equals("buddies-only")) {
-            notGoingAttendees.add(currentUserId);
+          if (privacy.equals("attendees") || privacy.equals("buddies-only")) {
+           invitedAttendees.add(currentUserId);
           }
-        }
-        else {
+        } else {
+          // Add the user to the list of going attendees and remove it from its previous list.
           goingAttendees.add(currentUserId);
-          if((privacy.equals("attendees") || privacy.equals("buddies-only")) 
-              && notGoingAttendees.contains(currentUserId)) {
+          if (notGoingAttendees.contains(currentUserId)) {
             notGoingAttendees.remove(currentUserId);
+          } else if (invitedAttendees.contains(currentUserId)) {
+            invitedAttendees.remove(currentUserId);
           }
         }
-
         eventEntity.setProperty(Constants.GOING_ATTENDEES_PARAM, goingAttendees);
+        eventEntity.setProperty(Constants.INVITED_ATTENDEES_PARAM, invitedAttendees);
         eventEntity.setProperty(Constants.NOT_GOING_ATTENDEES_PARAM, notGoingAttendees);
         datastore.put(eventEntity);
         break;
