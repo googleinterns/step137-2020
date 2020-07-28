@@ -20,7 +20,8 @@ public class Event implements Comparable<Event> {
   private String yesCOVIDSafe;
   private String privacy;
   private List<String> invitedAttendees;
-  private List<String> rsvpAttendees;
+  private List<String> goingAttendees;
+  private List<String> notGoingAttendees;
   private String creator;
   private String currency;
 
@@ -39,7 +40,8 @@ public class Event implements Comparable<Event> {
     this.yesCOVIDSafe = builder.yesCOVIDSafe;
     this.privacy = builder.privacy;
     this.invitedAttendees = builder.invitedAttendees;
-    this.rsvpAttendees = builder.rsvpAttendees;
+    this.goingAttendees = builder.goingAttendees;
+    this.notGoingAttendees = builder.notGoingAttendees;
     this.creator = builder.creator;
     this.currency = builder.currency;
   }
@@ -72,7 +74,8 @@ public class Event implements Comparable<Event> {
     private String yesCOVIDSafe;
     private String privacy;
     private List<String> invitedAttendees;
-    private List<String> rsvpAttendees;
+    private List<String> goingAttendees;
+    private List<String> notGoingAttendees;
     private String creator;
     private String currency;
 
@@ -146,8 +149,14 @@ public class Event implements Comparable<Event> {
       return this;
     }
 
-    public EventBuilder setRsvpAttendees (List<String> rsvpAttendees) {
-      this.rsvpAttendees = rsvpAttendees;
+    public EventBuilder setGoingAttendees (List<String> goingAttendees) {
+      this.goingAttendees = goingAttendees;
+      return this;
+    }
+
+
+    public EventBuilder setNotGoingAttendees (List<String> notGoingAttendees) {
+      this.notGoingAttendees = notGoingAttendees;
       return this;
     }
 
