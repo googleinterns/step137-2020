@@ -426,16 +426,18 @@ function displaySavedInterests(user, viewer) {
   savedInterestsContainer.innerHTML = '';
 
   const interestHeading = document.createElement('h1');
-  interestHeading.style = 'text-align: center';
   interestHeading.innerText = 'Saved Interests';
   savedInterestsContainer.appendChild(interestHeading);
+
+  const interestsList = document.createElement('div');
+  interestsList.id = 'interests-list';
 
   if (viewer === PROFILE_VIEWER_PERSONAL || viewer === PROFILE_VIEWER_BUDDY) {
     fetch('/interest').then(response => response.json()).then((interests) => {
       let interestCount = 0;
       for (let i = 0; i < interests.length; i ++) {
         if (interests[i].interestedUsers.includes(user.id)) {
-          savedInterestsContainer.appendChild(createInterest(interests[i]));
+          interestsList.appendChild(createInterest(interests[i]));
           interestCount ++;
         }
       }
@@ -443,6 +445,8 @@ function displaySavedInterests(user, viewer) {
         const interestMessage = document.createElement('p');
         interestMessage.innerText = 'No interests to show.';
         savedInterestsContainer.appendChild(interestMessage);
+      } else {
+        savedInterestsContainer.appendChild(interestsList);
       }
     });
   } else if (viewer === PROFILE_VIEWER_STRANGER || viewer === PROFILE_VIEWER_LOGOUT 
@@ -757,7 +761,7 @@ function displayPosts(user, viewer, postsContainer) {
       if (count === 0) {
         noPostElement = document.createElement('p');
         noPostElement.innerText = "No posts to show.";
-        postsGrid.appendChild(noPostElement);
+        postsContainer.appendChild(noPostElement);
       }
       postsContainer.appendChild(postsGrid);
     });

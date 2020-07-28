@@ -408,6 +408,10 @@ html, body {
 
 /* Profile saved interests styling */
 #interests-container {
+  text-align: center;
+}
+
+#interests-list {
   text-align: left;
   margin-left: 30px;
 }
