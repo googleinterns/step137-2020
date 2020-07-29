@@ -426,16 +426,18 @@ function displaySavedInterests(user, viewer) {
   savedInterestsContainer.innerHTML = '';
 
   const interestHeading = document.createElement('h1');
-  interestHeading.style = 'text-align: center';
   interestHeading.innerText = 'Saved Interests';
   savedInterestsContainer.appendChild(interestHeading);
+
+  const interestsList = document.createElement('div');
+  interestsList.id = 'interests-list';
 
   if (viewer === PROFILE_VIEWER_PERSONAL || viewer === PROFILE_VIEWER_BUDDY) {
     fetch('/interest').then(response => response.json()).then((interests) => {
       let interestCount = 0;
       for (let i = 0; i < interests.length; i ++) {
         if (interests[i].interestedUsers.includes(user.id)) {
-          savedInterestsContainer.appendChild(createInterest(interests[i]));
+          interestsList.appendChild(createInterest(interests[i]));
           interestCount ++;
         }
       }
@@ -443,6 +445,8 @@ function displaySavedInterests(user, viewer) {
         const interestMessage = document.createElement('p');
         interestMessage.innerText = 'No interests to show.';
         savedInterestsContainer.appendChild(interestMessage);
+      } else {
+        savedInterestsContainer.appendChild(interestsList);
       }
     });
   } else if (viewer === PROFILE_VIEWER_STRANGER || viewer === PROFILE_VIEWER_LOGOUT 
@@ -483,10 +487,10 @@ function displayEventsAndPosts(user, viewer) {
   eventsAndPostsContainer.innerHTML = '';
 
   const eventsContainer = document.createElement('div');
-  eventsContainer.className = 'tabcontent';
+  eventsContainer.className = 'tabcontent profile-tab';
   eventsContainer.id = 'events-container';
   const postsContainer = document.createElement('div');
-  postsContainer.className = 'tabcontent';
+  postsContainer.className = 'tabcontent profile-tab';
   postsContainer.id = 'posts-container';
   const tabContainer = createEventsPostsTab();
 
@@ -519,6 +523,8 @@ function displayPersonalEvents(user, eventsContainer) {
   attendingOption.innerText = 'Attending';
   const invitedOption = document.createElement('option');
   invitedOption.innerText = 'Invited';
+  const createdOption = document.createElement('option');
+  createdOption.innerText = 'Created';
   
   const attendingEvents = document.createElement('div');
   attendingEvents.id = 'attending-events';
@@ -537,61 +543,85 @@ function displayPersonalEvents(user, eventsContainer) {
   const invitedPastEvents = document.createElement('div');
   invitedPastEvents.id = 'invited-past-events';
   invitedPastEvents.className = 'events-grid';
+
+  const createdEvents = document.createElement('div');
+  createdEvents.id = 'created-events';
+  const createdUpcomingEvents = document.createElement('div');
+  createdUpcomingEvents.id = 'created-upcoming-events';
+  createdUpcomingEvents.className = 'events-grid';
+  const createdPastEvents = document.createElement('div');
+  createdPastEvents.id = 'created-past-events';
+  createdPastEvents.className = 'events-grid';
   
   const upcomingHeading = document.createElement('h2');
   upcomingHeading.innerText = 'Upcoming Events';
   const pastHeading = document.createElement('h2');
   pastHeading.innerText = 'Past Events';
 
+  
   dropDown.onchange = () => {
-    if (invitedEvents.style.display === 'block') {
+    if (dropDown.value === 'Attending') {
       invitedEvents.style.display = 'none';
+      createdEvents.style.display = 'none';
       attendingEvents.style.display = 'block';
+    } else if (dropDown.value === 'Invited') {
+      attendingEvents.style.display = 'none';
+      createdEvents.style.display = 'none';
+      invitedEvents.style.display = 'block';
     } else {
       attendingEvents.style.display = 'none';
-      invitedEvents.style.display = 'block';
+      invitedEvents.style.display = 'none';
+      createdEvents.style.display = 'block';
     }
   };
   dropDown.appendChild(attendingOption);
   dropDown.appendChild(invitedOption);
+  dropDown.appendChild(createdOption);
   dropDownContainer.appendChild(dropDown);
 
   fetch('/events').then(response => response.json()).then((events) => {
-    let attendingEventsCount = 0;
     let attendingUpcomingCount = 0;
     let attendingPastCount = 0;
-    let invitedEventsCount = 0;
     let invitedUpcomingCount = 0;
     let invitedPastCount = 0;
+    let createdUpcomingCount = 0;
+    let createdPastCount = 0;
     for (let i = 0; i < events.length; i ++) {
-      if (events[i].rsvpAttendees.includes(user.id)) {
+      if (events[i].goingAttendees.includes(user.id)) {
         if (events[i].currency === 'current') {
-          attendingUpcomingEvents.appendChild(createEventWithResponse(events[i], user.id, 'true'));
+          attendingUpcomingEvents.appendChild(createEventWithResponse(events[i], user.id));
           attendingUpcomingCount ++;
         } else {
-          attendingPastEvents.appendChild(createEventWithResponse(events[i], user.id, 'true'));
+          attendingPastEvents.appendChild(createEventWithResponse(events[i], user.id));
           attendingPastCount ++;
         }
-        attendingEventsCount ++;
       } else if (events[i].invitedAttendees.includes(user.id)) {
         if (events[i].currency === 'current') {
-          invitedUpcomingEvents.appendChild(createEventWithResponse(events[i], user.id, 'false'));
+          invitedUpcomingEvents.appendChild(createEventWithResponse(events[i], user.id));
           invitedUpcomingCount ++;
         } else {
-          invitedPastEvents.appendChild(createEventWithResponse(events[i], user.id, 'false'));
+          invitedPastEvents.appendChild(createEventWithResponse(events[i], user.id));
           invitedPastCount ++;
         }
-        invitedEventsCount ++;
+      }
+      if (events[i].creator === user.id) {
+        if (events[i].currency === 'current') {
+          createdUpcomingEvents.appendChild(createEventWithResponse(events[i], user.id));
+          createdUpcomingCount ++;
+        } else {
+          createdPastEvents.appendChild(createEventWithResponse(events[i], user.id));
+          createdPastCount ++;
+        }
       }
     }
 
     // Display the events or the proper message if there are none to display.
-    if (attendingEventsCount == 0) {
+    if ((attendingUpcomingCount + attendingPastCount) == 0) {
       const attendingEventMessage = document.createElement('p');
       attendingEventMessage.innerText = 'No attending events to show.';
       attendingEvents.appendChild(attendingEventMessage);
     } else {
-      attendingEvents.appendChild(upcomingHeading);
+      attendingEvents.appendChild(upcomingHeading.cloneNode(true));
       if (attendingUpcomingCount == 0) {
         const attendingUpcomingMessage = document.createElement('p');
         attendingUpcomingMessage.innerText = 'No upcoming attending events to show.';
@@ -600,16 +630,17 @@ function displayPersonalEvents(user, eventsContainer) {
         attendingEvents.appendChild(attendingUpcomingEvents);
       }
       if (attendingPastCount != 0) {
-        attendingEvents.appendChild(pastHeading);
+        attendingEvents.appendChild(pastHeading.cloneNode(true));
         attendingEvents.appendChild(attendingPastEvents);
       }
     }
-    if (invitedEventsCount == 0) {
+
+    if ((invitedUpcomingCount + invitedPastCount) == 0) {
       const invitedEventMessage = document.createElement('p');
       invitedEventMessage.innerText = 'No invited events to show.';
       invitedEvents.appendChild(invitedEventMessage);
     } else {
-      invitedEvents.appendChild(upcomingHeading);
+      invitedEvents.appendChild(upcomingHeading.cloneNode(true));
       if (invitedUpcomingCount == 0) {
         const invitedUpcomingMessage = document.createElement('p');
         invitedUpcomingMessage.innerText = 'No upcoming invited events to show.';
@@ -618,13 +649,33 @@ function displayPersonalEvents(user, eventsContainer) {
         invitedEvents.appendChild(invitedUpcomingEvents);
       }
       if (invitedPastCount != 0) {
-        invitedEvents.appendChild(pastHeading);
+        invitedEvents.appendChild(pastHeading.cloneNode(true));
         invitedEvents.appendChild(invitedPastEvents);
+      }
+    }
+
+    if ((createdUpcomingCount + createdPastCount) == 0) {
+      const createdEventMessage = document.createElement('p');
+      createdEventMessage.innerText = 'No created events to show.';
+      createdEvents.appendChild(createdEventMessage);
+    } else {
+      createdEvents.appendChild(upcomingHeading.cloneNode(true));
+      if (createdUpcomingCount == 0) {
+        const createdUpcomingMessage = document.createElement('p');
+        createdUpcomingMessage.innerText = 'No upcoming created events to show.';
+        createdEvents.appendChild(createdUpcomingMessage);
+      } else {
+        createdEvents.appendChild(createdUpcomingEvents);
+      }
+      if (createdPastCount != 0) {
+        createdEvents.appendChild(pastHeading.cloneNode(true));
+        createdEvents.appendChild(createdPastEvents);
       }
     }
     eventsContainer.append(dropDownContainer);
     eventsContainer.append(attendingEvents);
     eventsContainer.append(invitedEvents);
+    eventsContainer.append(createdEvents)
   });
 }
 
@@ -648,10 +699,8 @@ function displayBuddyEvents(user, eventsContainer) {
     let upcomingCount = 0;
     let pastCount = 0;
     for (let i = 0; i < events.length; i ++) {
-      if (events[i].rsvpAttendees.includes(user.id)) {
-        if (events[i].rsvpAttendees.includes(currentId) || 
-            events[i].invitedAttendees.includes(currentId) || 
-                events[i].privacy === 'public') {
+      if (events[i].goingAttendees.includes(user.id)) {
+        if (events[i].invitedAttendees.includes(currentId) || events[i].privacy === 'public') {
           if (events[i].currency === 'current') {
             upcomingEvents.appendChild(createEventNoResponse(events[i]));
             upcomingCount ++;
@@ -757,7 +806,7 @@ function displayPosts(user, viewer, postsContainer) {
       if (count === 0) {
         noPostElement = document.createElement('p');
         noPostElement.innerText = "No posts to show.";
-        postsGrid.appendChild(noPostElement);
+        postsContainer.appendChild(noPostElement);
       }
       postsContainer.appendChild(postsGrid);
     });
