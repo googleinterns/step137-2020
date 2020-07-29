@@ -341,7 +341,6 @@ function displayPlaceInfo(place, placeId) {
     eventsDivElement.appendChild(createEventElement);
     eventsDivElement.appendChild(getAvailableEvents(userId)); 
     userPostsDivElement.appendChild(createPostElement); 
-    userPostsDivElement.appendChild(sortPostElement);
     userPostsDivElement.appendChild(getAvailablePosts(userId)); 
   }
   else {
