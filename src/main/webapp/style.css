@@ -9,7 +9,6 @@
   --sidebar-color: #f1f1f1;
   --red-marker-color: #F78F8F;
   --base-font: 'Roboto';
-  --events-form-font: 'Helvetica';
 }
 
 img {
@@ -86,8 +85,8 @@ html, body {
   padding: 4px 16px;
   border-radius: 5px;
   margin: 15px;
-  width: 412px;
-  height: 325px;
+  width: 425px;
+  height: 365px;
   max-width: 90%;
   position: relative;
   z-index: 3;
@@ -105,7 +104,6 @@ html, body {
 
 /* Events form styling */
 #events-title {
-  font-family: Helvetica;
   font-size: 40px;
   margin: 1.5% 3% 1.5% 1%; 
   text-align: center;
@@ -122,7 +120,6 @@ html, body {
 #event-form {
   flex: 2;
   justify-content: right;
-  font-family: Helvetica;
   font-size: 15px;
 }
 
@@ -161,7 +158,6 @@ html, body {
 /* Events element styling */
 .name-display {
   font-size: 24px;
-  font-family: Helvetica;
   padding: 0;
   margin-top: 0;
   margin-bottom: 0;
@@ -169,7 +165,6 @@ html, body {
 
 .date-display {
   font-size: 13px;
-  font-family: Helvetica;
   color: var(--option-color);
   margin-top: 0;
   margin-bottom: 0;
@@ -179,7 +174,6 @@ html, body {
   display: inline-flex;
   align-items: center;
   font-size: 16px;
-  font-family: Helvetica;
 }
 
 .fa-map-marker {
@@ -188,15 +182,13 @@ html, body {
 
 .privacy-display {
   font-size: 16px;
-  font-family: Helvetica;
   margin-top: 0;
   margin-bottom: 0;
 }
 
 .details-display {
   font-size: 15px;
-  font-family: Helvetica;
-  margin-top: 0;
+  margin-top: 10px;
   margin-bottom: 0;
 }
 
@@ -258,6 +250,10 @@ html, body {
   position: absolute;
   bottom: 10px;
   right: 10px;
+}
+
+.distance-display {
+  font-size: 15px;
 }
 
 /** Event buttons styling */
@@ -506,7 +502,7 @@ p.place-info, h5.place-info, a.place-info {
 }
 
 #profile-content {
-  max-width: 1275px;
+  max-width: 1306px;
   margin: 0 auto;
   height: 100%;
 }
@@ -769,4 +765,10 @@ p.place-info, h5.place-info, a.place-info {
   font-size: 20px;
   margin-right: 5px;
   cursor: pointer;
+}
+
+/* Near Me styling */
+#nearbyEvents {
+  display: flex;
+  flex-wrap: wrap;
 }

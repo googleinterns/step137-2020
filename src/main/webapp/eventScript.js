@@ -354,9 +354,7 @@ function createEventNoResponse(event) {
 
   const eventDetails = document.createElement('p'); 
   eventDetails.className = "details-display";
-  if (event.eventDetails.length > 0) {
-    eventDetails.innerText = 'Details: ' + event.eventDetails;
-  }
+  eventDetails.innerText = 'Details: ' + event.eventDetails;
 
   const topOfEvent = document.createElement('div');
   topOfEvent.className = "top-card";
@@ -396,7 +394,9 @@ function createEventNoResponse(event) {
   eventElement.append(eventDate);
   eventElement.append(locationDisplay);
   eventElement.append(privacyDisplay);
-  eventElement.append(eventDetails);
+  if (event.eventDetails.length > 0) {
+    eventElement.append(eventDetails);
+  }
   return eventElement;
 }
 

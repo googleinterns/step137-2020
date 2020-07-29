@@ -207,48 +207,18 @@ function compareDistanceToCurrLocation(eventObj1, eventObj2) {
 
 /** Displays events with an indication of how far they are from the current location. */
 function displayEvents(eventObj) {
-  const eventElement = document.createElement('div');
-  eventElement.className = "card";
-  eventElement.addEventListener('click', () => {
-    sessionStorage.setItem('currentLocationId', eventObj.event.placeId);
-    window.location.href = 'map.html';
-  });
-
-  const eventContents = document.createElement('div');
-  eventContents.className = "contents";
-
-  const eventName = document.createElement('h2');
-  eventName.className = "name-display";
-  eventName.innerText = eventObj.event.eventName;
-
-  const eventDate = document.createElement('p');
-  eventDate.className = "date-display";
-  eventDate.innerText = eventObj.event.dateTime;
-
-  const locationDisplay = document.createElement('div');
-  locationDisplay.className = "location-display";
-  const locationIcon = document.createElement('i');
-  locationIcon.className = 'fa fa-map-marker';
-  const eventLocation = document.createElement('p');
-  eventLocation.className = "location-name";
-  eventLocation.innerText = eventObj.event.location;
-  locationDisplay.append(locationIcon);
-  locationDisplay.append(eventLocation);
-
-  const eventDetails = document.createElement('p'); 
-  eventDetails.className = "details-display";
-  eventDetails.innerText = eventObj.event.eventDetails;
+  let eventElement;
+  if (localStorage.getItem(LOCAL_STORAGE_STATUS) === 'false') {
+    eventElement = createEventNoResponse(eventObj.event);
+  } else {
+    const userID = localStorage.getItem(LOCAL_STORAGE_ID);
+    eventElement = createEventWithResponse(eventObj.event, userID);
+  }
 
   const eventDistance = document.createElement('p');
   eventDistance.className = 'distance-display';
   eventDistance.innerText = eventObj.distanceText;
   eventDistance.innerText += ' from your current location';
-
-  eventElement.append(eventContents);
-  eventElement.append(eventName);
-  eventElement.append(eventDate);
-  eventElement.append(locationDisplay);
-  eventElement.append(eventDistance);
-  eventElement.append(eventDetails);
+  eventElement.appendChild(eventDistance);
   return eventElement;
 }
