@@ -198,8 +198,7 @@ function fetchPlaceInformation(place_id, map, where) {
         'rating',
         'formatted_address',
         'website',
-        'business_status',
-        'icon'
+        'business_status'
       ]
     };
 
@@ -232,7 +231,6 @@ function fetchPlaceInformation(place_id, map, where) {
             placeClone.formatted_address = place.formatted_address;
             placeClone.website = place.website;
             placeClone.business_status = place.business_status;
-            placeClone.icon = place.icon;
             placeBlob = new Blob(
               [JSON.stringify(placeClone, null, 2)], 
               {type : 'application/json'}
@@ -321,12 +319,8 @@ function displayPlaceInfo(place, placeId) {
 
   nameDiv = document.createElement('div');
   nameDiv.className = 'place-info';
-  nameIcon = document.createElement('img');
   nameElement.innerText = place.name;
   nameElement.className = 'place-info';
-  nameIcon.src = place.icon;
-  nameIcon.className= 'icon';
-  nameDiv.append(nameIcon);
   nameDiv.append(nameElement);
   infoDivElement.appendChild(nameDiv);
 
