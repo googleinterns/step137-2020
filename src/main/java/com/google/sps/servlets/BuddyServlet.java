@@ -32,18 +32,33 @@ public class BuddyServlet extends HttpServlet {
     List<String> otherUserBuddies = (List<String>) otherUserEntity
         .getProperty(Constants.USER_BUDDIES_PARAM);
 
-    // Based on the requested action, add or remove the buddy connection.
     if (action.equals(Constants.BUDDY_ADD_PARAM)) {
-      currentUserBuddies.add(otherUserId);
-      otherUserBuddies.add(currentUserId);
-      // Remove the other user's ID from the current user's buddy requests.
+      // Add a buddy connection by adding both IDs to both users' 
+      // buddy lists (if they are not already in them).
+      if (!currentUserBuddies.contains(otherUserId)) {
+        currentUserBuddies.add(otherUserId);
+      }
+      if (!otherUserBuddies.contains(currentUserId)) {
+        otherUserBuddies.add(currentUserId);
+      }
+      
       List<String> currentUserBuddyRequests = (List<String>) currentUserEntity
           .getProperty(Constants.USER_BUDDY_REQUESTS_PARAM);
-      currentUserBuddyRequests.remove(otherUserId);
-      currentUserEntity.setProperty(Constants.USER_BUDDY_REQUESTS_PARAM, currentUserBuddyRequests);
+      // Remove the other user's ID from the current user's 
+      // buddy requests (if it is already in it).
+      if (currentUserBuddyRequests.contains(otherUserId)) {
+        currentUserBuddyRequests.remove(otherUserId);
+        currentUserEntity.setProperty(Constants.USER_BUDDY_REQUESTS_PARAM, currentUserBuddyRequests);
+      }
     } else {
-      currentUserBuddies.remove(otherUserId);
-      otherUserBuddies.remove(currentUserId);
+      // Remove the buddy connection by removing both IDs from both users'
+      // buddy lists (if they are already in them).
+      if (currentUserBuddies.contains(otherUserId)) {
+        currentUserBuddies.remove(otherUserId);
+      }
+      if (otherUserBuddies.contains(currentUserId)) {
+        otherUserBuddies.remove(currentUserId);
+      }
     }
 
     currentUserEntity.setProperty(Constants.USER_BUDDIES_PARAM, currentUserBuddies);

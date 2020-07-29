@@ -427,6 +427,10 @@ p.place-info, h5.place-info, a.place-info {
 
 /* Profile saved interests styling */
 #interests-container {
+  text-align: center;
+}
+
+#interests-list {
   text-align: left;
   margin-left: 30px;
 }
@@ -498,7 +502,7 @@ p.place-info, h5.place-info, a.place-info {
 #bottom-wrapper {
   display: flex;
   text-align: center;
-  height: 100%;
+  min-height: 100%;
 }
 
 #saved-interests {
@@ -520,6 +524,10 @@ p.place-info, h5.place-info, a.place-info {
 }
 
 #invited-events {
+  display: none;
+}
+
+#created-events {
   display: none;
 }
 
@@ -589,6 +597,10 @@ p.place-info, h5.place-info, a.place-info {
   border-top: none;
   font-family: var(--base-font);
   z-index: 2;
+}
+
+.profile-tab{
+  border: none;
 }
 
 /* Style font for sidebar */

@@ -33,20 +33,29 @@ public class BuddyRequestServlet extends HttpServlet {
           .getProperty(Constants.USER_BUDDY_REQUESTS_PARAM);
  
     if (action.equals(Constants.BUDDY_REQUEST_SEND_PARAM)) {
-      // Add the current user's ID to the other user's list of buddy requests.
-      otherUserBuddyRequests.add(currentUserId);
-      otherUserEntity.setProperty(Constants.USER_BUDDY_REQUESTS_PARAM, otherUserBuddyRequests);
-      datastore.put(otherUserEntity);
+      // Send a buddy request by adding the current user's ID to the 
+      // other user's list of buddy requests (if it is not already in it).
+      if (!otherUserBuddyRequests.contains(currentUserId)) {
+        otherUserBuddyRequests.add(currentUserId);
+        otherUserEntity.setProperty(Constants.USER_BUDDY_REQUESTS_PARAM, otherUserBuddyRequests);
+        datastore.put(otherUserEntity);
+      }
     } else if (action.equals(Constants.BUDDY_REQUEST_UNSEND_PARAM)){
-      // Remove the current user's ID from the other user's list of buddy requests.
-      otherUserBuddyRequests.remove(currentUserId);
-      otherUserEntity.setProperty(Constants.USER_BUDDY_REQUESTS_PARAM, otherUserBuddyRequests);
-      datastore.put(otherUserEntity);
+      // Unsend a buddy request by removing the current user's ID from the 
+      // other user's list of buddy requests (if it is in it).
+      if (otherUserBuddyRequests.contains(currentUserId)) {
+        otherUserBuddyRequests.remove(currentUserId);
+        otherUserEntity.setProperty(Constants.USER_BUDDY_REQUESTS_PARAM, otherUserBuddyRequests);
+        datastore.put(otherUserEntity);
+      }
     } else {
-      // Remove the other user's ID from the current user's list of buddy requests.
-      currentUserBuddyRequests.remove(otherUserId);
-      currentUserEntity.setProperty(Constants.USER_BUDDY_REQUESTS_PARAM, currentUserBuddyRequests);
-      datastore.put(currentUserEntity);
+      // Remove a buddy request by removing the other user's ID from the 
+      // current user's list of buddy requests (if it is in it).
+      if (currentUserBuddyRequests.contains(otherUserId)) {
+        currentUserBuddyRequests.remove(otherUserId);
+        currentUserEntity.setProperty(Constants.USER_BUDDY_REQUESTS_PARAM, currentUserBuddyRequests);
+        datastore.put(currentUserEntity);
+      }
     }
   }
 
