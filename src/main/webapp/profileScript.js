@@ -425,7 +425,8 @@ function displaySavedInterests(user, viewer) {
   const savedInterestsContainer = document.getElementById('interests-container');
   savedInterestsContainer.innerHTML = '';
 
-  const interestHeading = document.createElement('h1');
+  const interestHeading = document.createElement('h2');
+  interestHeading.className = 'profile-heading';
   interestHeading.innerText = 'Saved Interests';
   savedInterestsContainer.appendChild(interestHeading);
 
@@ -554,8 +555,10 @@ function displayPersonalEvents(user, eventsContainer) {
   createdPastEvents.className = 'events-grid';
   
   const upcomingHeading = document.createElement('h2');
+  upcomingHeading.className = 'profile-heading';
   upcomingHeading.innerText = 'Upcoming Events';
   const pastHeading = document.createElement('h2');
+  pastHeading.className = 'profile-heading';
   pastHeading.innerText = 'Past Events';
 
   

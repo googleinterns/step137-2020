@@ -16,11 +16,6 @@ img {
   max-height: 100%;
 }
 
-img {
-  max-width: 100%;
-  max-height: 100%;
-}
-
 * {
   box-sizing: border-box;
 }
@@ -30,6 +25,29 @@ html, body {
   margin: 0;
   padding: 0;
 }
+
+/* General font styling */
+p {
+  font-family: var(--base-font);
+  font-weight: 300;
+}
+
+label {
+  font-family: var(--base-font);
+  font-weight: 300;
+}
+
+h1 {
+  font-family: var(--base-font);
+  font-weight: 500;
+}
+
+h2, h3, h4, h5 {
+  font-family: var(--base-font);
+  font-weight: 400;
+}
+
+/** Navbar styling */
 
 .navbar {
   display: flex;
@@ -42,7 +60,7 @@ html, body {
   text-decoration: none;
   text-align: center;
   cursor: pointer;
-  font-family: var(--base-font);
+  font-weight: 400;
 }
 
 #user-navbar-section {
@@ -277,7 +295,7 @@ html, body {
   background-color: var(--selected-color);
 }
 
-/**map styling */
+/** Map styling */
 .row {
   height: 95%;
   display: flex;
@@ -478,19 +496,6 @@ p.place-info, h5.place-info, a.place-info {
   margin-right: 3px;
 }
 
-/* Profile fonts styling */
-#profile-body p {
-  font-family: var(--base-font);
-  font-style: normal;
-  font-weight: 300;
-}
-
-#profile-body h1, h2, h3, h4 {
-  font-family: var(--base-font);
-  font-style: normal;
-  font-weight: 500;
-}
-
 /* Profile page styling */
 #profile-body {
   background-color: var(--sidebar-color);
@@ -571,6 +576,11 @@ p.place-info, h5.place-info, a.place-info {
   flex-wrap: wrap;
 }
 
+.profile-heading {
+  font-weight: 500;
+  color: var(--request-button-color);
+}
+
 /* Buddy request button styling */
 .request-button {
   background-color: var(--request-button-color);
@@ -634,18 +644,6 @@ p.place-info, h5.place-info, a.place-info {
 }
 
 /* Style font for sidebar */
-#side p {
-  font-family: var(--base-font);
-  font-style: normal;
-  font-weight: 300;
-}
-
-#side h1, h2, h3 {
-  font-family: var(--base-font);
-  font-style: normal;
-  font-weight: 500;
-}
-
 #side a {
   color: black;
   text-decoration: none;
