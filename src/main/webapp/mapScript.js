@@ -340,8 +340,7 @@ function displayPlaceInfo(place, placeId) {
     infoDivElement.appendChild(interestContainerElement);
     eventsDivElement.appendChild(createEventElement);
     eventsDivElement.appendChild(getAvailableEvents(userId)); 
-    userPostsDivElement.appendChild(createPostElement); 
-    userPostsDivElement.appendChild(sortPostElement);
+    userPostsDivElement.appendChild(createPostElement);
     userPostsDivElement.appendChild(getAvailablePosts(userId)); 
   }
   else {

@@ -587,44 +587,29 @@ function displayPersonalEvents(user, eventsContainer) {
     let createdUpcomingCount = 0;
     let createdPastCount = 0;
     for (let i = 0; i < events.length; i ++) {
-      if (events[i].rsvpAttendees.includes(user.id)) {
+      if (events[i].goingAttendees.includes(user.id)) {
         if (events[i].currency === 'current') {
-          attendingUpcomingEvents.appendChild(createEventWithResponse(events[i], user.id, 'true'));
+          attendingUpcomingEvents.appendChild(createEventWithResponse(events[i], user.id));
           attendingUpcomingCount ++;
-          if (events[i].creator === user.id) {
-            createdUpcomingEvents.appendChild(createEventWithResponse(events[i], user.id, 'true'));
-            createdUpcomingCount ++;
-          }
         } else {
-          attendingPastEvents.appendChild(createEventWithResponse(events[i], user.id, 'true'));
+          attendingPastEvents.appendChild(createEventWithResponse(events[i], user.id));
           attendingPastCount ++;
-          if (events[i].creator === user.id) {
-            createdPastEvents.appendChild(createEventWithResponse(events[i], user.id, 'true'));
-            createdPastCount ++;
-          }
         }
       } else if (events[i].invitedAttendees.includes(user.id)) {
         if (events[i].currency === 'current') {
-          invitedUpcomingEvents.appendChild(createEventWithResponse(events[i], user.id, 'false'));
+          invitedUpcomingEvents.appendChild(createEventWithResponse(events[i], user.id));
           invitedUpcomingCount ++;
-          if (events[i].creator === user.id) {
-            createdUpcomingEvents.appendChild(createEventWithResponse(events[i], user.id, 'false'));
-            createdUpcomingCount ++;
-          }
         } else {
-          invitedPastEvents.appendChild(createEventWithResponse(events[i], user.id, 'false'));
+          invitedPastEvents.appendChild(createEventWithResponse(events[i], user.id));
           invitedPastCount ++;
-          if (events[i].creator === user.id) {
-            createdPastEvents.appendChild(createEventWithResponse(events[i], user.id, 'false'));
-            createdPastCount ++;
-          }
         }
-      } else if (events[i].creator === user.id) {
+      }
+      if (events[i].creator === user.id) {
         if (events[i].currency === 'current') {
-          createdUpcomingEvents.appendChild(createEventWithResponse(events[i], user.id, 'false'));
+          createdUpcomingEvents.appendChild(createEventWithResponse(events[i], user.id));
           createdUpcomingCount ++;
         } else {
-          createdPastEvents.appendChild(createEventWithResponse(events[i], user.id, 'false'));
+          createdPastEvents.appendChild(createEventWithResponse(events[i], user.id));
           createdPastCount ++;
         }
       }
@@ -714,10 +699,8 @@ function displayBuddyEvents(user, eventsContainer) {
     let upcomingCount = 0;
     let pastCount = 0;
     for (let i = 0; i < events.length; i ++) {
-      if (events[i].rsvpAttendees.includes(user.id)) {
-        if (events[i].rsvpAttendees.includes(currentId) || 
-            events[i].invitedAttendees.includes(currentId) || 
-                events[i].privacy === 'public') {
+      if (events[i].goingAttendees.includes(user.id)) {
+        if (events[i].invitedAttendees.includes(currentId) || events[i].privacy === 'public') {
           if (events[i].currency === 'current') {
             upcomingEvents.appendChild(createEventNoResponse(events[i]));
             upcomingCount ++;
