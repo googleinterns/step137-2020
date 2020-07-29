@@ -421,6 +421,10 @@ html, body {
 
 /* Profile saved interests styling */
 #interests-container {
+  text-align: center;
+}
+
+#interests-list {
   text-align: left;
   margin-left: 30px;
 }
@@ -492,7 +496,7 @@ html, body {
 #bottom-wrapper {
   display: flex;
   text-align: center;
-  height: 100%;
+  min-height: 100%;
 }
 
 #saved-interests {
@@ -514,6 +518,10 @@ html, body {
 }
 
 #invited-events {
+  display: none;
+}
+
+#created-events {
   display: none;
 }
 
@@ -583,6 +591,10 @@ html, body {
   border-top: none;
   font-family: var(--base-font);
   z-index: 2;
+}
+
+.profile-tab{
+  border: none;
 }
 
 /* Style font for sidebar */
