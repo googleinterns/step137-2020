@@ -310,12 +310,7 @@ html, body {
 }
 
 p.place-info, h5.place-info, a.place-info {
-  margin-left: 40px;
-}
-.icon {
-  width: 45px;
-  height: 45px;
-  margin: 2%;
+  margin-left: 20px;
 }
 
 #map {
@@ -657,6 +652,11 @@ p.place-info, h5.place-info, a.place-info {
 
 #side a {
   color: black;
+  text-decoration: none;
+}
+
+#side a:hover {
+  text-decoration: underline;
 }
 
 #post-form {
