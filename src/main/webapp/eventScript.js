@@ -516,19 +516,38 @@ function getGoingStatus(event, userID) {
 
 /** Displays a popup with the list of an event's attendees. */
 function displayAttendees(event, attendeeType) {
+  const currentId = localStorage.getItem(LOCAL_STORAGE_ID);
+  let creatorView = false;
+  if (currentId === event.creator) {
+    creatorView = true;
+  }
+
   // Create an empty popup with a heading and an exit button.
   const attendeesPopup = document.getElementById('attendees-popup');
   attendeesPopup.innerHTML = '';
   const attendees = document.createElement('div');
   attendees.className = 'popup-text';
   const attendeesHeading = document.createElement('h3');
-  if (attendeeType === 'going') {
-    attendeesHeading.innerText = 'Buddies Going';
-  } else if (attendeeType === 'not-going') {
-    attendeesHeading.innerText = 'Buddies Not Going';
+  if (creatorView) {
+    // Creator should be able to see all users attending the event.
+    if (attendeeType === 'going') {
+      attendeesHeading.innerText = 'Users Going';
+    } else if (attendeeType === 'not-going') {
+      attendeesHeading.innerText = 'Users Not Going';
+    } else {
+      attendeesHeading.innerText = 'Users Undecided';
+    }
   } else {
-    attendeesHeading.innerText = 'Buddies Undecided';
+    // Other users should be able to see buddies attending the event.
+    if (attendeeType === 'going') {
+      attendeesHeading.innerText = 'Buddies Going';
+    } else if (attendeeType === 'not-going') {
+      attendeesHeading.innerText = 'Buddies Not Going';
+    } else {
+      attendeesHeading.innerText = 'Buddies Undecided';
+    }
   }
+
   const exitButton = document.createElement('i');
   exitButton.className = 'fa fa-close';
   exitButton.addEventListener('click', () => {
@@ -537,55 +556,74 @@ function displayAttendees(event, attendeeType) {
   attendees.appendChild(attendeesHeading)
   attendees.appendChild(exitButton);
 
-  // Display attendees of the specified type that are buddies with the current user.
-  const currentId = localStorage.getItem(LOCAL_STORAGE_ID);
-  let buddyIds;
-  let attendeeUsers = [];
-  let attendeesCount = 0;
-  fetch('/user').then(response => response.json()).then((users) => {
-    for (let i = 0; i < users.length; i ++) {
-      if (users[i].id === currentId) {
-        buddyIds = users[i].buddies;
+  fetch("/events").then(response => response.json()).then(events => {
+    for (let i = 0; i < events.length; i ++) {
+      if (events[i].eventId === event.eventId) {
+        let updatedEvent = events[i];
+        // Display attendees of the specified type that are buddies with the current user.
+        let buddyIds;
+        let attendeeUsers = [];
+        let attendeesCount = 0;
+        fetch('/user').then(response => response.json()).then((users) => {
+          for (let i = 0; i < users.length; i ++) {
+            if (users[i].id === currentId) {
+              buddyIds = users[i].buddies;
+            }
+            if (attendeeType === 'going') {
+              if (updatedEvent.goingAttendees.includes(users[i].id)) {
+                attendeeUsers.push(users[i]);
+              } 
+            } else if (attendeeType === 'not-going') {
+              if (updatedEvent.notGoingAttendees.includes(users[i].id)) {
+                attendeeUsers.push(users[i]);
+              }
+            } else if (attendeeType === 'undecided') {
+              if (updatedEvent.invitedAttendees.includes(users[i].id) && 
+                  !(updatedEvent.goingAttendees.includes(users[i].id) || 
+                      updatedEvent.notGoingAttendees.includes(users[i].id))) {
+                attendeeUsers.push(users[i]);
+              }
+            }
+          }
+          for (let i = 0; i < attendeeUsers.length; i ++) {
+            if (creatorView || buddyIds.includes(attendeeUsers[i].id)) {
+              attendees.appendChild(createUserElement(attendeeUsers[i]));
+              attendeesCount ++;
+            }
+          }
+          if (attendeesCount == 0) {
+            attendees.appendChild(createNoAttendeesMessage(attendeeType, creatorView));
+          }
+          attendeesPopup.appendChild(attendees);
+        });
       }
-      if (attendeeType === 'going') {
-        if (event.goingAttendees.includes(users[i].id)) {
-          attendeeUsers.push(users[i]);
-        } 
-      } else if (attendeeType === 'not-going') {
-        if (event.notGoingAttendees.includes(users[i].id)) {
-          attendeeUsers.push(users[i]);
-        }
-      } else if (attendeeType === 'undecided') {
-        if (event.invitedAttendees.includes(users[i].id)) {
-          attendeeUsers.push(users[i]);
-        }
-      }
-    }
-    for (let i = 0; i < attendeeUsers.length; i ++) {
-      if (buddyIds.includes(attendeeUsers[i].id)) {
-        attendees.appendChild(createUserElement(attendeeUsers[i]));
-        attendeesCount ++;
-      }
-    }
-    if (attendeesCount == 0) {
-      attendees.appendChild(createNoAttendeesMessage(attendeeType));
-    }
-    attendeesPopup.appendChild(attendees);
+    }  
   });
   attendeesPopup.style.display = 'block';
 }
 
 /** Creates a message to be displayed when there are no attendees of the specified type. */
-function createNoAttendeesMessage(attendeeType) {
+function createNoAttendeesMessage(attendeeType, creatorView) {
   const noAttendeesMessage = document.createElement('p');
-  if (attendeeType === 'going') {
-    noAttendeesMessage.innerText = 'Buddies going to the event will be displayed here.';
-  } else if (attendeeType === 'not-going') {
-    noAttendeesMessage.innerText = 'Buddies not going to the event will be displayed here.';
+  if (creatorView) {
+    if (attendeeType === 'going') {
+      noAttendeesMessage.innerText = 'Users going to your event will be displayed here.';
+    } else if (attendeeType === 'not-going') {
+      noAttendeesMessage.innerText = 'Users not going to your event will be displayed here.';
+    } else {
+      noAttendeesMessage.innerText = 'Users invited to your event who have not responded will be displayed here.';
+    }
+    return noAttendeesMessage;
   } else {
-    noAttendeesMessage.innerText = 'Buddies invited to the event who have not responded will be displayed here.';
+    if (attendeeType === 'going') {
+      noAttendeesMessage.innerText = 'Buddies going to the event will be displayed here.';
+    } else if (attendeeType === 'not-going') {
+      noAttendeesMessage.innerText = 'Buddies not going to the event will be displayed here.';
+    } else {
+      noAttendeesMessage.innerText = 'Buddies invited to the event who have not responded will be displayed here.';
+    }
+    return noAttendeesMessage;
   }
-  return noAttendeesMessage;
 }
 
 /** Sets the color of the RSVP button on onload. */
