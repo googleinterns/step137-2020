@@ -222,7 +222,13 @@ public class EventServlet extends HttpServlet {
 
     UserService userService = UserServiceFactory.getUserService();
     String currentUserID = userService.getCurrentUser().getUserId();
-    invitedAttendees.add(currentUserID);
+    if (privacy.equals("public")) {
+      if (invitedAttendeesList.isEmpty()) {
+        invitedAttendees.add(""); // Placeholder entry to prevent empty list from becoming null.
+      }
+    } else {
+      invitedAttendees.add(currentUserID);
+    }
 
     // List of people who said they will come. Creator is assumed to be attending.
     List<String> goingAttendees = new ArrayList<>();

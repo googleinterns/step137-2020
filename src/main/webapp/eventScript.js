@@ -467,7 +467,9 @@ function createEventWithResponse(event, userID) {
     });
 
     bottomCard.appendChild(goingButton);
-    bottomCard.appendChild(notGoingButton);
+    if (event.privacy !== 'public') {
+      bottomCard.appendChild(notGoingButton);
+    }
   } else {
     const pastMessage = document.createElement('p');
     pastMessage.innerText = 'This event has already occurred.';
