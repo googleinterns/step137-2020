@@ -494,7 +494,7 @@ p.place-info, h5.place-info, a.place-info {
   font-weight: 300;
 }
 
-#profile-body h1, h2, h3 {
+#profile-body h1, h2, h3, h4 {
   font-family: var(--base-font);
   font-style: normal;
   font-weight: 500;

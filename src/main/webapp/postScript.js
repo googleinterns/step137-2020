@@ -264,3 +264,20 @@ function createPostForm() {
   });
   document.getElementById("exit-button").appendChild(exitButton);
 }
+
+/*
+ * Confirms that the user's uploaded profile picture is a 
+ * PNG, JPG, or JPEG before allowing submission.
+ */
+function confirmPostImageType() {
+  const imageURL = document.getElementById('uploaded-image').value;
+  if ((imageURL.indexOf('.jpeg') == imageURL.length - 5) || 
+  (imageURL.indexOf('.jpg') == imageURL.length - 4) || 
+  (imageURL.indexOf('.png') == imageURL.length - 4)) {
+    document.getElementById('image-approval').style.display = 'inline-block';
+    document.getElementById('image-failure').style.display = 'none';
+  } else {
+    document.getElementById('image-approval').style.display = 'none';
+    document.getElementById('image-failure').style.display = 'inline-block';
+  }
+}
