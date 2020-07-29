@@ -260,6 +260,22 @@ html, body {
   max-width: 20%;
   background-color: var(--sidebar-color);
   padding: 20px;
+  font-family: var(--base-font);
+}
+
+#side h1 {
+  color: var(--request-button-color);
+}
+
+.place-info {
+  display: flex;
+  align-items: center;
+  clear: both;
+}
+
+.icon {
+  width: 40px;
+  height: 40px;
 }
 
 #map {
@@ -277,6 +293,7 @@ html, body {
   flex: 80%;
   background-color: white;
   padding: 20px;
+  font-family: var(--base-font);
 }
 
 @media sceen and (max-width: 700px) {
@@ -619,6 +636,7 @@ html, body {
 
 /* Styling for filter buttons. */
 .filter-button {
+  font-family: var(--base-font);
   background-color: #ddd;
   border: none;
   color: black;
@@ -632,16 +650,17 @@ html, body {
 }
 
 .filter-button:hover {
-  background-color: #002b54;
+  background-color: var(--navbar-color);
   color: white;
 } 
 
 .filter-button.active {
-  background-color: turquoise;
-  color: #002b54;
+  background-color: var(--request-button-color);
+  color: white;
 } 
 
 .clear-button {
+  font-family: var(--base-font);
   float: right;
   background-color: #ddd;
   border: none;
@@ -655,13 +674,13 @@ html, body {
 }
 
 .clear-button:hover {
-  background-color: plum;
+  background-color: var(--button-color);
 }
 
 /* Loading icon functionality */
 .loader {
   border: 16px solid #f3f3f3;
-  border-top: 16px solid #0928;
+  border-top: 16px solid var(--navbar-color);
   border-radius: 50%;
   width: 120px;
   height: 120px;
