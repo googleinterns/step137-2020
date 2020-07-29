@@ -337,7 +337,8 @@ function createEventNoResponse(event) {
   locationDisplay.append(locationIcon);
   locationDisplay.append(eventLocation);
 
-  if (window.location.pathname === '/profile.html') {
+  if (window.location.pathname === '/profile.html' || 
+      window.location.pathname === '/nearme.html') {
     locationDisplay.addEventListener('click', () => {
       sessionStorage.setItem(SESSION_STORAGE_CURRENT_LOCATION, event.placeId);
       window.location.href = 'map.html';
