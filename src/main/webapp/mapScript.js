@@ -103,8 +103,8 @@ function initMap() {
     handleLocationError(false, map.getCenter());
   }
   map.addListener('click', function(e) {
-    infoWindow.close(map);
     fetchPlaceInformation(e.placeId, map, EXPLORE_MAP_PAGE);
+    sessionStorage.setItem("currentLocationId", e.placeId);
     e.stop(); // Stops infobox from appearing when location clicked
     marker.setPosition(e.latLng);
     marker.setMap(map);
@@ -151,6 +151,7 @@ function highlightNearbyLocation(map, placeType, currentLocation) {
         })
         marker.addListener('click', function(e) {
           fetchPlaceInformation(markerPlaceId, map, EXPLORE_MAP_PAGE);
+          sessionStorage.setItem("currentLocationId", e.placeId);
           e.stop(); // Stops infobox from appearing when location clicked
           });
         markers.push(marker);
@@ -296,7 +297,8 @@ function displayPlaceInfo(place, placeId) {
   interestContainerElement.appendChild(interestButtonElement);
   interestContainerElement.appendChild(interestTextElement);
   
-  addressElement.innerText = place.formatted_address;
+  addressHeading.innerText = place.formatted_address;
+  addressHeading.className = 'place-info';
   addressDiv.className = 'place-info';
   addressDiv.append(addressIcon);
   addressDiv.append(addressHeading);
@@ -321,6 +323,7 @@ function displayPlaceInfo(place, placeId) {
   nameDiv.className = 'place-info';
   nameIcon = document.createElement('img');
   nameElement.innerText = place.name;
+  nameElement.className = 'place-info';
   nameIcon.src = place.icon;
   nameIcon.className= 'icon';
   nameDiv.append(nameIcon);
@@ -334,7 +337,11 @@ function displayPlaceInfo(place, placeId) {
     websiteIcon.src = 'images/website.png';
     websiteElement = document.createElement('a');
     websiteElement.innerText = ' ' + place.website;
+    websiteElement.className = 'place-info';
     websiteElement.href = place.website;
+    websiteElement.addEventListener('click', function(e) {
+      sessionStorage.setItem("currentLocationId", placeId);
+    });
     websiteDiv.append(websiteIcon);
     websiteDiv.append(websiteElement);
     infoDivElement.appendChild(websiteDiv);
@@ -356,6 +363,7 @@ function displayPlaceInfo(place, placeId) {
     else if (place.business_status == 'CLOSED_PERMANENTLY') {
       businessStatusElement.innerText = ' closed permanently';
     }
+    businessStatusElement.className = 'place-info';
     businessStatusDiv.className = 'place-info';
     businessStatusDiv.append(businessStatusIcon);
     businessStatusDiv.append(businessStatusElement);
