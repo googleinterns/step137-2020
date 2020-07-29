@@ -141,7 +141,7 @@ function highlightNearbyLocation(map, placeType, currentLocation) {
       for (var i = 0; i < results.length; i++) {
         createMarker(map, results[i].geometry.location, results[i].place_id);
       }
-      message.innerText = results.length - 1 + ' location(s) found.';
+      message.innerText = results.length + ' location(s) found.';
       message.style.color = 'var(--request-button-color)';
       function createMarker(thisMap, location, markerPlaceId) {
         var marker = new google.maps.Marker({
@@ -281,7 +281,7 @@ function displayPlaceInfo(place, placeId) {
   addressDiv = document.createElement('div');
   addressIcon = document.createElement('img');
   addressIcon.src = '/images/black-marker.png';
-  addressElement = document.createElement('h5');
+  addressHeading = document.createElement('h5');
   createEventElement = document.createElement('button');
   createEventElement.className = "button";
   createPostElement = document.createElement('button');
@@ -299,7 +299,7 @@ function displayPlaceInfo(place, placeId) {
   addressElement.innerText = place.formatted_address;
   addressDiv.className = 'place-info';
   addressDiv.append(addressIcon);
-  addressDiv.append(addressElement);
+  addressDiv.append(addressHeading);
   // function to create tab and return tab div element
   tabDivElement = createTabElement();
   createEventElement.innerText = 'Create an Event';
@@ -310,7 +310,7 @@ function displayPlaceInfo(place, placeId) {
   createPostElement.addEventListener('click', () => {
     sessionStorage.setItem('postPlaceId', placeId);
     createPostForm();
-    document.getElementById("post-form").style.display = 'block';
+    document.getElementById('post-form').style.display = 'block';
   });
 
   interestButtonElement.addEventListener('click', () => {
