@@ -54,7 +54,14 @@
               <input type="text" id="location" name="location">
               <input type="text" id="place-id" name="place-id">
               <h2>Upload an image: </h2>
-              <input type="file" name="image">
+              <p>(PNG, JPG, and JPEG files accepted)</p>
+              <input type="file" name="image" id="uploaded-image">
+              <br></br>
+              <button type="button" onclick="confirmPostImageType()">Confirm Image</button>
+              <p id="image-approval" style="display:none">
+                  Your image has been confirmed!</p>
+              <p id="image-failure" style="display:none">
+                  I'm sorry, your image cannot be accepted. Please upload a different one.</p>
               <br/>
               <h2>Caption: </h2>
               <textarea name="caption"></textarea>
