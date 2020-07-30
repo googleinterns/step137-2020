@@ -196,6 +196,11 @@ h2, h3, h4, h5 {
 
 .fa-map-marker {
   margin-right: 5px;
+  cursor: pointer;
+}
+
+.location-name {
+  cursor: pointer;
 }
 
 .privacy-display {
@@ -229,6 +234,7 @@ h2, h3, h4, h5 {
   display: flex;
   align-items: center;
   justify-content: left;
+  cursor: pointer;
 }
 
 #event-creator-name {
@@ -414,12 +420,16 @@ p.place-info, h5.place-info, a.place-info {
   width: 30px;
   border-radius: 50%;
   margin-right: 5px;
+  cursor: pointer;
 }
 
 .user-element {
   display: flex;
   align-items: center;
   clear: both;
+}
+
+.user-name {
   cursor: pointer;
 }
 
@@ -464,6 +474,7 @@ p.place-info, h5.place-info, a.place-info {
 
 #personal-name {
   transition: 0.5 ease;
+  cursor: pointer;
 }
 
 #personal-name:hover + #edit-name-button {
@@ -496,13 +507,17 @@ p.place-info, h5.place-info, a.place-info {
   display: flex;
   align-items: center;
   clear: both;
-  cursor: pointer;
 }
 
 #interest-icon {
   width: 30px;
   height: 30px;
   margin-right: 3px;
+  cursor: pointer;
+}
+
+#interest-name {
+  cursor: pointer;
 }
 
 /* Profile page styling */
@@ -538,6 +553,10 @@ p.place-info, h5.place-info, a.place-info {
   margin-left: 20px;
 }
 
+.buddies-text {
+  cursor: pointer;
+}
+
 #name-container {
   display: inline-flex;
   align-items: center;
@@ -561,6 +580,10 @@ p.place-info, h5.place-info, a.place-info {
 
 #dropdown-container {
   text-align: left;
+}
+
+#dropdown-element {
+  cursor: pointer;
 }
 
 #attending-events {

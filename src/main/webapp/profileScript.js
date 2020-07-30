@@ -200,6 +200,11 @@ function displayProfilePicture(user, container, size) {
 
   const profilePic = document.createElement('img');
   profilePic.className = size;
+  if (size === 'profile-pic-small') {
+    profilePic.addEventListener('click', () => {
+      visitProfile(user.id);
+    });
+  }
 
   if (user.blobKeyString === '') {
     profilePic.src = '/images/default-profile-picture.jpg';
@@ -224,11 +229,12 @@ function createUserElement(user) {
   userElement.className = 'user-element';
   displayProfilePicture(user, userElement, 'profile-pic-small');
   const userName = document.createElement('p');
+  userName.className = 'user-name';
   userName.innerText = user.name;
-  userElement.appendChild(userName);
-  userElement.addEventListener('click', () => {
+  userName.addEventListener('click', () => {
     visitProfile(user.id);
   });
+  userElement.appendChild(userName);
   return userElement;
 }
 
@@ -242,6 +248,7 @@ function displayBuddies(user, viewer) {
   if (viewer === PROFILE_VIEWER_PERSONAL) {
     // Add a popup for the user's buddy requests.
     const requestHeading = document.createElement('h3');
+    requestHeading.className = 'buddies-text';
     const numBuddyRequests = user.buddyRequests.length - 1;
     if (numBuddyRequests == 1) {
       requestHeading.innerText = numBuddyRequests + ' buddy request';  
@@ -257,6 +264,7 @@ function displayBuddies(user, viewer) {
     buddyContainer.appendChild(requestHeading);
     // Add a popup for the user's buddies list.
     const buddiesHeading = document.createElement('h3');
+    buddiesHeading.className = 'buddies-text';
     const numBuddies = user.buddies.length - 1;
     if (numBuddies == 1) {
       buddiesHeading.innerText = numBuddies + ' buddy';
@@ -273,6 +281,7 @@ function displayBuddies(user, viewer) {
   } else if (viewer === PROFILE_VIEWER_BUDDY) {
     // Add a popup for the profile user's buddies list.
     const buddiesHeading = document.createElement('h3');
+    buddiesHeading.className = 'buddies-text';
     const numBuddies = user.buddies.length - 1;
     if (numBuddies == 1) {
       buddiesHeading.innerText = numBuddies + ' buddy';
@@ -468,6 +477,7 @@ function createInterest(interest) {
 
   const interestName = document.createElement('h4');
   interestName.innerText = interest.locationName;
+  interestName.id = 'interest-name';
   interestName.addEventListener('click', () => {
     sessionStorage.setItem(SESSION_STORAGE_CURRENT_LOCATION, interest.placeId);
     window.location.href = 'map.html';
@@ -520,6 +530,7 @@ function displayPersonalEvents(user, eventsContainer) {
   const dropDownContainer = document.createElement('div');
   dropDownContainer.id = 'dropdown-container';
   const dropDown = document.createElement('select');
+  dropDown.id = 'dropdown-element';
   const attendingOption = document.createElement('option');
   attendingOption.innerText = 'Attending';
   const invitedOption = document.createElement('option');
