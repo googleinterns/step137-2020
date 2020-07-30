@@ -9,11 +9,6 @@
   --base-font: 'Roboto';
 }
 
-img {
-  max-width: 100%;
-  max-height: 100%;
-}
-
 * {
   box-sizing: border-box;
 }
@@ -104,8 +99,8 @@ h2, h3, h4, h5 {
   width: 425px;
   height: 365px;
   max-width: 90%;
+  max-height: 90%;
   position: relative;
-  z-index: 3;
   text-align: center;
 }
 
@@ -237,20 +232,22 @@ h2, h3, h4, h5 {
   margin: 2px;
 }
 
-#event-creator {
+#creator {
   display: flex;
   align-items: center;
   justify-content: left;
   cursor: pointer;
 }
 
-#event-creator-name {
+#creator-name {
   font-size: 15px;
 }
 
 .top-card {
   display: flex;
   justify-content: space-between;
+  margin-bottom: 0;
+  padding-bottom: 0;
 }
 
 .user-display {
@@ -272,12 +269,6 @@ h2, h3, h4, h5 {
 #event-buttons {
   display: flex;
   justify-content: center;
-}
-
-#likes-element {
-  display: inline-flex;
-  justify-content: space-between;
-  align-items: flex-end;
 }
 
 #edit-event-button {
@@ -802,4 +793,74 @@ p.place-info, h5.place-info, a.place-info {
 #nearbyEvents {
   display: flex;
   flex-wrap: wrap;
+}
+
+/** Post styling */
+#image {
+  max-height: 100%;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  height: 90%;
+  margin-top: 0;
+  padding-top: 0;
+  align-items: center;
+}
+
+.post-card-profile {
+  /* Add shadows to create the "card" effect */
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+  transition: 0.3s;
+  padding: 4px 16px;
+  border-radius: 5px;
+  margin: 15px;
+  max-width: 40%;
+  max-height: 40%;
+  position: relative;
+  text-align: center;
+}
+
+/* On mouse-over, add a deeper shadow */
+.post-card-profile:hover {
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+}
+
+
+.post-card {
+  /* Add shadows to create the "card" effect */
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+  transition: 0.3s;
+  padding: 4px 16px;
+  border-radius: 5px;
+  margin: 15px;
+  max-width: 100%;
+  max-height: 100%;
+  position: relative;
+  text-align: center;
+}
+
+/* On mouse-over, add a deeper shadow */
+.post-card:hover {
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+}
+
+.post-location {
+  font-size: 10px;
+  margin-bottom: 2px;
+}
+
+#likes-element {
+  position: absolute;
+  text-align: left;
+  bottom: 0px;
+  left: 10px;
+}
+
+#creator {
+  align-items: center;
+  margin-top: 0px;
+  margin-bottom: 10px;
+  padding-bottom: 20px;
+  text-align: center;
 }

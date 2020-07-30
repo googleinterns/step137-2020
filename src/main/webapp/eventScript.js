@@ -1,6 +1,5 @@
 // Global Variables
 const CURRENT_EVENT = "event";
-let EDITING;
 
 /**
   function calls for body onload
@@ -9,19 +8,26 @@ function onload() {
   navbarLoginDisplay();
   getLocationInfo();
   createMapSnippet();
+  document.getElementById("success").innerHTML = "";
+  // Create event button
+  const eventButton = document.getElementById("event-button");
+  eventButton.className = "button";
   //determine whether to fill in form 
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.get('fillIn') === "yes") {
+    eventButton.innerText = "Edit Event";
+    eventButton.addEventListener('click', () => {
+      editForm();
+    })
     displayEventFormFilledIn();
   }
-  if (urlParams.get('editing') === "yes") {
-    EDITING = "yes";
-  }
   else {
-    EDITING = "no";
+    eventButton.innerText = "Create Event";
+    eventButton.addEventListener('click', () => {
+      submitForm();
+    })
   }
 }
-
 /**
   Change display based on privacy setting.
 */
@@ -212,9 +218,70 @@ function submitForm() {
             "<p>Event edited successfully. Click <a href=\"/map.html\">here</a>" +
             " to return to the map</p>";
         }
+        if (json['weird-year'] !== "no") {
+          document.getElementById("weird-year").innerHTML =   
+            "<p>Bold of you to assume humanity will still exist in " + json['weird-year']; + "</p>";
+        }
       });
   }
 } 
+
+/** Sends a POST request to the /events servlet to create a post. */
+function editForm() {
+  const params = new URLSearchParams();
+  filledIn = checkFillIn();
+  document.getElementById("success").innerText = "";
+
+  if (filledIn) {
+    params.append("event-name", document.getElementById("event-name").value);
+    params.append("start-date", document.getElementById("start-date").value);
+    params.append("start-time", document.getElementById("start-time").value);
+    params.append("end-date", document.getElementById("end-date").value);
+    params.append("end-time", document.getElementById("end-time").value);
+    params.append("location", document.getElementById("location").value);
+    params.append("place-id", document.getElementById("place-id").value);
+    params.append("event-details", document.getElementById("event-details").value);
+    params.append("privacy", document.getElementById("privacy").value);
+    params.append("invited-attendee-ID-list", document.getElementById("invited-attendee-ID-list").value);
+    params.append("COVID-Safe", document.getElementById("COVID-Safe").value);
+    params.append("time-zone", document.getElementById("time-zone").value);
+    if (sessionStorage.getItem(CURRENT_EVENT) !== "") {
+      params.append("id", JSON.parse(sessionStorage.getItem(CURRENT_EVENT)).eventId);
+    }
+    sessionStorage.setItem(CURRENT_EVENT, JSON.stringify(""));
+
+
+    const request = new Request('/edit-event', {method: 'POST', body: params});
+    fetch(request)
+      .then(response => response.json())
+      .then(json => {
+        if (json['bad-time'] == "true") {
+          document.getElementById('date-warning').innerHTML = "";
+          document.getElementById("success").innerHTML = "";
+          document.getElementById('date-warning').innerHTML = 
+            "<p>Please make sure the end date and time are after the start " +
+            "date and time </p>"
+        }
+        else if (json['success'] == 'true') {
+          document.getElementById("success").innerHTML = "";
+          document.getElementById("date-warning").innerHTML = "";
+          var placeId = document.getElementById('place-id').value;
+          sessionStorage.setItem("currentLocationId", placeId);
+          sessionStorage.setItem("whichTabToOpen", "Events");
+          document.getElementById("success").style.color = "black";
+          document.getElementById("success").innerHTML = 
+            "<p>Event edited successfully. Click <a href=\"/map.html\">here</a>" +
+            " to return to the map</p>";
+        }
+        console.log(json['weird-year']);
+        if (json['weird-year'] !== "no") {
+          document.getElementById("weird-year").innerHTML =   
+            "<p>Bold of you to assume humanity will still exist in " + json['weird-year']; + "</p>";
+        }
+      });
+  }
+} 
+
 /** Makes sure all required fields of the form are filled in. */
 function checkFillIn() {
   var fillIn = "<p>Please fill our all sections with an * by them</p>";
@@ -260,7 +327,11 @@ function getPublicEvents() {
   eventDivElement.innerText = '';
   locationName = sessionStorage.getItem(SESSION_STORE_LOCATION);
 
-  fetch("/events")
+  const params = new URLSearchParams();
+  params.append("place-id", sessionStorage.getItem(SESSION_STORE_PLACEID));
+  fetch('/location-specific-events', {
+    method: 'POST', body: params
+  })
     .then(response => response.json())
     .then(events => {
       if (events.length === 0) {
@@ -270,9 +341,8 @@ function getPublicEvents() {
       }
       else {
         for (i = 0; i < events.length; i++) {
-          if (events[i].location == locationName 
-              && events[i].privacy == "public") {
-              eventDivElement.appendChild(createEventNoResponse(events[i]));
+          if (events[i].privacy == "public") {
+            eventDivElement.appendChild(createEventNoResponse(events[i]));
           }
         }
       }
@@ -288,17 +358,19 @@ function getAvailableEvents(userID) {
   eventDivElement.innerText = '';
   locationName = sessionStorage.getItem(SESSION_STORE_LOCATION);
 
-  fetch('/events')
+  const params = new URLSearchParams();
+  params.append("place-id", sessionStorage.getItem(SESSION_STORE_PLACEID));
+  fetch('/location-specific-events', {
+    method: 'POST', body: params
+  })
     .then(response => response.json())
     .then(events => {
       let count = 0;
       for (i = 0; i < events.length; i++) {
         if (events[i].currency === "current") {
-          if (events[i].location == locationName) {
-            if (events[i].privacy === 'public' || events[i].invitedAttendees.includes(userID)) {
-              eventDivElement.appendChild(createEventWithResponse(events[i], userID));
-              count ++;
-            }
+          if (events[i].privacy === 'public' || events[i].invitedAttendees.includes(userID)) {
+            eventDivElement.appendChild(createEventWithResponse(events[i], userID));
+            count ++;
           }
         }
       }
@@ -411,7 +483,6 @@ function createEventNoResponse(event) {
 /* Creates an event for logged in users with the option to RSVP. */
 function createEventWithResponse(event, userID) {
   const goingStatus = getGoingStatus(event, userID);
-
   const eventElement = createEventNoResponse(event);
 
   const bottomCard = document.createElement('div');
@@ -754,7 +825,7 @@ function updateSingleAttendeeCount(attendeeType, amount, label) {
 
 function storeEventThenEdit(event) {
   sessionStorage.setItem(CURRENT_EVENT, JSON.stringify(event));
-  window.location.href = "CreateAnEvent.html?fillIn=yes&editing=yes";
+  window.location.href = "CreateAnEvent.html?fillIn=yes";
 }
 
 function displayEventFormFilledIn() {
@@ -792,7 +863,4 @@ function displayEventFormFilledIn() {
         }
       });
   }
-
-  submitButton = document.getElementById("event-button");
-  submitButton.innerText = "Edit Event";
 }

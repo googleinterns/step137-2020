@@ -39,13 +39,13 @@ public class EventServlet extends HttpServlet {
     String requestEndTime = request.getParameter(Constants.END_TIME_PARAM);
     String timeZone = request.getParameter(Constants.TIME_ZONE_PARAM);
 
-    Date startDateTime = parseInputDateTime(requestStartDate, requestStartTime, timeZone);
-    Date endDateTime = parseInputDateTime(requestEndDate, requestEndTime, timeZone);
-    // Create dates without times for event currency comparison.
-    Date startDate = parseInputDate(requestStartDate);
-    Date endDate = parseInputDate(requestEndDate);
-    
     JSONObject json = new JSONObject();
+    Date startDateTime = parseInputDateTime(requestStartDate, requestStartTime, timeZone, json);
+    Date endDateTime = parseInputDateTime(requestEndDate, requestEndTime, timeZone, json);
+    // Create dates without times for event currency comparison.
+    Date startDate = parseInputDate(requestStartDate, json);
+    Date endDate = parseInputDate(requestEndDate, json);
+    
     boolean goodDateTimes = verifyDateTimes(startDateTime, endDateTime, json);
     if (goodDateTimes) {
       createEntity(
@@ -70,8 +70,7 @@ public class EventServlet extends HttpServlet {
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    Query query = new Query(Constants.EVENT_ENTITY_PARAM)
-              .addSort(Constants.DATE_TIME_PARAM, SortDirection.DESCENDING);
+    Query query = new Query(Constants.EVENT_ENTITY_PARAM);
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     PreparedQuery results = datastore.prepare(query);
  
@@ -156,18 +155,24 @@ public class EventServlet extends HttpServlet {
 
   Using these pieces of the input the date can be parsed and formatted as desired.
 */
-  private Date parseInputDateTime(String inputDate, String time, String timeZone) {
-    String year = inputDate.substring(0, 4);
-    String month = inputDate.substring(5, 7);
-    String day = inputDate.substring(8);
+  private Date parseInputDateTime(String inputDate, String time, String timeZone, 
+      JSONObject json) {
+    String[] splitString = inputDate.split("-");
+    String year = splitString[0];
+    if (Integer.parseInt(year) > 5000) {
+      json.put("weird-year", year);
+    }
+    String month = splitString[1];
+    String day = splitString[2];
 
     return createDateTime(year, month, day, time, timeZone);
   }
 
-  private Date parseInputDate(String inputDate) {
-    String year = inputDate.substring(0, 4);
-    String month = inputDate.substring(5, 7);
-    String day = inputDate.substring(8);
+  private Date parseInputDate(String inputDate, JSONObject json) {
+    String[] splitString = inputDate.split("-");
+    String year = splitString[0];
+    String month = splitString[1];
+    String day = splitString[2];
 
     return createDate(year, month, day);
   }
