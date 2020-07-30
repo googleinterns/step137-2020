@@ -481,7 +481,7 @@ function createEventNoResponse(event) {
 }
 
 /* Creates an event for logged in users with the option to RSVP. */
- createEventWithResponse(event, userID) {
+function createEventWithResponse(event, userID) {
   const goingStatus = getGoingStatus(event, userID);
   const eventElement = createEventNoResponse(event);
 

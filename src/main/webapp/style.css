@@ -817,6 +817,12 @@ p.place-info, h5.place-info, a.place-info {
   text-align: center;
 }
 
+/* On mouse-over, add a deeper shadow */
+.post-card-profile:hover {
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+}
+
+
 .post-card {
   /* Add shadows to create the "card" effect */
   box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
@@ -853,5 +859,4 @@ p.place-info, h5.place-info, a.place-info {
   margin-bottom: 10px;
   padding-bottom: 20px;
   text-align: center;
->>>>>>> Stashed changes
 }
