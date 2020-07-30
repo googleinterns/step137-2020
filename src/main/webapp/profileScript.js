@@ -705,10 +705,10 @@ function displayBuddyEvents(user, eventsContainer) {
       if (events[i].goingAttendees.includes(user.id)) {
         if (events[i].invitedAttendees.includes(currentId) || events[i].privacy === 'public') {
           if (events[i].currency === 'current') {
-            upcomingEvents.appendChild(createEventNoResponse(events[i]));
+            upcomingEvents.appendChild(createEventWithResponse(events[i], currentId));
             upcomingCount ++;
           } else {
-            pastEvents.appendChild(createEventNoResponse(events[i]));
+            pastEvents.appendChild(createEventNoResponse(events[i], currentId));
             pastCount ++;
           }
           eventsCount ++;

@@ -357,6 +357,10 @@ function createEventNoResponse(event) {
   eventDetails.className = "details-display";
   eventDetails.innerText = 'Details: ' + event.eventDetails;
 
+  const logoutMessage = document.createElement('p');
+  logoutMessage.className = 'logout-display';
+  logoutMessage.innerText = 'Login to respond to events.';
+
   const topOfEvent = document.createElement('div');
   topOfEvent.className = "top-card";
 
@@ -397,6 +401,9 @@ function createEventNoResponse(event) {
   eventElement.append(privacyDisplay);
   if (event.eventDetails.length > 0) {
     eventElement.append(eventDetails);
+  }
+  if (localStorage.getItem(LOCAL_STORAGE_STATUS) === 'false') {
+    eventElement.append(logoutMessage);
   }
   return eventElement;
 }
