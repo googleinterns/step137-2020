@@ -260,7 +260,11 @@ function getPublicEvents() {
   eventDivElement.innerText = '';
   locationName = sessionStorage.getItem(SESSION_STORE_LOCATION);
 
-  fetch("/events")
+  const params = new URLSearchParams();
+  params.append("place-id", sessionStorage.getItem(SESSION_STORE_PLACEID));
+  fetch('/location-specific-events', {
+    method: 'POST', body: params
+  })
     .then(response => response.json())
     .then(events => {
       if (events.length === 0) {
@@ -270,9 +274,8 @@ function getPublicEvents() {
       }
       else {
         for (i = 0; i < events.length; i++) {
-          if (events[i].location == locationName 
-              && events[i].privacy == "public") {
-              eventDivElement.appendChild(createEventNoResponse(events[i]));
+          if (events[i].privacy == "public") {
+            eventDivElement.appendChild(createEventNoResponse(events[i]));
           }
         }
       }
@@ -288,17 +291,19 @@ function getAvailableEvents(userID) {
   eventDivElement.innerText = '';
   locationName = sessionStorage.getItem(SESSION_STORE_LOCATION);
 
-  fetch('/events')
+  const params = new URLSearchParams();
+  params.append("place-id", sessionStorage.getItem(SESSION_STORE_PLACEID));
+  fetch('/location-specific-events', {
+    method: 'POST', body: params
+  })
     .then(response => response.json())
     .then(events => {
       let count = 0;
       for (i = 0; i < events.length; i++) {
         if (events[i].currency === "current") {
-          if (events[i].location == locationName) {
-            if (events[i].privacy === 'public' || events[i].invitedAttendees.includes(userID)) {
-              eventDivElement.appendChild(createEventWithResponse(events[i], userID));
-              count ++;
-            }
+          if (events[i].privacy === 'public' || events[i].invitedAttendees.includes(userID)) {
+            eventDivElement.appendChild(createEventWithResponse(events[i], userID));
+            count ++;
           }
         }
       }
