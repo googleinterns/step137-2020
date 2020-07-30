@@ -135,12 +135,6 @@ h2, h3, h4, h5 {
   background-color: var(--form-background);
 }
 
-/* #event-form {
-  flex: 2;
-  justify-content: right;
-  font-size: 15px; */
-/* } */
-
 #event-form {
   flex:40%;
   flex-wrap: wrap;
