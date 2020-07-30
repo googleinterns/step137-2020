@@ -110,6 +110,8 @@ html, body {
 }
 #event-body {
   display: flex;
+  height: 100%;
+  padding-bottom: 20px;
 }
 
 .shaded-box {
@@ -117,10 +119,19 @@ html, body {
   background-color: var(--form-background);
 }
 
-#event-form {
+/* #event-form {
   flex: 2;
   justify-content: right;
-  font-size: 15px;
+  font-size: 15px; */
+/* } */
+
+#event-form {
+  flex:40%;
+  flex-wrap: wrap;
+  max-width: 40%;
+  background-color: var(--sidebar-color);
+  padding: 20px;
+  font-family: var(--base-font);
 }
 
 #attendees-wrap {
@@ -315,9 +326,16 @@ p.place-info, h5.place-info, a.place-info {
 }
 
 #map-snippet {
-  height: 700px;
-  width: 400px;
-  flex: 4;
+  height: 100%;
+}
+
+.event-main {
+  flex: 60%;
+  background-color: white;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 20px;
+  font-family: var(--base-font);
 }
 
 .main {
