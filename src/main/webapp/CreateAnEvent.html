@@ -19,12 +19,9 @@
       <p class="navbar-text" onclick="window.location.href = 'searchUsers.html'">Search Users</p>
       <div id="user-navbar-section"></div>
     </div>
-    <div id="events-title">
-      <h1>Create An Event</h1>
-    </div>
     <div id=event-body>
-      <div id="map-snippet"></div>
       <div id=event-form class="shaded-box">
+        <h1>Create An Event</h1>
         <form>
           <label for="event-name">Event Name*: </label>
           <input type="text" id="event-name" name="event-name" required></textarea>
@@ -109,6 +106,9 @@
           <button type="button" onclick="submitForm()" class="button" id="event-button">Create Event</button>
         </form>
         <div id="success"></div>
+      </div>
+      <div class="event-main">
+        <div id="map-snippet"></div>
       </div>
     </div>
   </body>

@@ -83,11 +83,11 @@ function initMap() {
       localStorage.setItem('currentLocation', pos);
       for (var i = 0; i < filterElements.length; i++) {
         // Intentionally outsourced to separate function to solve looping bugs.
-        addEventToFilter(map, filterElements.item(i).id, pos, filterElements.item(i));
+        addEventToFilter(map, filterElements.item(i).id, filterElements.item(i));
       }
-      function addEventToFilter (map, id, mapCenter, filterItem) {
+      function addEventToFilter (map, id, filterItem) {
         filterItem.addEventListener('click', function(e) {
-          highlightNearbyLocation(map, id, mapCenter);
+          highlightNearbyLocation(map, id);
           updateActiveStatus(filterElements, e);
         });
       }
@@ -123,13 +123,13 @@ function handleLocationError(browserHasGeolocation, pos) {
 }
 
 /** Searches nearby for a type of location and places markers there. */
-function highlightNearbyLocation(map, placeType, currentLocation) {
+function highlightNearbyLocation(map, placeType) {
   message = document.getElementById('message');
   message.innerText = '';
   deleteAllMarkers();
   var image = '/images/blue-marker.png';
   var request = {
-    location: currentLocation,
+    location: map.getCenter(),
     radius: '3500',
     type: [placeType]
   };
