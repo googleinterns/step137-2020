@@ -337,7 +337,8 @@ function createEventNoResponse(event) {
   locationDisplay.append(locationIcon);
   locationDisplay.append(eventLocation);
 
-  if (window.location.pathname === '/profile.html') {
+  if (window.location.pathname === '/profile.html' || 
+      window.location.pathname === '/nearme.html') {
     locationDisplay.addEventListener('click', () => {
       sessionStorage.setItem(SESSION_STORAGE_CURRENT_LOCATION, event.placeId);
       window.location.href = 'map.html';
@@ -355,6 +356,10 @@ function createEventNoResponse(event) {
   const eventDetails = document.createElement('p'); 
   eventDetails.className = "details-display";
   eventDetails.innerText = 'Details: ' + event.eventDetails;
+
+  const logoutMessage = document.createElement('p');
+  logoutMessage.className = 'logout-display';
+  logoutMessage.innerText = 'Login to respond to events.';
 
   const topOfEvent = document.createElement('div');
   topOfEvent.className = "top-card";
@@ -396,6 +401,9 @@ function createEventNoResponse(event) {
   eventElement.append(privacyDisplay);
   if (event.eventDetails.length > 0) {
     eventElement.append(eventDetails);
+  }
+  if (localStorage.getItem(LOCAL_STORAGE_STATUS) === 'false') {
+    eventElement.append(logoutMessage);
   }
   return eventElement;
 }

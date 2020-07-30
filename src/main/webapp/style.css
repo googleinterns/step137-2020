@@ -2,18 +2,11 @@
   --option-color: #696969;
   --form-background: rgba(0,0,0,0.2);
   --navbar-color: #09280a;
-  --button-color: rgba(248, 202, 210, 0.658);
-  --button-color-selected: rgba(247, 162, 177, 0.979);
-  --request-button-color: #006400;
+  --button-color: #006400;
   --selected-color: #c6e9c6;
   --sidebar-color: #f1f1f1;
   --red-marker-color: #F78F8F;
   --base-font: 'Roboto';
-}
-
-img {
-  max-width: 100%;
-  max-height: 100%;
 }
 
 img {
@@ -31,6 +24,29 @@ html, body {
   padding: 0;
 }
 
+/* General font styling */
+p {
+  font-family: var(--base-font);
+  font-weight: 300;
+}
+
+label {
+  font-family: var(--base-font);
+  font-weight: 300;
+}
+
+h1 {
+  font-family: var(--base-font);
+  font-weight: 500;
+}
+
+h2, h3, h4, h5 {
+  font-family: var(--base-font);
+  font-weight: 400;
+}
+
+/** Navbar styling */
+
 .navbar {
   display: flex;
   background-color: var(--navbar-color);
@@ -42,7 +58,7 @@ html, body {
   text-decoration: none;
   text-align: center;
   cursor: pointer;
-  font-family: var(--base-font);
+  font-weight: 400;
 }
 
 #user-navbar-section {
@@ -56,7 +72,7 @@ html, body {
   color: var(--sidebar-color);
   border: 1.5px solid var(--button-color);
   font-size: 16px;
-  padding: 5px 10px;
+  padding: 4px 8px;
   font-weight: 450;
   font-family: var(--base-font);
   border-radius: 4px;
@@ -178,6 +194,11 @@ html, body {
 
 .fa-map-marker {
   margin-right: 5px;
+  cursor: pointer;
+}
+
+.location-name {
+  cursor: pointer;
 }
 
 .privacy-display {
@@ -192,6 +213,15 @@ html, body {
   margin-bottom: 0;
 }
 
+.logout-display {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0 auto;
+  width: 100%;
+}
+
 .icon-button {
   font-size: 14px;
   padding: 3px 6px;
@@ -202,6 +232,7 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: left;
+  cursor: pointer;
 }
 
 #event-creator-name {
@@ -259,8 +290,8 @@ html, body {
 /** Event buttons styling */
 .event-button {
   background-color: var(--sidebar-color);
-  color: var(--request-button-color);
-  border: 1.5px solid var(--request-button-color);
+  color: var(--button-color);
+  border: 1.5px solid var(--button-color);
   font-size: 14px;
   padding: 4px 8px;
   margin-left: 5px;
@@ -277,7 +308,7 @@ html, body {
   background-color: var(--selected-color);
 }
 
-/**map styling */
+/** Map styling */
 .row {
   height: 95%;
   display: flex;
@@ -294,7 +325,7 @@ html, body {
 }
 
 #side h1 {
-  color: var(--request-button-color);
+  color: var(--button-color);
 }
 
 .place-info {
@@ -387,12 +418,16 @@ p.place-info, h5.place-info, a.place-info {
   width: 30px;
   border-radius: 50%;
   margin-right: 5px;
+  cursor: pointer;
 }
 
 .user-element {
   display: flex;
   align-items: center;
   clear: both;
+}
+
+.user-name {
   cursor: pointer;
 }
 
@@ -437,6 +472,7 @@ p.place-info, h5.place-info, a.place-info {
 
 #personal-name {
   transition: 0.5 ease;
+  cursor: pointer;
 }
 
 #personal-name:hover + #edit-name-button {
@@ -469,26 +505,17 @@ p.place-info, h5.place-info, a.place-info {
   display: flex;
   align-items: center;
   clear: both;
-  cursor: pointer;
 }
 
 #interest-icon {
   width: 30px;
   height: 30px;
   margin-right: 3px;
+  cursor: pointer;
 }
 
-/* Profile fonts styling */
-#profile-body p {
-  font-family: var(--base-font);
-  font-style: normal;
-  font-weight: 300;
-}
-
-#profile-body h1, h2, h3, h4 {
-  font-family: var(--base-font);
-  font-style: normal;
-  font-weight: 500;
+#interest-name {
+  cursor: pointer;
 }
 
 /* Profile page styling */
@@ -524,6 +551,10 @@ p.place-info, h5.place-info, a.place-info {
   margin-left: 20px;
 }
 
+.buddies-text {
+  cursor: pointer;
+}
+
 #name-container {
   display: inline-flex;
   align-items: center;
@@ -549,6 +580,10 @@ p.place-info, h5.place-info, a.place-info {
   text-align: left;
 }
 
+#dropdown-element {
+  cursor: pointer;
+}
+
 #attending-events {
   display: block;
 }
@@ -571,23 +606,15 @@ p.place-info, h5.place-info, a.place-info {
   flex-wrap: wrap;
 }
 
-/* Buddy request button styling */
-.request-button {
-  background-color: var(--request-button-color);
-  color: var(--side-bar);
-  border: 1.5px solid var(--request-button-color);
-  font-size: 10px;
-  padding: 5px 10px;
-  font-weight: 400;
-  font-family: var(--base-font);
-  border-radius: 4px;
-  transition: ease background-color 0.1s, ease color 0.1s;
-  margin-right: 2px;
+.profile-heading {
+  font-weight: 500;
+  color: var(--button-color);
 }
 
-.request-button:hover {
-  background-color: var(--side-bar);
-  color: var(--request-button-color);
+/* Buddy request button styling */
+.request-button {
+  font-size: 10px;
+  margin-right: 2px;
 }
 
 /* Style the tab in sidebar */
@@ -634,18 +661,6 @@ p.place-info, h5.place-info, a.place-info {
 }
 
 /* Style font for sidebar */
-#side p {
-  font-family: var(--base-font);
-  font-style: normal;
-  font-weight: 300;
-}
-
-#side h1, h2, h3 {
-  font-family: var(--base-font);
-  font-style: normal;
-  font-weight: 500;
-}
-
 #side a {
   color: black;
   text-decoration: none;
@@ -696,7 +711,7 @@ p.place-info, h5.place-info, a.place-info {
 } 
 
 .filter-button.active {
-  background-color: var(--request-button-color);
+  background-color: var(--button-color);
   color: white;
 } 
 

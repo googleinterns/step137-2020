@@ -24,7 +24,7 @@
       <label for="name">Enter a name for your account:</label><br>
       <input type="text" name="name" id="set-name" class="input"></input>
       <br></br>
-      <input onclick="updateSetName()">
+      <input type="submit" onclick="updateSetName()">
       </form>
     </div>
     <div id="name-form-container" class="popup">
@@ -37,7 +37,7 @@
       </form>
     </div>
     <div id="image-form-container" class="popup">
-      <form id="image-form" class="popup-text" enctype="multipart/form-data">
+      <form id="image-form" method="POST" class="popup-text" enctype="multipart/form-data">
         <i class="fa fa-close" onclick="hideImageForm()"></i>
         <h4>Upload an Image<h4>
         <p>(PNG, JPG, and JPEG files accepted; square shape recommended)<p>
