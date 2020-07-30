@@ -2,9 +2,7 @@
   --option-color: #696969;
   --form-background: rgba(0,0,0,0.2);
   --navbar-color: #09280a;
-  --button-color: rgba(248, 202, 210, 0.658);
-  --button-color-selected: rgba(247, 162, 177, 0.979);
-  --request-button-color: #006400;
+  --button-color: #006400;
   --selected-color: #c6e9c6;
   --sidebar-color: #f1f1f1;
   --red-marker-color: #F78F8F;
@@ -74,7 +72,7 @@ h2, h3, h4, h5 {
   color: var(--sidebar-color);
   border: 1.5px solid var(--button-color);
   font-size: 16px;
-  padding: 5px 10px;
+  padding: 4px 8px;
   font-weight: 450;
   font-family: var(--base-font);
   border-radius: 4px;
@@ -292,8 +290,8 @@ h2, h3, h4, h5 {
 /** Event buttons styling */
 .event-button {
   background-color: var(--sidebar-color);
-  color: var(--request-button-color);
-  border: 1.5px solid var(--request-button-color);
+  color: var(--button-color);
+  border: 1.5px solid var(--button-color);
   font-size: 14px;
   padding: 4px 8px;
   margin-left: 5px;
@@ -327,7 +325,7 @@ h2, h3, h4, h5 {
 }
 
 #side h1 {
-  color: var(--request-button-color);
+  color: var(--button-color);
 }
 
 .place-info {
@@ -610,26 +608,13 @@ p.place-info, h5.place-info, a.place-info {
 
 .profile-heading {
   font-weight: 500;
-  color: var(--request-button-color);
+  color: var(--button-color);
 }
 
 /* Buddy request button styling */
 .request-button {
-  background-color: var(--request-button-color);
-  color: var(--side-bar);
-  border: 1.5px solid var(--request-button-color);
   font-size: 10px;
-  padding: 5px 10px;
-  font-weight: 400;
-  font-family: var(--base-font);
-  border-radius: 4px;
-  transition: ease background-color 0.1s, ease color 0.1s;
   margin-right: 2px;
-}
-
-.request-button:hover {
-  background-color: var(--side-bar);
-  color: var(--request-button-color);
 }
 
 /* Style the tab in sidebar */
@@ -726,7 +711,7 @@ p.place-info, h5.place-info, a.place-info {
 } 
 
 .filter-button.active {
-  background-color: var(--request-button-color);
+  background-color: var(--button-color);
   color: white;
 } 
 
