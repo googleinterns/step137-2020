@@ -54,7 +54,6 @@ function findNearbyEvents(map, currentLocation) {
   fetch('/events')
   .then(response => response.json())
   .then(events => {
-    console.log(events);
     var eventPromises = [];
     if (events.length == 0) {
       eventsDivElement.innerHTML = '<p>No nearby events to show.</p>';
@@ -135,7 +134,6 @@ function isNearby(geocoder, event, locationCircle, userId) {
     // Resolve the promise.
     eventLatLng = results[0].geometry.location;
     var isNearby = locationCircle.getBounds().contains(eventLatLng)
-    console.log(isNearby);
     if (isNearby) {
       if (userId) {
         if (event.invitedAttendees.includes(userId) || 
