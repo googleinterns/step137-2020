@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Social Map</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBf5E9ymEYBv6mAi78mFBOn8oUVvO8sph4&libraries=places"></script>
+    <script src="profileScript.js"></script>
+    <script src="eventScript.js"></script>
+    <script src="api_key.js"></script>
+    <script src="mapScript.js"></script>
+    <script src="nearmeScript.js"></script>
+  </head>
+  <body onload="onLoad()">
+    <div class="navbar">
+      <p class="navbar-text" onclick="window.location.href = 'map.html'">Social Map</p>
+      <p class="navbar-text" onclick="window.location.href = 'nearyou.html'">Near You</p>
+      <p class="navbar-text" onclick="window.location.href = 'searchUsers.html'">Search Users</p>
+      <div id="user-navbar-section"></div>
+    </div>
+    <div id="attendees-popup" class="popup"></div>
+    <div class="row">
+      <div id="side">
+        <div id="loader-icon-nearme" class="loader"></div>
+        <p id="finding-events-nearme">Finding events near you.</p>
+        <p id="found-events-nearme">These are events happening near you.</p> 
+        <p id="no-events-nearme">There are no events happening near you.</p>
+      </div>
+      <div class="main">
+        <div id="nearMeMap">
+        </div>
+        <div id="nearbyEvents"></div>
+      </div>
+    </div> 
+  </body>
+</html>
