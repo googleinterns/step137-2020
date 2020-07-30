@@ -119,12 +119,6 @@ html, body {
   background-color: var(--form-background);
 }
 
-/* #event-form {
-  flex: 2;
-  justify-content: right;
-  font-size: 15px; */
-/* } */
-
 #event-form {
   flex:40%;
   flex-wrap: wrap;
