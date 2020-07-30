@@ -99,14 +99,22 @@ function findNearbyEvents(map, currentLocation) {
     */  
     Promise.allSettled(eventPromises).then((listOfEventObjects) => {
       calculateDistances(currentLocation, listOfEventObjects).then((results) => {
-        results.sort( compareDistanceToCurrLocation );
-        for (var i = 0; i < results.length; i++) {
-          eventsDivElement.appendChild(displayEvents(results[i].value));
+        if (results == null) {
+          nearmeLoaderElement.style.display = 'none';
+          findingNearbyEventsText.style.display = 'none';
+          noNearbyEventsText.style.display = 'block';
+          eventsDivElement.innerHTML = '<p>No nearby events to show.</p>';
         }
-        // take away loading icon.
-        nearmeLoaderElement.style.display = 'none';
-        findingNearbyEventsText.style.display = 'none';
-        foundNearbyEventsText.style.display = 'block';
+        else {
+          results.sort( compareDistanceToCurrLocation );
+          for (var i = 0; i < results.length; i++) {
+            eventsDivElement.appendChild(displayEvents(results[i].value));
+          }
+          // take away loading icon.
+          nearmeLoaderElement.style.display = 'none';
+          findingNearbyEventsText.style.display = 'none';
+          foundNearbyEventsText.style.display = 'block';
+        }
       });
     });
   });
@@ -145,6 +153,10 @@ function isNearby(geocoder, event, locationCircle, userId) {
         clearTimeout(timeout);
       } 
     }
+    else {
+      // Reject the promise.
+      rejectFn();
+    }
   });
   });  
 }
@@ -161,7 +173,8 @@ function calculateDistances(currentLocation, listOfEventObjects) {
       if (listOfEventObjects[i].value) { 
         destinations.push(listOfEventObjects[i].value.latLng);
       }
-    } 
+    }
+    if (destinations.length == 0) {  resolveFn(null); } 
     var service = new google.maps.DistanceMatrixService();
     service.getDistanceMatrix(
       {
