@@ -87,28 +87,38 @@ function getAvailablePosts(userId) {
 }
 
 function createPostNoResponse(post) {
-  const topOfPost = document.createElement('div');
-  topOfPost.className = "top-card:"
-  const creatorName = document.createElement('div');
-  creatorName.id = "event-creator";
+  const postElement = document.createElement('div');
+  if (window.location.pathname === '/profile.html') {
+    postElement.className = "post-card-profile";
+  }
+  else {
+    postElement.className = "post-card";
+  }
+  postElement.id = "post-element";
+
+  const postContents = document.createElement('div');
+  postContents.className = "contents";
+
+  const postHeader = document.createElement('div');
+  postHeader.className = "top-card"
+  const creator = document.createElement('div');
+  creator.id = "creator";
   fetch("/user")
     .then(response => response.json())
     .then(users => {
       for (let i = 0; i < users.length; i++) {
         if (users[i].id === post.creator) {
-          displayProfilePicture(users[i], creatorName, 'profile-pic-small');
-          const name = document.createElement('p');
-          name.id = 'event-creator-name';
-          name.innerText = "Created by " + users[i].name;
-          creatorName.addEventListener('click', () => {
+          displayProfilePicture(users[i], creator, 'profile-pic-small');
+          const caption = document.createElement('p');
+          caption.className = "details-display post-details";
+          caption.innerText = post.caption;
+          creator.append(caption);
+          creator.addEventListener('click', () => {
             visitProfile(users[i].id);
           });
-          creatorName.append(name);
         }
       }
     });
-  
-  topOfPost.append(creatorName);
 
   if (post.COVIDInfo === "yes") {
     const covidBadge = document.createElement('img');
@@ -116,12 +126,10 @@ function createPostNoResponse(post) {
     covidBadge.height = 20;
     covidBadge.width = 20;
     covidBadge.id = "covid-badge";
-    topOfPost.append(covidBadge);
+    postHeader.append(covidBadge);
   }
-  const caption = document.createElement('p');
-  caption.id = "caption";
-  caption.innerText = post.caption;
 
+  const imageDiv = document.createElement('div');
   const imageElement = document.createElement('img');
   imageElement.id = "image";
 
@@ -134,13 +142,30 @@ function createPostNoResponse(post) {
   .then(function(image) {
     var imageURL = URL.createObjectURL(image);
     imageElement.src = imageURL;
+    imageDiv.append(imageElement);
   });
+
+  const locationDisplay = document.createElement('div');
+  locationDisplay.className = "location-display post-location";
+  const locationIcon = document.createElement('i');
+  locationIcon.className = 'fa fa-map-marker';
+  const postLocation = document.createElement('p');
+  postLocation.className = "location-name";
+  postLocation.innerText = post.location;
+  locationDisplay.append(locationIcon);
+  locationDisplay.append(postLocation);
+
+  if (window.location.pathname === '/profile.html') {
+    locationDisplay.addEventListener('click', () => {
+      sessionStorage.setItem(SESSION_STORAGE_CURRENT_LOCATION, post.placeId);
+      window.location.href = 'map.html';
+    });
+  }
   
-  const postElement = document.createElement('div');
-  postElement.className = "card";
-  postElement.append(topOfPost);
-  postElement.append(imageElement);
-  postElement.append(caption);
+  postElement.append(imageDiv);
+  postElement.append(postContents);
+  postElement.append(locationDisplay);
+  postElement.append(creator);
 
   return postElement;
 }
@@ -150,53 +175,48 @@ function createPostWithResponse(post, userId) {
   const bottomCard = document.createElement('div');
   bottomCard.id = "bottom-card";
   const buttons = document.createElement('div');
+  buttons.className = "post-buttons";
 
   if (userId === post.creator) {
-    const deleteButton = document.createElement('button');
-    deleteButton.className = "button icon-button";
-    const deleteIcon = document.createElement('i');
-    deleteIcon.className = 'fa fa-trash-o';
-    deleteButton.appendChild(deleteIcon);
+    const deleteButton = document.createElement('i');
+    deleteButton.id = "delete-button";
+    deleteButton.className = 'fa fa-trash-o';
     deleteButton.addEventListener('click', () => {
       deleteSinglePost(post, postElement);
     });
-    buttons.append(deleteButton);
+    bottomCard.append(deleteButton);
   }
+
+  const likeButton = document.createElement('i');
+  likeButton.className = 'fa fa-heart';
+  likeButton.id = "edit-event-button";
+  likeButton.addEventListener('click', () => {
+    likePost(post, post.likes.length - 1, likesCount, postElement, likesElement);
+  }); 
 
   const likesElement = document.createElement('div');
   likesElement.id = "likes-element";
-
-  // need -1 to account for the empty value put in when initializing the comment
   const likesCount = document.createElement('p');
-  const likesCountIcon = document.createElement('i');
-  if (post.likes.length - 1 > 0) {
-    likesCountIcon.className = 'fa fa-heart-o';
-    likesElement.appendChild(likesCountIcon);
-    likesCount.innerText = post.likes.length - 1;
-    likesCount.id = 'likes';
-    likesElement.appendChild(likesCount);
-  } 
-  
-  const likesButton = document.createElement('button');
-  likesButton.className = 'button icon-button';
-  const likeIcon = document.createElement('i');
-  likeIcon.className = 'fa fa-heart';
-  likesButton.appendChild(likeIcon);
-  likesButton.addEventListener('click', () => {
-    likePost(post, post.likes.length - 1, likesCount, likesCountIcon, postElement, likesElement);
-  }); 
-  buttons.appendChild(likesButton);
-
-  bottomCard.append(buttons);
+  if (post.likes.length - 1 === 1) {
+    likesCount.innerText = "1 Like";
+  }
+  else if (post.likes.length - 1 > 0) {
+    likesCount.innerText = post.likes.length - 1 + " Likes";
+  }
+  else {
+    likesCount.innerText = "0 Likes";
+  }
+  likesCount.id = 'likes';
+  likesElement.appendChild(likesCount);
   bottomCard.append(likesElement);
-  
-  postElement.className = "card";
+
+  bottomCard.append(likeButton);
   postElement.append(bottomCard);
 
   return postElement;
 }
 
-function likePost(post, numLikes, likesCount, likesCountIcon, postElement, likesElement) {
+function likePost(post, numLikes, likesCount, postElement, likesElement) {
   const params = new URLSearchParams();
   params.append("id", post.id);
   fetch('/likes', {
@@ -206,22 +226,23 @@ function likePost(post, numLikes, likesCount, likesCountIcon, postElement, likes
     if (json["count"] === "decrease") {
       var newLikes = numLikes - 1;
       if (newLikes <= 0) {
-        likesElement.innerText = '';
+        likesCount.innerText = "0 Likes";
+      }
+      else if (newLikes === 1) {
+        likesCount.innerText = "1 Like";
       }
       else {
-        likesCount.innerText = newLikes;
+        likesCount.innerText = newLikes + "Likes";
         likesElement.appendChild(likesCount);
       }
     }
     else if (json["count"] === "increase") {
       if (numLikes > 0) {
-        likesCount.innerText = numLikes + 1;
+        likesCount.innerText = numLikes + 1 + " Likes";
       }
       else {
-        likesCount.innerText = 1;
+        likesCount.innerText = "1 Like";
       }
-      likesCountIcon.className = 'fa fa-heart-o';
-      likesElement.appendChild(likesCountIcon);
       likesElement.appendChild(likesCount);
     }
     postElement.appendChild(likesElement);
