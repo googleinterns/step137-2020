@@ -5,20 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Social Map</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBf5E9ymEYBv6mAi78mFBOn8oUVvO8sph4&libraries=places"></script>
     <script src="profileScript.js"></script>
     <script src="postScript.js"></script>
     <script src="eventScript.js"></script>
     <script src="api_key.js"></script>
     <script src="mapScript.js"></script>  
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   </head>
   <body onload="initialDisplay()">
     <div class="navbar">
       <p class="navbar-text" onclick="window.location.href = 'map.html'">Social Map</p>
-      <p class="navbar-text" onclick="window.location.href = 'searchUsers.html'">Search Users</p>
       <p class="navbar-text" onclick="window.location.href = 'nearme.html'">Near Me</p>
+      <p class="navbar-text" onclick="window.location.href = 'searchUsers.html'">Search Users</p>
       <div id="user-navbar-section"></div>
     </div>
     <div id="attendees-popup" class="popup"></div>
@@ -30,14 +30,16 @@
           <div id="park" class="filter-button">park</div>
           <div id="shopping_mall" class="filter-button">shopping mall</div>
           <div id="movie_theater" class="filter-button">movie theater</div>
-          <p id="error_message"></p>
+          <p id="message"></p>
         </div> 
+        <hr class="solid">
         <h1>Information Bar</h1>
         <div id="loader-icon" class="loader"></div>
         <p id="finding-location-text">Finding your current location</p>
         <p id="found-location-text">Current location found, 
              get started by clicking a place icon on the map. 
         </p>
+        <hr class="solid">
         <div id="place-info">
           <div id="Posts" class="tabcontent"> </div>
           <div id="Events" class="tabcontent"> </div>
@@ -52,7 +54,14 @@
               <input type="text" id="location" name="location">
               <input type="text" id="place-id" name="place-id">
               <h2>Upload an image: </h2>
-              <input type="file" name="image">
+              <p>(PNG, JPG, and JPEG files accepted)</p>
+              <input type="file" name="image" id="uploaded-image">
+              <br></br>
+              <button type="button" onclick="confirmPostImageType()">Confirm Image</button>
+              <p id="image-approval" style="display:none">
+                  Your image has been confirmed!</p>
+              <p id="image-failure" style="display:none">
+                  I'm sorry, your image cannot be accepted. Please upload a different one.</p>
               <br/>
               <h2>Caption: </h2>
               <textarea name="caption"></textarea>

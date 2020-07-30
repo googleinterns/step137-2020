@@ -15,8 +15,8 @@
   <body onload="profileOnload()" id="profile-body">
     <div class="navbar">
       <p class="navbar-text" onclick="window.location.href = 'map.html'">Social Map</p>
-      <p class="navbar-text" onclick="window.location.href = 'searchUsers.html'">Search Users</p>
       <p class="navbar-text" onclick="window.location.href = 'nearme.html'">Near Me</p>
+      <p class="navbar-text" onclick="window.location.href = 'searchUsers.html'">Search Users</p>
       <div id="user-navbar-section"></div>
     </div>
     <div id="initial-name-form-container" class="popup">
@@ -29,18 +29,26 @@
     </div>
     <div id="name-form-container" class="popup">
       <form action="/user-name" method="POST" onsubmit="profileOnload()" class="popup-text">
-      <i class="fa fa-close" onclick="hideNameForm()"></i>
-      <label for="name">Enter a name for your account:</label><br>
-      <input type="text" name="name" id="changed-name" class="input"></input>
-      <br></br>
-      <input type="submit" onclick="updateChangedName()">
+        <i class="fa fa-close" onclick="hideNameForm()"></i>
+        <label for="name">Enter a name for your account:</label><br>
+        <input type="text" name="name" id="changed-name" class="input"></input>
+        <br></br>
+        <input type="submit" onclick="updateChangedName()">
       </form>
     </div>
     <div id="image-form-container" class="popup">
       <form id="image-form" method="POST" class="popup-text" enctype="multipart/form-data">
         <i class="fa fa-close" onclick="hideImageForm()"></i>
-        <input type="file" name="image">
-        <input type="submit">
+        <h4>Upload an Image<h4>
+        <p>(PNG, JPG, and JPEG files accepted; square shape recommended)<p>
+        <input type="file" name="image" id="uploaded-image">
+        <br></br>
+        <button type="button" onclick="confirmProfileImageType()">Confirm Image</button>
+        <p id="image-approval" style="display:none">
+            Your image has been confirmed! Press submit to continue.</p>
+        <p id="image-failure" style="display:none">
+            I'm sorry, your image cannot be accepted. Please upload a different one.</p>
+        <input type="submit" id="image-submit" style="display:none">
       </form>
     </div>
     <div id="requests-popup" class="popup"></div>
