@@ -174,9 +174,7 @@ h2, h3, h4, h5 {
 /* Events element styling */
 .name-display {
   font-size: 24px;
-  padding: 0;
-  margin-top: 0;
-  margin-bottom: 0;
+  margin-top: -30px;
 }
 
 .date-display {
@@ -242,8 +240,6 @@ h2, h3, h4, h5 {
 .top-card {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 0;
-  padding-bottom: 0;
 }
 
 .user-display {
