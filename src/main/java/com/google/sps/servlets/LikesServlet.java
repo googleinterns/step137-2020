@@ -46,11 +46,11 @@ public class LikesServlet extends HttpServlet {
           //if a user has already liked a commnet, pushing the like button again
           //serves to remove their like 
           likes.remove(currentUserId);
-          json.put("count", "decrease");
+          json.put("count", likes.size() - 1);
         }
         else {
           likes.add(currentUserId);
-          json.put("count", "increase");
+          json.put("count", likes.size() - 1);
         }
         entity.setProperty(Constants.LIKES_PARAM, likes);
         datastore.put(entity);

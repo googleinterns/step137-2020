@@ -162,6 +162,9 @@ public class EventServlet extends HttpServlet {
     if (Integer.parseInt(year) > 5000) {
       json.put("weird-year", year);
     }
+    else {
+      json.put("weird-year", "no");
+    }
     String month = splitString[1];
     String day = splitString[2];
 

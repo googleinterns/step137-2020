@@ -191,7 +191,7 @@ function createPostWithResponse(post, userId) {
   likeButton.className = 'fa fa-heart';
   likeButton.id = "edit-event-button";
   likeButton.addEventListener('click', () => {
-    likePost(post, post.likes.length - 1, likesCount, postElement, likesElement);
+    likePost(post, likesCount, postElement, likesElement);
   }); 
 
   const likesElement = document.createElement('div');
@@ -216,35 +216,22 @@ function createPostWithResponse(post, userId) {
   return postElement;
 }
 
-function likePost(post, numLikes, likesCount, postElement, likesElement) {
+function likePost(post, likesCount, postElement, likesElement) {
   const params = new URLSearchParams();
   params.append("id", post.id);
   fetch('/likes', {
     method: 'POST', body: params
   }).then(response => response.json())
   .then(json => {
-    if (json["count"] === "decrease") {
-      var newLikes = numLikes - 1;
-      if (newLikes <= 0) {
-        likesCount.innerText = "0 Likes";
-      }
-      else if (newLikes === 1) {
-        likesCount.innerText = "1 Like";
-      }
-      else {
-        likesCount.innerText = newLikes + "Likes";
-        likesElement.appendChild(likesCount);
-      }
+    var numLikes = json['count'];
+    if (numLikes === 1) {
+      likesCount.innerText = "1 Like";
     }
-    else if (json["count"] === "increase") {
-      if (numLikes > 0) {
-        likesCount.innerText = numLikes + 1 + " Likes";
-      }
-      else {
-        likesCount.innerText = "1 Like";
-      }
-      likesElement.appendChild(likesCount);
+    else {
+      likesCount.innerText = numLikes + " Likes";
     }
+
+    likesElement.appendChild(likesCount);
     postElement.appendChild(likesElement);
   })
 }

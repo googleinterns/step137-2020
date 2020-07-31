@@ -208,16 +208,6 @@ function submitForm() {
             "<p>Event created successfully. Click <a href=\"/map.html\">here</a>" +
             " to return to the map</p>";
         }
-        else if (json['success'] === 'edit') {
-          document.getElementById("success").innerHTML = "";
-          document.getElementById("date-warning").innerHTML = "";
-          var placeId = document.getElementById('place-id').value;
-          sessionStorage.setItem("currentLocationId", placeId);
-          document.getElementById("success").style.color = "black";
-          document.getElementById("success").innerHTML = 
-            "<p>Event edited successfully. Click <a href=\"/map.html\">here</a>" +
-            " to return to the map</p>";
-        }
         if (json['weird-year'] !== "no") {
           document.getElementById("weird-year").innerHTML =   
             "<p>Bold of you to assume humanity will still exist in " + json['weird-year']; + "</p>";
