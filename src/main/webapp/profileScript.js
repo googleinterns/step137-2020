@@ -809,7 +809,7 @@ function displayPosts(user, viewer, postsContainer) {
       } else if (viewer === PROFILE_VIEWER_STRANGER || viewer === PROFILE_VIEWER_LOGOUT
           || viewer === PROFILE_VIEWER_PENDING_BUDDY) {
         for (let i = 0; i < posts.length; i ++) {
-          if (posts[i].creator === currentId) {
+          if (posts[i].creator === user.id) {
             if (posts[i].privacy == "public") {
               postsGrid.appendChild(createPostWithResponse(posts[i], user.id));
               count++

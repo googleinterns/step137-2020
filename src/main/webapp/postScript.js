@@ -228,7 +228,7 @@ function likePost(post, likesCount, postElement, likesElement) {
       likesCount.innerText = "1 Like";
     }
     else {
-      likesCount.innerText = numLikes + " Likes";
+      likesCount.innerText = numLikes + " Likesuseru";
     }
 
     likesElement.appendChild(likesCount);
