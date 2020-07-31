@@ -139,6 +139,10 @@ h2, h3, h4, h5 {
   font-family: var(--base-font);
 }
 
+#event-body h1 {
+  color: var(--button-color);
+}
+
 #attendees-wrap {
   display: none;
 }
@@ -260,6 +264,7 @@ h2, h3, h4, h5 {
   margin-left: 6px;
   margin-right: 6px;
   font-size: 15px;
+  cursor: pointer;
 }
 
 #event-buttons {
@@ -497,11 +502,14 @@ p.place-info, h5.place-info, a.place-info {
 /* Profile saved interests styling */
 #interests-container {
   text-align: center;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 10px;
 }
 
 #interests-list {
   text-align: left;
-  margin-left: 30px;
+  padding-left: 30px;
 }
 
 #interest-element {
@@ -535,6 +543,7 @@ p.place-info, h5.place-info, a.place-info {
 .profile-section {
   background-color: white;
   border-radius: 5px;
+  box-shadow: 0px 0px 1px;
 }
 
 #basic-info {
@@ -585,6 +594,16 @@ p.place-info, h5.place-info, a.place-info {
 
 #dropdown-element {
   cursor: pointer;
+  padding: 5px;
+  font-size: 15px;
+  font-family: var(--base-font);
+  font-weight: 300;
+}
+
+#dropdown-option {
+  font-size: 15px;
+  font-family: var(--base-font);
+  font-weight: 300;
 }
 
 #attending-events {

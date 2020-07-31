@@ -532,10 +532,13 @@ function displayPersonalEvents(user, eventsContainer) {
   const dropDown = document.createElement('select');
   dropDown.id = 'dropdown-element';
   const attendingOption = document.createElement('option');
+  attendingOption.className = 'dropdown-option';
   attendingOption.innerText = 'Attending';
   const invitedOption = document.createElement('option');
+  invitedOption.className = 'dropdown-option';
   invitedOption.innerText = 'Invited';
   const createdOption = document.createElement('option');
+  createdOption.className = 'dropdown-option';
   createdOption.innerText = 'Created';
   
   const attendingEvents = document.createElement('div');
