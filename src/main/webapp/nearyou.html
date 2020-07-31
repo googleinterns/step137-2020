@@ -12,25 +12,25 @@
     <script src="eventScript.js"></script>
     <script src="api_key.js"></script>
     <script src="mapScript.js"></script>
-    <script src="nearmeScript.js"></script>
-  </head>
+    <script src="nearyouScript.js"></script>
+ </head>
   <body onload="onLoad()">
     <div class="navbar">
       <p class="navbar-text" onclick="window.location.href = 'map.html'">Social Map</p>
-      <p class="navbar-text" onclick="window.location.href = 'nearme.html'">Near Me</p>
+      <p class="navbar-text" onclick="window.location.href = 'nearyou.html'">Near You</p>
       <p class="navbar-text" onclick="window.location.href = 'searchUsers.html'">Search Users</p>
       <div id="user-navbar-section"></div>
     </div>
     <div id="attendees-popup" class="popup"></div>
     <div class="row">
       <div id="side">
-        <div id="loader-icon-nearme" class="loader"></div>
-        <p id="finding-events-nearme">Finding events near you.</p>
-        <p id="found-events-nearme">These are events happening near you.</p> 
-        <p id="no-events-nearme">There are no events happening near you.</p>
+        <div id="loader-icon-nearyou" class="loader"></div>
+        <p id="finding-events-nearyou">Finding events near you.</p>
+        <p id="found-events-nearyou">These are events happening near you.</p> 
+        <p id="no-events-nearyou">There are no events happening near you.</p>
       </div>
       <div class="main">
-        <div id="nearMeMap">
+        <div id="nearYouMap">
         </div>
         <div id="nearbyEvents"></div>
       </div>

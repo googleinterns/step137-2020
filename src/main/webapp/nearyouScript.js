@@ -7,7 +7,7 @@ function onLoad() {
 /** Initializes map. */
 function initializeMap() {
   mapCenter = { lat: 122.0841, lng: 37.4220 };
-  var map = new google.maps.Map(document.getElementById('nearMeMap'), {
+  var map = new google.maps.Map(document.getElementById('nearYouMap'), {
     center: mapCenter,
     zoom: 16, 
   });
@@ -42,11 +42,11 @@ function findNearbyEvents(map, currentLocation) {
     radius: 2000 
   });
   // display loading icon with text.
-  nearmeLoaderElement = document.getElementById('loader-icon-nearme');
-  findingNearbyEventsText = document.getElementById('finding-events-nearme');
-  foundNearbyEventsText = document.getElementById('found-events-nearme');
-  noNearbyEventsText = document.getElementById('no-events-nearme');
-  nearmeLoaderElement.style.display = 'block';
+  nearyouLoaderElement = document.getElementById('loader-icon-nearyou');
+  findingNearbyEventsText = document.getElementById('finding-events-nearyou');
+  foundNearbyEventsText = document.getElementById('found-events-nearyou');
+  noNearbyEventsText = document.getElementById('no-events-nearyou');
+  nearyouLoaderElement.style.display = 'block';
   findingNearbyEventsText.style.display = 'block';
   foundNearbyEventsText.style.display = 'none';
   noNearbyEventsText.style.display = 'none';
@@ -57,7 +57,7 @@ function findNearbyEvents(map, currentLocation) {
     var eventPromises = [];
     if (events.length == 0) {
       eventsDivElement.innerHTML = '<p>No nearby events to show.</p>';
-      nearmeLoaderElement.style.display = 'none';
+      nearyouLoaderElement.style.display = 'none';
       findingNearbyEventsText.style.display = 'none';
       noNearbyEventsText.style.display = 'block';
       return;
@@ -100,7 +100,7 @@ function findNearbyEvents(map, currentLocation) {
     Promise.allSettled(eventPromises).then((listOfEventObjects) => {
       calculateDistances(currentLocation, listOfEventObjects).then((results) => {
         if (results == null) {
-          nearmeLoaderElement.style.display = 'none';
+          nearyouLoaderElement.style.display = 'none';
           findingNearbyEventsText.style.display = 'none';
           noNearbyEventsText.style.display = 'block';
           eventsDivElement.innerHTML = '<p>No nearby events to show.</p>';
@@ -111,7 +111,7 @@ function findNearbyEvents(map, currentLocation) {
             eventsDivElement.appendChild(displayEvents(results[i].value));
           }
           // take away loading icon.
-          nearmeLoaderElement.style.display = 'none';
+          nearyouLoaderElement.style.display = 'none';
           findingNearbyEventsText.style.display = 'none';
           foundNearbyEventsText.style.display = 'block';
         }
