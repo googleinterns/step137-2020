@@ -543,6 +543,7 @@ p.place-info, h5.place-info, a.place-info {
 .profile-section {
   background-color: white;
   border-radius: 5px;
+  box-shadow: 0px 0px 1px;
 }
 
 #basic-info {
