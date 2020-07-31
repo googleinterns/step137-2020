@@ -697,8 +697,31 @@ p.place-info, h5.place-info, a.place-info {
 }
 
 /* Search Users styling */
+#search-users-body {
+  background-color: var(--sidebar-color);
+}
+
 #search-users-container {
   text-align: center;
+  max-width: 600px;
+  margin: 0 auto;
+  min-height: 100%;
+  background-color: white;
+  border-radius: 5px;
+  box-shadow: 0px 0px 1px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  padding: 10px;
+}
+
+#search-users-container h1 {
+  color: var(--button-color);
+}
+
+#search-text {
+  font-size: 14px;
+  font-family: var(--base-font);
+  font-weight: 300;
 }
 
 #searched-users {
@@ -706,7 +729,6 @@ p.place-info, h5.place-info, a.place-info {
   width: 300px;
   display: inline-block;
   text-align: left;
-  background-color: var(--sidebar-color);
   padding-left: 10px;
   margin-top: 10px;
   border-radius: 5px;
@@ -753,6 +775,7 @@ p.place-info, h5.place-info, a.place-info {
 
 .clear-button:hover {
   background-color: var(--button-color);
+  color: white;
 }
 
 /* Loading icon functionality */
