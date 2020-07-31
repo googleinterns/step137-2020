@@ -1,18 +1,16 @@
 // Global Variables
 const CURRENT_EVENT = "event";
 
-/**
-  function calls for body onload
- */
+/** Function calls for body onload */
 function onload() {
   navbarLoginDisplay();
   getLocationInfo();
   createMapSnippet();
   document.getElementById("success").innerHTML = "";
-  // Create event button
+  // Create event button.
   const eventButton = document.getElementById("event-button");
   eventButton.className = "button";
-  //determine whether to fill in form 
+  //determine inner text of event button and whether to fill in form.
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.get('fillIn') === "yes") {
     eventButton.innerText = "Edit Event";
@@ -28,9 +26,7 @@ function onload() {
     })
   }
 }
-/**
-  Change display based on privacy setting.
-*/
+/** Change display based on user chosen privacy setting. */
 function specifiedAttendees(value) {
   if (value == "attendees") {
     document.getElementById("attendees-wrap").style.display = "block";
@@ -206,16 +202,6 @@ function submitForm() {
           document.getElementById("success").style.color = "black";
           document.getElementById("success").innerHTML = 
             "<p>Event created successfully. Click <a href=\"/map.html\">here</a>" +
-            " to return to the map</p>";
-        }
-        else if (json['success'] === 'edit') {
-          document.getElementById("success").innerHTML = "";
-          document.getElementById("date-warning").innerHTML = "";
-          var placeId = document.getElementById('place-id').value;
-          sessionStorage.setItem("currentLocationId", placeId);
-          document.getElementById("success").style.color = "black";
-          document.getElementById("success").innerHTML = 
-            "<p>Event edited successfully. Click <a href=\"/map.html\">here</a>" +
             " to return to the map</p>";
         }
         if (json['weird-year'] !== "no") {
@@ -436,26 +422,26 @@ function createEventNoResponse(event) {
   const topOfEvent = document.createElement('div');
   topOfEvent.className = "top-card";
 
-  const creatorName = document.createElement('div');
-  creatorName.id = "event-creator";
+  const creator = document.createElement('div');
+  creator.id = "creator";
   fetch("/user")
     .then(response => response.json())
     .then(users => {
       for (let i = 0; i < users.length; i++) {
         if (users[i].id === event.creator) {
-          displayProfilePicture(users[i], creatorName, 'profile-pic-small');
+          displayProfilePicture(users[i], creator, 'profile-pic-small');
           const name = document.createElement('p');
           name.id = 'event-creator-name';
           name.innerText = "Created by " + users[i].name;
-          creatorName.addEventListener('click', () => {
+          creator.addEventListener('click', () => {
             visitProfile(users[i].id);
           });
-          creatorName.append(name);
+          creator.append(name);
         }
       }
     });
   
-  topOfEvent.append(creatorName);
+  topOfEvent.append(creator);
   
   if (event.yesCOVIDSafe === "yes") {
     const covidBadge = document.createElement('img');
