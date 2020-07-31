@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>Create an Event</title>
+    <title>Social Map</title>
     <link rel="stylesheet" href="style.css">
     <script src="api_key.js"></script>
     <script src="mapScript.js"></script>
@@ -39,7 +39,7 @@
           <label for="end-time">End Time*: </label>
           <input type="time" id="end-time" name="end-time" required>
           <br>
-                    <select id="time-zone" name="time-zone" required>
+          <select id="time-zone" name="time-zone" required>
             <option value="AST">AST</option>
             <option value="EST">EST</option>
             <option value="EDT">EDT</option>
@@ -82,7 +82,8 @@
             <input type="text" placeholder="Add guest..." id="attendee-text" 
               onkeyup="displayUsers()" autocomplete="off">
             <div id="loaded-users"></div>
-            <br>
+            <hr>
+            <p>Selected Users:</p>
             <div id="display-invited-names"></div>
             <input type="text" id="invited-attendee-ID-list" name="invited-attendee-ID-list">
             <div id="warning" class="warning"></div>

@@ -153,12 +153,12 @@ h2, h3, h4, h5 {
 }
 
 #COVID-notice h3 {
-  font-size: 15px;
+  font-size: 20px;
   color: grey;
 }
 
 #COVID-notice p {
-  font-size: 10px;
+  font-size: 15px;
   color: grey;
 }
 
