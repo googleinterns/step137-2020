@@ -45,9 +45,11 @@ function findNearbyEvents(map, currentLocation) {
   nearmeLoaderElement = document.getElementById('loader-icon-nearme');
   findingNearbyEventsText = document.getElementById('finding-events-nearme');
   foundNearbyEventsText = document.getElementById('found-events-nearme');
+  noNearbyEventsText = document.getElementById('no-events-nearme');
   nearmeLoaderElement.style.display = 'block';
   findingNearbyEventsText.style.display = 'block';
   foundNearbyEventsText.style.display = 'none';
+  noNearbyEventsText.style.display = 'none';
 
   fetch('/events')
   .then(response => response.json())
@@ -55,6 +57,9 @@ function findNearbyEvents(map, currentLocation) {
     var eventPromises = [];
     if (events.length == 0) {
       eventsDivElement.innerHTML = '<p>No nearby events to show.</p>';
+      nearmeLoaderElement.style.display = 'none';
+      findingNearbyEventsText.style.display = 'none';
+      noNearbyEventsText.style.display = 'block';
       return;
     }
 
@@ -94,14 +99,22 @@ function findNearbyEvents(map, currentLocation) {
     */  
     Promise.allSettled(eventPromises).then((listOfEventObjects) => {
       calculateDistances(currentLocation, listOfEventObjects).then((results) => {
-        results.sort( compareDistanceToCurrLocation );
-        for (var i = 0; i < results.length; i++) {
-          eventsDivElement.appendChild(displayEvents(results[i].value));
+        if (results == null) {
+          nearmeLoaderElement.style.display = 'none';
+          findingNearbyEventsText.style.display = 'none';
+          noNearbyEventsText.style.display = 'block';
+          eventsDivElement.innerHTML = '<p>No nearby events to show.</p>';
         }
-        // take away loading icon.
-        nearmeLoaderElement.style.display = 'none';
-        findingNearbyEventsText.style.display = 'none';
-        foundNearbyEventsText.style.display = 'block';
+        else {
+          results.sort( compareDistanceToCurrLocation );
+          for (var i = 0; i < results.length; i++) {
+            eventsDivElement.appendChild(displayEvents(results[i].value));
+          }
+          // take away loading icon.
+          nearmeLoaderElement.style.display = 'none';
+          findingNearbyEventsText.style.display = 'none';
+          foundNearbyEventsText.style.display = 'block';
+        }
       });
     });
   });
@@ -123,8 +136,7 @@ function isNearby(geocoder, event, locationCircle, userId) {
     var isNearby = locationCircle.getBounds().contains(eventLatLng)
     if (isNearby) {
       if (userId) {
-        if (event.rsvpAttendees.includes(userId) ||
-        event.invitedAttendees.includes(userId) || 
+        if (event.invitedAttendees.includes(userId) || 
         event.privacy == 'public') {
           eventObj = new Object();
           eventObj.event = event;
@@ -133,16 +145,17 @@ function isNearby(geocoder, event, locationCircle, userId) {
           clearTimeout(timeout);
         }
       }
-      else {
-        if (event.privacy == 'public'){
-          eventObj = new Object();
-          eventObj.event = event;
-          eventObj.latLng = eventLatLng;
-          resolveFn(eventObj);
-          clearTimeout(timeout);
-        }
+      else if (event.privacy == 'public') {
+        eventObj = new Object();
+        eventObj.event = event;
+        eventObj.latLng = eventLatLng;
+        resolveFn(eventObj);
+        clearTimeout(timeout);
       } 
-      
+    }
+    else {
+      // Reject the promise.
+      rejectFn();
     }
   });
   });  
@@ -160,7 +173,8 @@ function calculateDistances(currentLocation, listOfEventObjects) {
       if (listOfEventObjects[i].value) { 
         destinations.push(listOfEventObjects[i].value.latLng);
       }
-    } 
+    }
+    if (destinations.length == 0) {  resolveFn(null); } 
     var service = new google.maps.DistanceMatrixService();
     service.getDistanceMatrix(
       {
@@ -206,48 +220,18 @@ function compareDistanceToCurrLocation(eventObj1, eventObj2) {
 
 /** Displays events with an indication of how far they are from the current location. */
 function displayEvents(eventObj) {
-  const eventElement = document.createElement('div');
-  eventElement.className = "card";
-  eventElement.addEventListener('click', () => {
-    sessionStorage.setItem('currentLocationId', eventObj.event.placeId);
-    window.location.href = 'map.html';
-  });
-
-  const eventContents = document.createElement('div');
-  eventContents.className = "contents";
-
-  const eventName = document.createElement('h2');
-  eventName.className = "name-display";
-  eventName.innerText = eventObj.event.eventName;
-
-  const eventDate = document.createElement('p');
-  eventDate.className = "date-display";
-  eventDate.innerText = eventObj.event.dateTime;
-
-  const locationDisplay = document.createElement('div');
-  locationDisplay.className = "location-display";
-  const locationIcon = document.createElement('i');
-  locationIcon.className = 'fa fa-map-marker';
-  const eventLocation = document.createElement('p');
-  eventLocation.className = "location-name";
-  eventLocation.innerText = eventObj.event.location;
-  locationDisplay.append(locationIcon);
-  locationDisplay.append(eventLocation);
-
-  const eventDetails = document.createElement('p'); 
-  eventDetails.className = "details-display";
-  eventDetails.innerText = eventObj.event.eventDetails;
+  let eventElement;
+  if (localStorage.getItem(LOCAL_STORAGE_STATUS) === 'false') {
+    eventElement = createEventNoResponse(eventObj.event);
+  } else {
+    const userID = localStorage.getItem(LOCAL_STORAGE_ID);
+    eventElement = createEventWithResponse(eventObj.event, userID);
+  }
 
   const eventDistance = document.createElement('p');
   eventDistance.className = 'distance-display';
   eventDistance.innerText = eventObj.distanceText;
   eventDistance.innerText += ' from your current location';
-
-  eventElement.append(eventContents);
-  eventElement.append(eventName);
-  eventElement.append(eventDate);
-  eventElement.append(locationDisplay);
-  eventElement.append(eventDistance);
-  eventElement.append(eventDetails);
+  eventElement.appendChild(eventDistance);
   return eventElement;
 }

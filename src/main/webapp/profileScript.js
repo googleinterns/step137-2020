@@ -200,6 +200,11 @@ function displayProfilePicture(user, container, size) {
 
   const profilePic = document.createElement('img');
   profilePic.className = size;
+  if (size === 'profile-pic-small') {
+    profilePic.addEventListener('click', () => {
+      visitProfile(user.id);
+    });
+  }
 
   if (user.blobKeyString === '') {
     profilePic.src = '/images/default-profile-picture.jpg';
@@ -224,11 +229,12 @@ function createUserElement(user) {
   userElement.className = 'user-element';
   displayProfilePicture(user, userElement, 'profile-pic-small');
   const userName = document.createElement('p');
+  userName.className = 'user-name';
   userName.innerText = user.name;
-  userElement.appendChild(userName);
-  userElement.addEventListener('click', () => {
+  userName.addEventListener('click', () => {
     visitProfile(user.id);
   });
+  userElement.appendChild(userName);
   return userElement;
 }
 
@@ -242,6 +248,7 @@ function displayBuddies(user, viewer) {
   if (viewer === PROFILE_VIEWER_PERSONAL) {
     // Add a popup for the user's buddy requests.
     const requestHeading = document.createElement('h3');
+    requestHeading.className = 'buddies-text';
     const numBuddyRequests = user.buddyRequests.length - 1;
     if (numBuddyRequests == 1) {
       requestHeading.innerText = numBuddyRequests + ' buddy request';  
@@ -257,6 +264,7 @@ function displayBuddies(user, viewer) {
     buddyContainer.appendChild(requestHeading);
     // Add a popup for the user's buddies list.
     const buddiesHeading = document.createElement('h3');
+    buddiesHeading.className = 'buddies-text';
     const numBuddies = user.buddies.length - 1;
     if (numBuddies == 1) {
       buddiesHeading.innerText = numBuddies + ' buddy';
@@ -273,6 +281,7 @@ function displayBuddies(user, viewer) {
   } else if (viewer === PROFILE_VIEWER_BUDDY) {
     // Add a popup for the profile user's buddies list.
     const buddiesHeading = document.createElement('h3');
+    buddiesHeading.className = 'buddies-text';
     const numBuddies = user.buddies.length - 1;
     if (numBuddies == 1) {
       buddiesHeading.innerText = numBuddies + ' buddy';
@@ -352,13 +361,13 @@ function displayBuddyRequests(user) {
           const requestButtons = document.createElement('div');
           requestButtons.className = 'request-buttons';
           const approveButton = document.createElement('button');
-          approveButton.className = 'request-button';
+          approveButton.className = 'button request-button';
           approveButton.innerText = 'Approve';
           approveButton.addEventListener('click', () => {
             addOrRemoveBuddy(users[i], 'add');
           });
           const removeButton = document.createElement('button');
-          removeButton.className = 'request-button';
+          removeButton.className = 'button request-button';
           removeButton.innerText = 'Remove';
           removeButton.addEventListener('click', () => {
             sendOrRemoveBuddyRequest(users[i], 'remove');
@@ -425,7 +434,8 @@ function displaySavedInterests(user, viewer) {
   const savedInterestsContainer = document.getElementById('interests-container');
   savedInterestsContainer.innerHTML = '';
 
-  const interestHeading = document.createElement('h1');
+  const interestHeading = document.createElement('h2');
+  interestHeading.className = 'profile-heading';
   interestHeading.innerText = 'Saved Interests';
   savedInterestsContainer.appendChild(interestHeading);
 
@@ -467,6 +477,7 @@ function createInterest(interest) {
 
   const interestName = document.createElement('h4');
   interestName.innerText = interest.locationName;
+  interestName.id = 'interest-name';
   interestName.addEventListener('click', () => {
     sessionStorage.setItem(SESSION_STORAGE_CURRENT_LOCATION, interest.placeId);
     window.location.href = 'map.html';
@@ -519,6 +530,7 @@ function displayPersonalEvents(user, eventsContainer) {
   const dropDownContainer = document.createElement('div');
   dropDownContainer.id = 'dropdown-container';
   const dropDown = document.createElement('select');
+  dropDown.id = 'dropdown-element';
   const attendingOption = document.createElement('option');
   attendingOption.innerText = 'Attending';
   const invitedOption = document.createElement('option');
@@ -554,8 +566,10 @@ function displayPersonalEvents(user, eventsContainer) {
   createdPastEvents.className = 'events-grid';
   
   const upcomingHeading = document.createElement('h2');
+  upcomingHeading.className = 'profile-heading';
   upcomingHeading.innerText = 'Upcoming Events';
   const pastHeading = document.createElement('h2');
+  pastHeading.className = 'profile-heading';
   pastHeading.innerText = 'Past Events';
 
   
@@ -702,10 +716,10 @@ function displayBuddyEvents(user, eventsContainer) {
       if (events[i].goingAttendees.includes(user.id)) {
         if (events[i].invitedAttendees.includes(currentId) || events[i].privacy === 'public') {
           if (events[i].currency === 'current') {
-            upcomingEvents.appendChild(createEventNoResponse(events[i]));
+            upcomingEvents.appendChild(createEventWithResponse(events[i], currentId));
             upcomingCount ++;
           } else {
-            pastEvents.appendChild(createEventNoResponse(events[i]));
+            pastEvents.appendChild(createEventNoResponse(events[i], currentId));
             pastCount ++;
           }
           eventsCount ++;
@@ -886,4 +900,23 @@ function updateSetName() {
  */
 function updateChangedName() {
   localStorage.setItem(LOCAL_STORAGE_NAME, document.getElementById('changed-name').value);
+}
+
+/*
+ * Confirms that the user's uploaded profile picture is a 
+ * PNG, JPG, or JPEG before allowing submission.
+ */
+function confirmProfileImageType() {
+  const imageURL = document.getElementById('uploaded-image').value;
+  if ((imageURL.indexOf('.jpeg') == imageURL.length - 5) || 
+  (imageURL.indexOf('.jpg') == imageURL.length - 4) || 
+  (imageURL.indexOf('.png') == imageURL.length - 4)) {
+    document.getElementById('image-approval').style.display = 'inline-block';
+    document.getElementById('image-failure').style.display = 'none';
+    document.getElementById('image-submit').style.display = 'inline-block';
+  } else {
+    document.getElementById('image-approval').style.display = 'none';
+    document.getElementById('image-failure').style.display = 'inline-block';
+    document.getElementById('image-submit').style.display = 'none';
+  }
 }

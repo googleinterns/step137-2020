@@ -327,7 +327,11 @@ function getPublicEvents() {
   eventDivElement.innerText = '';
   locationName = sessionStorage.getItem(SESSION_STORE_LOCATION);
 
-  fetch("/events")
+  const params = new URLSearchParams();
+  params.append("place-id", sessionStorage.getItem(SESSION_STORE_PLACEID));
+  fetch('/location-specific-events', {
+    method: 'POST', body: params
+  })
     .then(response => response.json())
     .then(events => {
       if (events.length === 0) {
@@ -337,9 +341,8 @@ function getPublicEvents() {
       }
       else {
         for (i = 0; i < events.length; i++) {
-          if (events[i].location == locationName 
-              && events[i].privacy == "public") {
-              eventDivElement.appendChild(createEventNoResponse(events[i]));
+          if (events[i].privacy == "public") {
+            eventDivElement.appendChild(createEventNoResponse(events[i]));
           }
         }
       }
@@ -355,17 +358,19 @@ function getAvailableEvents(userID) {
   eventDivElement.innerText = '';
   locationName = sessionStorage.getItem(SESSION_STORE_LOCATION);
 
-  fetch('/events')
+  const params = new URLSearchParams();
+  params.append("place-id", sessionStorage.getItem(SESSION_STORE_PLACEID));
+  fetch('/location-specific-events', {
+    method: 'POST', body: params
+  })
     .then(response => response.json())
     .then(events => {
       let count = 0;
       for (i = 0; i < events.length; i++) {
         if (events[i].currency === "current") {
-          if (events[i].location == locationName) {
-            if (events[i].privacy === 'public' || events[i].invitedAttendees.includes(userID)) {
-              eventDivElement.appendChild(createEventWithResponse(events[i], userID));
-              count ++;
-            }
+          if (events[i].privacy === 'public' || events[i].invitedAttendees.includes(userID)) {
+            eventDivElement.appendChild(createEventWithResponse(events[i], userID));
+            count ++;
           }
         }
       }
@@ -404,7 +409,8 @@ function createEventNoResponse(event) {
   locationDisplay.append(locationIcon);
   locationDisplay.append(eventLocation);
 
-  if (window.location.pathname === '/profile.html') {
+  if (window.location.pathname === '/profile.html' || 
+      window.location.pathname === '/nearme.html') {
     locationDisplay.addEventListener('click', () => {
       sessionStorage.setItem(SESSION_STORAGE_CURRENT_LOCATION, event.placeId);
       window.location.href = 'map.html';
@@ -421,9 +427,11 @@ function createEventNoResponse(event) {
 
   const eventDetails = document.createElement('p'); 
   eventDetails.className = "details-display";
-  if (event.eventDetails.length > 0) {
-    eventDetails.innerText = 'Details: ' + event.eventDetails;
-  }
+  eventDetails.innerText = 'Details: ' + event.eventDetails;
+
+  const logoutMessage = document.createElement('p');
+  logoutMessage.className = 'logout-display';
+  logoutMessage.innerText = 'Login to respond to events.';
 
   const topOfEvent = document.createElement('div');
   topOfEvent.className = "top-card";
@@ -463,7 +471,12 @@ function createEventNoResponse(event) {
   eventElement.append(eventDate);
   eventElement.append(locationDisplay);
   eventElement.append(privacyDisplay);
-  eventElement.append(eventDetails);
+  if (event.eventDetails.length > 0) {
+    eventElement.append(eventDetails);
+  }
+  if (localStorage.getItem(LOCAL_STORAGE_STATUS) === 'false') {
+    eventElement.append(logoutMessage);
+  }
   return eventElement;
 }
 
@@ -513,6 +526,9 @@ function createEventWithResponse(event, userID) {
   bottomCard.appendChild(attendeeInfo);
   
   if (event.currency === 'current') {
+    const eventButtons = document.createElement('div');
+    eventButtons.id = 'event-buttons';
+
     const goingButton = document.createElement('button');
     goingButton.id ='going-button';
     goingButton.innerText = 'Going';
@@ -532,10 +548,11 @@ function createEventWithResponse(event, userID) {
           goingAttendees, notGoingAttendees, undecidedAttendees);
     });
 
-    bottomCard.appendChild(goingButton);
+    eventButtons.appendChild(goingButton);
     if (event.privacy !== 'public') {
-      bottomCard.appendChild(notGoingButton);
+      eventButtons.appendChild(notGoingButton);
     }
+    bottomCard.appendChild(eventButtons);
   } else {
     const pastMessage = document.createElement('p');
     pastMessage.innerText = 'This event has already occurred.';
@@ -543,12 +560,9 @@ function createEventWithResponse(event, userID) {
   }
 
   if (userID === event.creator) {
-    const deleteButton = document.createElement('button');
+    const deleteButton = document.createElement('i');
     deleteButton.id = 'delete-button';
-    deleteButton.className = 'button icon-button';
-    const deleteIcon = document.createElement('i');
-    deleteIcon.className = 'fa fa-trash-o';
-    deleteButton.appendChild(deleteIcon);
+    deleteButton.className = 'fa fa-trash-o';
     deleteButton.addEventListener('click', () => {
       deleteSingleEvent(event, eventElement);
     });
@@ -692,18 +706,17 @@ function createNoAttendeesMessage(attendeeType, creatorView) {
   }
 }
 
-
 /** Sets the color of the RSVP button on onload. */
 function setRSVPButtonColor(goingStatus, goingButton, notGoingButton) {
   if (goingStatus === "going") {
-    goingButton.className = "button button-selected";
-    notGoingButton.className = "button";
+    goingButton.className = "event-button event-button-selected";
+    notGoingButton.className = "event-button";
   } else if (goingStatus === "not-going") {
-    goingButton.className = "button";
-    notGoingButton.className = "button button-selected";
+    goingButton.className = "event-button";
+    notGoingButton.className = "event-button event-button-selected";
   } else {
-    goingButton.className = "button";
-    notGoingButton.className = "button";
+    goingButton.className = "event-button";
+    notGoingButton.className = "event-button";
   }
 }
 
@@ -734,19 +747,19 @@ function addRemoveAttendee(event, buttonClicked, goingButton, notGoingButton,
 /** Changes the color of the RSVP buttons when the user clicks one. */
 function switchRSVPButtonColor(event, buttonClicked, goingButton, notGoingButton) {
   if (buttonClicked === 'going') {
-    if (goingButton.classList.contains('button-selected')) {
-      goingButton.className = 'button';
+    if (goingButton.classList.contains('event-button-selected')) {
+      goingButton.className = 'event-button';
     } else {
-      goingButton.className = 'button button-selected';
+      goingButton.className = 'event-button event-button-selected';
     }
-    notGoingButton.className = 'button';
+    notGoingButton.className = 'event-button';
   } else {
-    if (notGoingButton.classList.contains('button-selected')) {
-      notGoingButton.className = 'button';
+    if (notGoingButton.classList.contains('event-button-selected')) {
+      notGoingButton.className = 'event-button';
     } else {
-      notGoingButton.className = 'button button-selected';
+      notGoingButton.className = 'event-button event-button-selected';
     }
-    goingButton.className = 'button';
+    goingButton.className = 'event-button';
   } 
   if (window.location.pathname === '/profile.html') {
     // Reload the page to move the event to the new appropriate profile section.
@@ -768,7 +781,7 @@ function deleteSingleEvent(event, eventElement) {
 function updateAttendeeCount(event, buttonClicked, goingButton, notGoingButton, 
     goingAttendees, notGoingAttendees, undecidedAttendees) {
   if (buttonClicked === 'going') {
-    if (goingButton.classList.contains('button-selected')) {
+    if (goingButton.classList.contains('event-button-selected')) {
       // If the Going button is clicked when already selected, remove a count from Going
       // and add a count to Undecided.
       updateSingleAttendeeCount(goingAttendees, -1, ' Going');
@@ -777,14 +790,14 @@ function updateAttendeeCount(event, buttonClicked, goingButton, notGoingButton,
       // If the Going button is clicked when not selected, add a count to Going
       // and remove a count from either Not Going or Undecided.
       updateSingleAttendeeCount(goingAttendees, 1, ' Going');
-      if (notGoingButton.classList.contains('button-selected')) {
+      if (notGoingButton.classList.contains('event-button-selected')) {
         updateSingleAttendeeCount(notGoingAttendees, -1, ' Not Going');
       } else {
         updateSingleAttendeeCount(undecidedAttendees, -1, ' Undecided');
       }
     }
   } else {
-    if (notGoingButton.classList.contains('button-selected')) {
+    if (notGoingButton.classList.contains('event-button-selected')) {
       // If the Not Going button is clicked when already selected, remove a count from 
       // Not Going and add a count to Undecided.
       updateSingleAttendeeCount(notGoingAttendees, -1, ' Not Going');
@@ -793,7 +806,7 @@ function updateAttendeeCount(event, buttonClicked, goingButton, notGoingButton,
       // If the Not Going button is clicked when not selected, add a count to
       // Not Going and remove a count from either Going or Undecided.
       updateSingleAttendeeCount(notGoingAttendees, 1, ' Not Going');
-      if (goingButton.classList.contains('button-selected')) {
+      if (goingButton.classList.contains('event-button-selected')) {
         updateSingleAttendeeCount(goingAttendees, -1, ' Going');
       } else {
         updateSingleAttendeeCount(undecidedAttendees, -1, ' Undecided');

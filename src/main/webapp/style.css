@@ -2,23 +2,11 @@
   --option-color: #696969;
   --form-background: rgba(0,0,0,0.2);
   --navbar-color: #09280a;
-  --button-color: rgba(248, 202, 210, 0.658);
-  --button-color-selected: rgba(247, 162, 177, 0.979);
-  --request-button-color: #006400;
+  --button-color: #006400;
+  --selected-color: #c6e9c6;
   --sidebar-color: #f1f1f1;
   --red-marker-color: #F78F8F;
   --base-font: 'Roboto';
-  --events-form-font: 'Helvetica';
-}
-
-img {
-  max-width: 100%;
-  max-height: 100%;
-}
-
-img {
-  max-width: 100%;
-  max-height: 100%;
 }
 
 * {
@@ -31,6 +19,29 @@ html, body {
   padding: 0;
 }
 
+/* General font styling */
+p {
+  font-family: var(--base-font);
+  font-weight: 300;
+}
+
+label {
+  font-family: var(--base-font);
+  font-weight: 300;
+}
+
+h1 {
+  font-family: var(--base-font);
+  font-weight: 500;
+}
+
+h2, h3, h4, h5 {
+  font-family: var(--base-font);
+  font-weight: 400;
+}
+
+/** Navbar styling */
+
 .navbar {
   display: flex;
   background-color: var(--navbar-color);
@@ -42,7 +53,7 @@ html, body {
   text-decoration: none;
   text-align: center;
   cursor: pointer;
-  font-family: var(--base-font);
+  font-weight: 400;
 }
 
 #user-navbar-section {
@@ -56,7 +67,7 @@ html, body {
   color: var(--sidebar-color);
   border: 1.5px solid var(--button-color);
   font-size: 16px;
-  padding: 5px 10px;
+  padding: 4px 8px;
   font-weight: 450;
   font-family: var(--base-font);
   border-radius: 4px;
@@ -85,11 +96,11 @@ html, body {
   padding: 4px 16px;
   border-radius: 5px;
   margin: 15px;
-  width: 412px;
-  height: 325px;
+  width: 425px;
+  height: 365px;
   max-width: 90%;
+  max-height: 90%;
   position: relative;
-  z-index: 3;
   text-align: center;
 }
 
@@ -104,13 +115,14 @@ html, body {
 
 /* Events form styling */
 #events-title {
-  font-family: Helvetica;
   font-size: 40px;
   margin: 1.5% 3% 1.5% 1%; 
   text-align: center;
 }
 #event-body {
   display: flex;
+  height: 100%;
+  padding-bottom: 20px;
 }
 
 .shaded-box {
@@ -119,10 +131,12 @@ html, body {
 }
 
 #event-form {
-  flex: 2;
-  justify-content: right;
-  font-family: Helvetica;
-  font-size: 15px;
+  flex:40%;
+  flex-wrap: wrap;
+  max-width: 40%;
+  background-color: var(--sidebar-color);
+  padding: 20px;
+  font-family: var(--base-font);
 }
 
 #attendees-wrap {
@@ -135,12 +149,12 @@ html, body {
 }
 
 #COVID-notice h3 {
-  font-size: 15px;
+  font-size: 20px;
   color: grey;
 }
 
 #COVID-notice p {
-  font-size: 10px;
+  font-size: 15px;
   color: grey;
 }
 
@@ -159,8 +173,7 @@ html, body {
 
 /* Events element styling */
 .name-display {
-  font-size: 26px;
-  font-family: Helvetica;
+  font-size: 24px;
   padding: 0;
   margin-top: 0;
   margin-bottom: 0;
@@ -168,7 +181,6 @@ html, body {
 
 .date-display {
   font-size: 13px;
-  font-family: Helvetica;
   color: var(--option-color);
   margin-top: 0;
   margin-bottom: 0;
@@ -178,18 +190,36 @@ html, body {
   display: inline-flex;
   align-items: center;
   font-size: 16px;
-  font-family: Helvetica;
 }
 
 .fa-map-marker {
   margin-right: 5px;
+  cursor: pointer;
+}
+
+.location-name {
+  cursor: pointer;
+}
+
+.privacy-display {
+  font-size: 16px;
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
 .details-display {
   font-size: 15px;
-  font-family: Helvetica;
-  margin-top: 0;
+  margin-top: 10px;
   margin-bottom: 0;
+}
+
+.logout-display {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0 auto;
+  width: 100%;
 }
 
 .icon-button {
@@ -198,19 +228,22 @@ html, body {
   margin: 2px;
 }
 
-#event-creator {
+#creator {
   display: flex;
   align-items: center;
   justify-content: left;
+  cursor: pointer;
 }
 
-#event-creator-name {
+#creator-name {
   font-size: 15px;
 }
 
 .top-card {
   display: flex;
   justify-content: space-between;
+  margin-bottom: 0;
+  padding-bottom: 0;
 }
 
 .user-display {
@@ -224,21 +257,20 @@ html, body {
 }
 
 .attendee-info {
-  margin-left: 15px;
-  margin-right: 15px;
-  font-size: 16px;
+  margin-left: 6px;
+  margin-right: 6px;
+  font-size: 15px;
 }
 
-
-#rsvp-button {
-  display: block;
-  margin: 0 auto;
+#event-buttons {
+  display: flex;
+  justify-content: center;
 }
 
-#likes-element {
-  display: inline-flex;
-  justify-content: space-between;
-  align-items: flex-end;
+#edit-event-button {
+  position: absolute;
+  bottom: 9px;
+  right: 30px;
 }
 
 #delete-button {
@@ -247,7 +279,32 @@ html, body {
   right: 10px;
 }
 
-/**map styling */
+.distance-display {
+  font-size: 15px;
+}
+
+/** Event buttons styling */
+.event-button {
+  background-color: var(--sidebar-color);
+  color: var(--button-color);
+  border: 1.5px solid var(--button-color);
+  font-size: 14px;
+  padding: 4px 8px;
+  margin-left: 5px;
+  margin-right: 5px;
+  font-weight: 450;
+  font-family: var(--base-font);
+  border-radius: 12px;
+  outline: none;
+  transition: ease background-color 0.1s, ease color 0.1s;
+  cursor: pointer;
+}
+
+.event-button-selected {
+  background-color: var(--selected-color);
+}
+
+/** Map styling */
 .row {
   height: 95%;
   display: flex;
@@ -255,11 +312,28 @@ html, body {
 }
 
 #side {
-  flex: 20%;
+  flex:25%;
   flex-wrap: wrap;
-  max-width: 20%;
+  max-width: 25%;
   background-color: var(--sidebar-color);
   padding: 20px;
+  font-family: var(--base-font);
+}
+
+#side h1 {
+  color: var(--button-color);
+}
+
+.place-info {
+  display: flex;
+  align-items: center;
+  clear: both;
+  margin: 7px;
+  overflow-wrap: anywhere;
+}
+
+p.place-info, h5.place-info, a.place-info {
+  margin-left: 20px;
 }
 
 #map {
@@ -268,15 +342,23 @@ html, body {
 }
 
 #map-snippet {
-  height: 700px;
-  width: 400px;
-  flex: 4;
+  height: 100%;
+}
+
+.event-main {
+  flex: 60%;
+  background-color: white;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 20px;
+  font-family: var(--base-font);
 }
 
 .main {
-  flex: 80%;
+  flex: 75%;
   background-color: white;
   padding: 20px;
+  font-family: var(--base-font);
 }
 
 @media sceen and (max-width: 700px) {
@@ -339,12 +421,16 @@ html, body {
   width: 30px;
   border-radius: 50%;
   margin-right: 5px;
+  cursor: pointer;
 }
 
 .user-element {
   display: flex;
   align-items: center;
   clear: both;
+}
+
+.user-name {
   cursor: pointer;
 }
 
@@ -353,6 +439,11 @@ html, body {
   color: var(--option-color);
   cursor: pointer;
 }
+
+.fa-trash-o {
+  color: var(--option-color);
+  cursor: pointer;
+} 
 
 #edit-name-button {
   transition: 0.5s ease;
@@ -384,6 +475,7 @@ html, body {
 
 #personal-name {
   transition: 0.5 ease;
+  cursor: pointer;
 }
 
 #personal-name:hover + #edit-name-button {
@@ -416,26 +508,17 @@ html, body {
   display: flex;
   align-items: center;
   clear: both;
-  cursor: pointer;
 }
 
 #interest-icon {
   width: 30px;
   height: 30px;
   margin-right: 3px;
+  cursor: pointer;
 }
 
-/* Profile fonts styling */
-#profile-body p {
-  font-family: var(--base-font);
-  font-style: normal;
-  font-weight: 300;
-}
-
-#profile-body h1, h2, h3 {
-  font-family: var(--base-font);
-  font-style: normal;
-  font-weight: 500;
+#interest-name {
+  cursor: pointer;
 }
 
 /* Profile page styling */
@@ -444,7 +527,7 @@ html, body {
 }
 
 #profile-content {
-  max-width: 1275px;
+  max-width: 1306px;
   margin: 0 auto;
   height: 100%;
 }
@@ -469,6 +552,10 @@ html, body {
 
 #name-buddy-wrapper {
   margin-left: 20px;
+}
+
+.buddies-text {
+  cursor: pointer;
 }
 
 #name-container {
@@ -496,6 +583,10 @@ html, body {
   text-align: left;
 }
 
+#dropdown-element {
+  cursor: pointer;
+}
+
 #attending-events {
   display: block;
 }
@@ -518,23 +609,15 @@ html, body {
   flex-wrap: wrap;
 }
 
-/* Buddy request button styling */
-.request-button {
-  background-color: var(--request-button-color);
-  color: var(--side-bar);
-  border: 1.5px solid var(--request-button-color);
-  font-size: 10px;
-  padding: 5px 10px;
-  font-weight: 400;
-  font-family: var(--base-font);
-  border-radius: 4px;
-  transition: ease background-color 0.1s, ease color 0.1s;
-  margin-right: 2px;
+.profile-heading {
+  font-weight: 500;
+  color: var(--button-color);
 }
 
-.request-button:hover {
-  background-color: var(--side-bar);
-  color: var(--request-button-color);
+/* Buddy request button styling */
+.request-button {
+  font-size: 10px;
+  margin-right: 2px;
 }
 
 /* Style the tab in sidebar */
@@ -581,20 +664,13 @@ html, body {
 }
 
 /* Style font for sidebar */
-#side p {
-  font-family: var(--base-font);
-  font-style: normal;
-  font-weight: 300;
-}
-
-#side h1, h2, h3 {
-  font-family: var(--base-font);
-  font-style: normal;
-  font-weight: 500;
-}
-
 #side a {
   color: black;
+  text-decoration: none;
+}
+
+#side a:hover {
+  text-decoration: underline;
 }
 
 #post-form {
@@ -619,6 +695,7 @@ html, body {
 
 /* Styling for filter buttons. */
 .filter-button {
+  font-family: var(--base-font);
   background-color: #ddd;
   border: none;
   color: black;
@@ -632,16 +709,17 @@ html, body {
 }
 
 .filter-button:hover {
-  background-color: #002b54;
+  background-color: var(--navbar-color);
   color: white;
 } 
 
 .filter-button.active {
-  background-color: turquoise;
-  color: #002b54;
+  background-color: var(--button-color);
+  color: white;
 } 
 
 .clear-button {
+  font-family: var(--base-font);
   float: right;
   background-color: #ddd;
   border: none;
@@ -655,13 +733,13 @@ html, body {
 }
 
 .clear-button:hover {
-  background-color: plum;
+  background-color: var(--button-color);
 }
 
 /* Loading icon functionality */
 .loader {
   border: 16px solid #f3f3f3;
-  border-top: 16px solid #0928;
+  border-top: 16px solid var(--navbar-color);
   border-radius: 50%;
   width: 120px;
   height: 120px;
@@ -705,4 +783,80 @@ html, body {
   font-size: 20px;
   margin-right: 5px;
   cursor: pointer;
+}
+
+/* Near Me styling */
+#nearbyEvents {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+/** Post styling */
+#image {
+  max-height: 100%;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  height: 90%;
+  margin-top: 0;
+  padding-top: 0;
+  align-items: center;
+}
+
+.post-card-profile {
+  /* Add shadows to create the "card" effect */
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+  transition: 0.3s;
+  padding: 4px 16px;
+  border-radius: 5px;
+  margin: 15px;
+  max-width: 40%;
+  max-height: 40%;
+  position: relative;
+  text-align: center;
+}
+
+/* On mouse-over, add a deeper shadow */
+.post-card-profile:hover {
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+}
+
+
+.post-card {
+  /* Add shadows to create the "card" effect */
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+  transition: 0.3s;
+  padding: 4px 16px;
+  border-radius: 5px;
+  margin: 15px;
+  max-width: 100%;
+  max-height: 100%;
+  position: relative;
+  text-align: center;
+}
+
+/* On mouse-over, add a deeper shadow */
+.post-card:hover {
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+}
+
+.post-location {
+  font-size: 10px;
+  margin-bottom: 2px;
+}
+
+#likes-element {
+  position: absolute;
+  text-align: left;
+  bottom: 0px;
+  left: 10px;
+}
+
+#creator {
+  align-items: center;
+  margin-top: 0px;
+  margin-bottom: 10px;
+  padding-bottom: 20px;
+  text-align: center;
 }
