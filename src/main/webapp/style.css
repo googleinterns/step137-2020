@@ -775,6 +775,7 @@ p.place-info, h5.place-info, a.place-info {
 
 .clear-button:hover {
   background-color: var(--button-color);
+  color: white;
 }
 
 /* Loading icon functionality */
