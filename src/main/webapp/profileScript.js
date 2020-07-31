@@ -201,9 +201,11 @@ function displayProfilePicture(user, container, size) {
   const profilePic = document.createElement('img');
   profilePic.className = size;
   if (size === 'profile-pic-small') {
-    profilePic.addEventListener('click', () => {
-      visitProfile(user.id);
-    });
+    if (container.className !== 'user-display') {
+      profilePic.addEventListener('click', () => {
+        visitProfile(user.id);
+      });
+    }
   }
 
   if (user.blobKeyString === '') {
