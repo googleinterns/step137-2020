@@ -79,7 +79,7 @@ function initMap() {
         lat: position.coords.latitude,
         lng: position.coords.longitude
       };
-      // For use on Nearme page
+      // For use on Near You page
       localStorage.setItem('currentLocation', pos);
       for (var i = 0; i < filterElements.length; i++) {
         // Intentionally outsourced to separate function to solve looping bugs.
@@ -109,7 +109,7 @@ function initMap() {
     marker.setPosition(e.latLng);
     marker.setMap(map);
   });
-  // For use on Nearme page
+  // For use on Near You page
   localStorage.setItem('currentMap', map);
 }
 
