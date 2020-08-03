@@ -53,7 +53,8 @@ function displayUsers() {
       let userCount = 0;
       let userId = localStorage.getItem(LOCAL_STORAGE_ID);
       for (let i = 0; i < users.length; i ++) {
-        if (users[i].name.includes(attendeeText) && users[i].id != userId) {
+        let searchIndex = users[i].name.toLowerCase().indexOf(attendeeText.toLowerCase());
+        if ((searchIndex != -1) && (users[i].id != userId)) {
           // Display any users whose name contains the search text.
           loadedUsers.appendChild(loadUser(users[i]));
           userCount ++;
