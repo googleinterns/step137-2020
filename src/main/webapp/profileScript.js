@@ -201,9 +201,11 @@ function displayProfilePicture(user, container, size) {
   const profilePic = document.createElement('img');
   profilePic.className = size;
   if (size === 'profile-pic-small') {
-    profilePic.addEventListener('click', () => {
-      visitProfile(user.id);
-    });
+    if (container.className !== 'user-display') {
+      profilePic.addEventListener('click', () => {
+        visitProfile(user.id);
+      });
+    }
   }
 
   if (user.blobKeyString === '') {
@@ -532,10 +534,13 @@ function displayPersonalEvents(user, eventsContainer) {
   const dropDown = document.createElement('select');
   dropDown.id = 'dropdown-element';
   const attendingOption = document.createElement('option');
+  attendingOption.className = 'dropdown-option';
   attendingOption.innerText = 'Attending';
   const invitedOption = document.createElement('option');
+  invitedOption.className = 'dropdown-option';
   invitedOption.innerText = 'Invited';
   const createdOption = document.createElement('option');
+  createdOption.className = 'dropdown-option';
   createdOption.innerText = 'Created';
   
   const attendingEvents = document.createElement('div');
@@ -809,7 +814,7 @@ function displayPosts(user, viewer, postsContainer) {
       } else if (viewer === PROFILE_VIEWER_STRANGER || viewer === PROFILE_VIEWER_LOGOUT
           || viewer === PROFILE_VIEWER_PENDING_BUDDY) {
         for (let i = 0; i < posts.length; i ++) {
-          if (posts[i].creator === currentId) {
+          if (posts[i].creator === user.id) {
             if (posts[i].privacy == "public") {
               postsGrid.appendChild(createPostWithResponse(posts[i], user.id));
               count++

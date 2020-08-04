@@ -1,25 +1,26 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <title>Social Map</title>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="style.css">
     <script src="profileScript.js"></script>
     <script src="searchUsersScript.js"></script>
   </head>
-  <body onload="searchUsersOnload()">
+  <body onload="searchUsersOnload()" id="search-users-body">
     <div class="navbar">
       <p class="navbar-text" onclick="window.location.href = 'map.html'">Social Map</p>
-      <p class="navbar-text" onclick="window.location.href = 'nearme.html'">Near Me</p>
+      <p class="navbar-text" onclick="window.location.href = 'nearyou.html'">Near You</p>
       <p class="navbar-text" onclick="window.location.href = 'searchUsers.html'">Search Users</p>
       <div id="user-navbar-section"></div>
     </div>
     <div id="search-users-container">
-    <h1>Search Users</h1>
-    <form>
-      <input type="text" placeholder="Enter user name..." id="search-text" 
-          onkeyup="searchUsers()" autocomplete="off">
-    </form>
-    <div id="searched-users"></div>
+      <h1>Search Users</h1>
+      <form>
+        <input type="text" placeholder="Enter user name..." id="search-text" 
+            onkeyup="searchUsers()" autocomplete="off">
+      </form>
+      <div id="searched-users"></div>
     </div>
   </body>
 </html>

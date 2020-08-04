@@ -41,8 +41,8 @@
           <input type="date" id="end-date" name="end-date" required>
           <label for="end-time">End Time*: </label>
           <input type="time" id="end-time" name="end-time" required>
-          <label for="time-zone">Time Zone*: </label>
-          <select id="time-zone" name="time-zone" required>
+          <br>
+                    <select id="time-zone" name="time-zone" required>
             <option value="AST">AST</option>
             <option value="EST">EST</option>
             <option value="EDT">EDT</option>
@@ -87,7 +87,7 @@
             <div id="loaded-users"></div>
             <br>
             <div id="display-invited-names"></div>
-            <input type="text" id="invited-attendee-ID-list" name = "invited-attendee-ID-list">
+            <input type="text" id="invited-attendee-ID-list" name="invited-attendee-ID-list">
             <div id="warning" class="warning"></div>
           </div>
           <br>
@@ -106,7 +106,7 @@
             <br><br>
           </div>
 
-          <button type="button" onclick="submitForm()" class="button">Create Event</button>
+          <button type="button" onclick="submitForm()" class="button" id="event-button">Create Event</button>
         </form>
         <div id="success"></div>
       </div>
