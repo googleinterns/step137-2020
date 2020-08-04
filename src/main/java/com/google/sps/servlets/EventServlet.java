@@ -19,6 +19,7 @@ import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.sps.data.Constants;
 import com.google.sps.data.Event;
+import com.google.sps.data.TimeHandler;
 import com.google.gson.Gson;
 import java.lang.*;
 import java.text.DateFormat;
@@ -40,13 +41,13 @@ public class EventServlet extends HttpServlet {
     String timeZone = request.getParameter(Constants.TIME_ZONE_PARAM);
 
     JSONObject json = new JSONObject();
-    Date startDateTime = parseInputDateTime(requestStartDate, requestStartTime, timeZone, json);
-    Date endDateTime = parseInputDateTime(requestEndDate, requestEndTime, timeZone, json);
+    Date startDateTime = TimeHandler.parseInputDateTime(requestStartDate, requestStartTime, timeZone, json);
+    Date endDateTime = TimeHandler.parseInputDateTime(requestEndDate, requestEndTime, timeZone, json);
     // Create dates without times for event currency comparison.
-    Date startDate = parseInputDate(requestStartDate, json);
-    Date endDate = parseInputDate(requestEndDate, json);
+    Date startDate = TimeHandler.parseInputDate(requestStartDate, json);
+    Date endDate = TimeHandler.parseInputDate(requestEndDate, json);
     
-    boolean goodDateTimes = verifyDateTimes(startDateTime, endDateTime, json);
+    boolean goodDateTimes = TimeHandler.verifyDateTimes(startDateTime, endDateTime, json);
     if (goodDateTimes) {
       createEntity(
         request, 
@@ -106,7 +107,7 @@ public class EventServlet extends HttpServlet {
       Date startDateTime = (Date) entity.getProperty(Constants.START_DATE_TIME_PARAM);
       Date endDateTime = (Date) entity.getProperty(Constants.END_DATE_TIME_PARAM);
       String timeZone = (String) entity.getProperty(Constants.TIME_ZONE_PARAM);
-      String currency = eventCurrency(endDateTime, timeZone);
+      String currency = TimeHandler.eventCurrency(endDateTime, timeZone);
 
       // Original date/time request strings (for display in form if user edits event).
       String originalStartDate = (String) entity.getProperty(Constants.START_DATE_PARAM);
@@ -141,67 +142,6 @@ public class EventServlet extends HttpServlet {
     response.setContentType("application/json;");
     response.getWriter().println(gson.toJson(events));
 
-  }
-
-/**
-  HTML Date inputs return a String in the form: yyyy/mm/dd.
-  In order to use that for comparison purposes, the String needs to be parsed 
-  into a Date, which requires taking substrings of the year, month, and day of
-  the inputted date String. 
-
-  input.substring(0, 4) should return the yyyy element of the input.
-  input.substrng(5, 7) should return the mm element of the input.
-  input.substring(8) should return the dd element of the input.
-
-  Using these pieces of the input the date can be parsed and formatted as desired.
-*/
-  private Date parseInputDateTime(String inputDate, String time, String timeZone, 
-      JSONObject json) {
-    String[] splitString = inputDate.split("-");
-    String year = splitString[0];
-    if (Integer.parseInt(year) > 5000) {
-      json.put("weird-year", year);
-    }
-    else {
-      json.put("weird-year", "no");
-    }
-    String month = splitString[1];
-    String day = splitString[2];
-
-    return createDateTime(year, month, day, time, timeZone);
-  }
-
-  private Date parseInputDate(String inputDate, JSONObject json) {
-    String[] splitString = inputDate.split("-");
-    String year = splitString[0];
-    String month = splitString[1];
-    String day = splitString[2];
-
-    return createDate(year, month, day);
-  }
-
-/** Turns inputted strings into a date.*/
-  private Date createDate(String year, String month, String day) {
-    String dateString = month + "-" + day + "-" + year;
-    SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
-    Date dateTime = new Date();
-    try {
-      dateTime = formatter.parse(dateString);
-    } catch (ParseException e) {e.printStackTrace();}
-    return dateTime;
-  }
-
-/** Turns inputted strings into date time. */
-  private Date createDateTime(String year, String month, String day, 
-            String time, String timeZone) {
-    String dateString = month + "-" + day + "-" + year + " " + time + " " + timeZone;
-    SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy HH:mm z");
-    formatter.setTimeZone(TimeZone.getTimeZone(timeZone));
-    Date dateTime = new Date();
-    try {
-      dateTime = formatter.parse(dateString);
-    } catch (ParseException e) {e.printStackTrace();}
-    return dateTime;
   }
 
 /** Creates an event entity in datastore. */
@@ -248,11 +188,11 @@ public class EventServlet extends HttpServlet {
     notGoingAttendees.add(""); // Placeholder entry to prevent empty list from becoming null.
 
     // Get formatted start and end times.
-    String startTimeFormatted = getTimeDisplay(startTime);
-    String endTimeFormatted = getTimeDisplay(endTime);
+    String startTimeFormatted = TimeHandler.getTimeDisplay(startTime);
+    String endTimeFormatted = TimeHandler.getTimeDisplay(endTime);
     
     // Get formatted dates and times for display.
-    String dateTimeFormatted = createDateTimeDisplay(startDate, startTimeFormatted, 
+    String dateTimeFormatted = TimeHandler.createDateTimeDisplay(startDate, startTimeFormatted, 
           endDate, endTimeFormatted, timeZone);
 
     Entity eventEntity = new Entity(Constants.EVENT_ENTITY_PARAM);
@@ -280,100 +220,5 @@ public class EventServlet extends HttpServlet {
 
     json.put("success", "true");
     json.put("bad-time", "false");
-  }
-
-/**
-  if event is finished in one day, date display should be:
-      EEE MMM dd, yyyy, startTime - endTime
-  if the event ends on a different day than it starts:
-      EEE MM Mdd, yyyy, startTime - EEE MMM dd, yyyy, endTime
-
-*/
-  private String createDateTimeDisplay(Date startDate, String startTime, Date endDate,
-                                String endTime, String timeZone) {
-    String dateTime = "";
-    String dateString;
-    SimpleDateFormat formatter = new SimpleDateFormat("EEE MMM dd, yyyy"); 
-
-    if (startDate.equals(endDate)) {
-      dateString = formatter.format(startDate);
-      dateTime += dateString + ", " + startTime + " - " + endTime + " " + 
-                  timeZone;
-    }
-    else {
-      String startDateString = formatter.format(startDate);
-      String endDateString = formatter.format(endDate);
-      dateTime += startDateString + ", " + startTime + " - " + endDateString;
-      dateTime += ", " + endTime + " " + timeZone;
-    }
-
-    return dateTime;
-  }
-
-/** Make sure the inputted dates and times are valid. */
-  private boolean verifyDateTimes (Date startDate, Date endDate, JSONObject json) {
-    if (endDate.before(startDate) || endDate.equals(startDate)) {
-      json.put("bad-time", "true");
-      return false;
-    }
-    return true;
-  }
-
-/**
-  Gets start and end times for display purposes -- converts times after 12 to standard
-  as opposed to military (i.e 13 to 1)
-*/
-  private String getTimeDisplay(String time) {
-    String oldHour;
-    int hour;
-    String hourForDisplay;
-    String period;
-    int firstChar = Integer.parseInt(time.substring(0, 1));
-    int firstTwoChars = Integer.parseInt(time.substring(0, 2));
-
-    if (firstChar == 0 && firstTwoChars != 00) {
-      hourForDisplay = time.substring(1, 2);
-      period = "am";
-    }
-    else if (firstTwoChars == 00) {
-      hourForDisplay = "12";
-      period = "am";
-    }
-    else if (firstTwoChars == 10 || firstTwoChars == 11) {
-      hourForDisplay = String.valueOf(firstTwoChars);
-      period = "am";
-    }
-    else if (firstTwoChars == 12) {
-      hourForDisplay = String.valueOf(firstTwoChars);
-      period = "pm";
-    }
-    else {
-      oldHour = time.substring(0, 2);
-      hour = Integer.parseInt(oldHour);
-      int hourForDisplayInt = hour - 12;
-      hourForDisplay = String.valueOf(hourForDisplayInt);
-      period = "pm";
-    }
-
-    String min = time.substring(3);
-    hourForDisplay += ":" + min + period;
-
-    return hourForDisplay;
-  }
-
-  /** Determines if the event is current or past. */
-  private String eventCurrency(Date endDate, String timeZone) {
-    SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy HH:mm z");
-    formatter.setTimeZone(TimeZone.getTimeZone(timeZone));
-    Date date = new Date();
-    Date currentDate = new Date();
-    try {
-      String currentDateString = formatter.format(date);
-      currentDate = formatter.parse(currentDateString);
-    } catch (ParseException e) {e.printStackTrace();}
-    if (endDate.before(currentDate) || endDate.equals(currentDate)) {
-      return "past";
-    }
-    return "current";
   }
 }
