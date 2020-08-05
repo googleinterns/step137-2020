@@ -7,7 +7,9 @@ import com.google.gson.Gson;
 import com.google.sps.data.Constants;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -32,15 +34,14 @@ public class BuddyServlet extends HttpServlet {
     List<String> otherUserBuddies = (List<String>) otherUserEntity
         .getProperty(Constants.USER_BUDDIES_PARAM);
 
+    // Get Set versions of the buddy lists to avoid duplicates.
+    Set<String> currentUserBuddiesSet = new HashSet<>(currentUserBuddies);
+    Set<String> otherUserBuddiesSet = new HashSet<>(otherUserBuddies);
+
     if (action.equals(Constants.BUDDY_ADD_PARAM)) {
-      // Add a buddy connection by adding both IDs to both users' 
-      // buddy lists (if they are not already in them).
-      if (!currentUserBuddies.contains(otherUserId)) {
-        currentUserBuddies.add(otherUserId);
-      }
-      if (!otherUserBuddies.contains(currentUserId)) {
-        otherUserBuddies.add(currentUserId);
-      }
+      // Add a buddy connection by adding both IDs to both users' buddy lists.
+      currentUserBuddiesSet.add(otherUserId);
+      otherUserBuddiesSet.add(currentUserId);
       
       List<String> currentUserBuddyRequests = (List<String>) currentUserEntity
           .getProperty(Constants.USER_BUDDY_REQUESTS_PARAM);
@@ -51,18 +52,15 @@ public class BuddyServlet extends HttpServlet {
         currentUserEntity.setProperty(Constants.USER_BUDDY_REQUESTS_PARAM, currentUserBuddyRequests);
       }
     } else {
-      // Remove the buddy connection by removing both IDs from both users'
-      // buddy lists (if they are already in them).
-      if (currentUserBuddies.contains(otherUserId)) {
-        currentUserBuddies.remove(otherUserId);
-      }
-      if (otherUserBuddies.contains(currentUserId)) {
-        otherUserBuddies.remove(currentUserId);
-      }
+      // Remove the buddy connection by removing both IDs from both users' buddy lists.
+      currentUserBuddiesSet.remove(otherUserId);
+      otherUserBuddiesSet.remove(currentUserId);
     }
 
-    currentUserEntity.setProperty(Constants.USER_BUDDIES_PARAM, currentUserBuddies);
-    otherUserEntity.setProperty(Constants.USER_BUDDIES_PARAM, otherUserBuddies);
+    List<String> newCurrentUserBuddies = new ArrayList<>(currentUserBuddiesSet);
+    List<String> newOtherUserBuddies = new ArrayList<>(otherUserBuddiesSet);
+    currentUserEntity.setProperty(Constants.USER_BUDDIES_PARAM, newCurrentUserBuddies);
+    otherUserEntity.setProperty(Constants.USER_BUDDIES_PARAM, newOtherUserBuddies);
     datastore.put(currentUserEntity);
     datastore.put(otherUserEntity);
   }
