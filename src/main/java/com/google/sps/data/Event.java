@@ -12,6 +12,7 @@ public class Event implements Comparable<Event> {
   private String startTime;
   private String endDate;
   private String endTime;
+  private String timeZone;
   // Start date/time for sorting
   private Date startDateTime;
   private String location;
@@ -33,6 +34,7 @@ public class Event implements Comparable<Event> {
     this.startTime = builder.startTime;
     this.endDate = builder.endDate;
     this.endTime = builder.endTime;
+    this.timeZone = builder.timeZone;
     this.startDateTime  = builder.startDateTime;
     this.location = builder.location;
     this.placeId = builder.placeId;
@@ -66,6 +68,7 @@ public class Event implements Comparable<Event> {
     private String startTime;
     private String endDate;
     private String endTime;
+    private String timeZone;
     // Start date of event for sorting comparison (displaying events by start date).
     private Date startDateTime;
     private String location;
@@ -111,6 +114,11 @@ public class Event implements Comparable<Event> {
 
     public EventBuilder setEndTime (String endTime) {
       this.endTime = endTime;
+      return this;
+    }
+
+    public EventBuilder setTimeZone (String timeZone) {
+      this.timeZone = timeZone;
       return this;
     }
 

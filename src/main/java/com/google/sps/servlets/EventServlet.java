@@ -121,6 +121,7 @@ public class EventServlet extends HttpServlet {
           .setStartTime(originalStartTime)
           .setEndDate(originalEndDate)
           .setEndTime(originalEndTime)
+          .setTimeZone(timeZone)
           .setStartDateTime(startDateTime)
           .setLocation(location) 
           .setPlaceId(placeId) 

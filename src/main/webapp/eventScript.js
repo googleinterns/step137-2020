@@ -822,6 +822,7 @@ function displayEventFormFilledIn() {
   document.getElementById("start-time").value = event.startTime;
   document.getElementById("end-date").value = event.endDate;
   document.getElementById("end-time").value = event.endTime;
+  document.getElementById("time-zone").value = event.timeZone;
   document.getElementById("location").value = event.location;
   document.getElementById("place-id").value = event.placeId;
   document.getElementById("event-details").value = event.eventDetails;
