@@ -9,14 +9,10 @@ import org.json.JSONObject;
 
 public class TimeHandler {
   /**
-  HTML Date inputs return a String in the form: yyyy/mm/dd.
+  HTML Date inputs return a String in the form: yyyy-mm-dd.
   In order to use that for comparison purposes, the String needs to be parsed 
-  into a Date, which requires taking substrings of the year, month, and day of
-  the inputted date String. 
-
-  input.substring(0, 4) should return the yyyy element of the input.
-  input.substrng(5, 7) should return the mm element of the input.
-  input.substring(8) should return the dd element of the input.
+  into a Date, which requires splitting the String at "-" to separate the 
+  year, month, and day into separate String variables
 
   Using these pieces of the input the date can be parsed and formatted as desired.
 */

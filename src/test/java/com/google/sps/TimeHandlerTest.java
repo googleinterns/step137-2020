@@ -31,28 +31,22 @@ public class TimeHandlerTest {
   JSONObject json = new JSONObject();
 
   @Test
-  public void parseInputDateTimeTest() {
+  public void parseInputDateTimeTest() throws ParseException {
     Date actualDateTime = TimeHandler.parseInputDateTime(YEAR_2020_07_15, TIME_14_00, PACIFIC_DAYLIGHT, json);
     
     SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy HH:mm z");
     formatter.setTimeZone(TimeZone.getTimeZone(PACIFIC_DAYLIGHT));
-    Date expectedDateTime = new Date();
-    try {
-      expectedDateTime = formatter.parse("07-15-2020 14:00 PDT");
-    } catch (ParseException e) {e.printStackTrace();}
+    Date expectedDateTime = formatter.parse("07-15-2020 14:00 PDT");
   
     Assert.assertEquals(expectedDateTime, actualDateTime);
   }
 
   @Test 
-  public void parseInputDateTest() {
+  public void parseInputDateTest() throws ParseException {
     Date actualDate = TimeHandler.parseInputDate(YEAR_2020_06_15, json);
 
     SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
-    Date expectedDate = new Date();
-    try {
-      expectedDate = formatter.parse("06-15-2020");
-    } catch (ParseException e) {e.printStackTrace();}
+    Date expectedDate = formatter.parse("06-15-2020");
   
     Assert.assertEquals(expectedDate, actualDate);
   }
@@ -60,17 +54,13 @@ public class TimeHandlerTest {
   @Test 
   public void getTimeDisplayTestAM() {
     String actualTime = TimeHandler.getTimeDisplay(TIME_5_00);
-    String expectedTime = "5:00am";
-
-    Assert.assertEquals(expectedTime, actualTime);
+    Assert.assertEquals("5:00am", actualTime);
   }
 
   @Test 
   public void getTimeDisplayTestPM() {
     String actualTime = TimeHandler.getTimeDisplay(TIME_19_00);
-    String expectedTime = "7:00pm";
-
-    Assert.assertEquals(expectedTime, actualTime);
+    Assert.assertEquals("7:00pm", actualTime);
   }
 
   @Test 
@@ -82,10 +72,7 @@ public class TimeHandlerTest {
 
     String actualDisplay = TimeHandler.createDateTimeDisplay(startDate, startTime, 
         endDate, endTime, PACIFIC_DAYLIGHT);
-
-    String expectedDisplay = "Mon Jun 15, 2020, 1:00am - Wed Jul 15, 2020, 5:00am PDT";
-
-    Assert.assertEquals(expectedDisplay, actualDisplay);
+    Assert.assertEquals("Mon Jun 15, 2020, 1:00am - Wed Jul 15, 2020, 5:00am PDT", actualDisplay);
   } 
 
   @Test 
@@ -98,9 +85,7 @@ public class TimeHandlerTest {
     String actualDisplay = TimeHandler.createDateTimeDisplay(startDate, startTime, 
         endDate, endTime, CENTRAL_DAYLIGHT);
 
-    String expectedDisplay = "Wed Jul 15, 2020, 12:00pm - 2:00pm CDT";
-
-    Assert.assertEquals(expectedDisplay, actualDisplay);
+    Assert.assertEquals("Wed Jul 15, 2020, 12:00pm - 2:00pm CDT", actualDisplay);
   }
 
   @Test
@@ -109,9 +94,7 @@ public class TimeHandlerTest {
     Date endDateTime = TimeHandler.parseInputDateTime(YEAR_2020_07_15, TIME_12_00, PACIFIC_DAYLIGHT, json);
 
     boolean actual = TimeHandler.verifyDateTimes(startDateTime, endDateTime, json);
-    boolean expected = true;
-
-    Assert.assertEquals(expected, actual);
+    Assert.assertEquals(true, actual);
   }
 
   @Test
@@ -120,9 +103,7 @@ public class TimeHandlerTest {
     Date endDateTime = TimeHandler.parseInputDateTime(YEAR_2020_06_15, TIME_12_00, PACIFIC_DAYLIGHT, json);
 
     boolean actual = TimeHandler.verifyDateTimes(startDateTime, endDateTime, json);
-    boolean expected = false;
-
-    Assert.assertEquals(expected, actual);
+    Assert.assertEquals(false, actual);
   }
 
   @Test
@@ -131,9 +112,7 @@ public class TimeHandlerTest {
     Date endDateTime = TimeHandler.parseInputDateTime(YEAR_2020_07_15, TIME_5_00, PACIFIC_DAYLIGHT, json);
 
     boolean actual = TimeHandler.verifyDateTimes(startDateTime, endDateTime, json);
-    boolean expected = false;
-
-    Assert.assertEquals(expected, actual);
+    Assert.assertEquals(false, actual);
   }
 
   @Test
@@ -142,9 +121,7 @@ public class TimeHandlerTest {
     Date endDateTime = TimeHandler.parseInputDateTime(YEAR_5001_09_17, TIME_5_00, PACIFIC_DAYLIGHT, json);
 
     boolean actual = TimeHandler.verifyDateTimes(startDateTime, endDateTime, json);
-    boolean expected = false;
-
-    Assert.assertEquals(expected, actual);
+    Assert.assertEquals(false, actual);
   }
 
   @Test
@@ -152,9 +129,7 @@ public class TimeHandlerTest {
     Date endDateTime = TimeHandler.parseInputDateTime(YEAR_2020_07_15, TIME_5_00, PACIFIC_DAYLIGHT, json);
 
     String actual = TimeHandler.eventCurrency(endDateTime, PACIFIC_DAYLIGHT);
-    String expected = "past";
-
-    Assert.assertEquals(expected, actual);
+    Assert.assertEquals("past", actual);
   }
 
   @Test
@@ -162,8 +137,6 @@ public class TimeHandlerTest {
     Date endDateTime = TimeHandler.parseInputDateTime(YEAR_5001_09_17, TIME_5_00, PACIFIC_DAYLIGHT, json);
 
     String actual = TimeHandler.eventCurrency(endDateTime, PACIFIC_DAYLIGHT);
-    String expected = "current";
-
-    Assert.assertEquals(expected, actual);
+    Assert.assertEquals("current", actual);
   }
 }
