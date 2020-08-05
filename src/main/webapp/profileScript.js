@@ -446,16 +446,18 @@ function displaySavedInterests(user, viewer) {
 
   if (viewer === PROFILE_VIEWER_PERSONAL || viewer === PROFILE_VIEWER_BUDDY) {
     fetch('/interest').then(response => response.json()).then((interests) => {
-      if (interests.length == 0) {
+      let interestCount = 0;
+      for (let i = 0; i < interests.length; i ++) {
+        if (interests[i].interestedUsers.includes(user.id)) {
+          interestsList.appendChild(createInterest(interests[i]));
+          interestCount ++;
+        }
+      }
+      if (interestCount == 0) {
         const interestMessage = document.createElement('p');
         interestMessage.innerText = 'No interests to show.';
         savedInterestsContainer.appendChild(interestMessage);
       } else {
-        for (let i = 0; i < interests.length; i ++) {
-          if (interests[i].interestedUsers.includes(user.id)) {
-            interestsList.appendChild(createInterest(interests[i]));
-          }
-        }
         savedInterestsContainer.appendChild(interestsList);
       }
     });
