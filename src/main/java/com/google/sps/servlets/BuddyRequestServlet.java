@@ -7,7 +7,9 @@ import com.google.gson.Gson;
 import com.google.sps.data.Constants;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -31,32 +33,31 @@ public class BuddyRequestServlet extends HttpServlet {
           .getProperty(Constants.USER_BUDDY_REQUESTS_PARAM);
     List<String> otherUserBuddyRequests = (List<String>) otherUserEntity
           .getProperty(Constants.USER_BUDDY_REQUESTS_PARAM);
+
+    // Get Set versions of the buddy request lists to avoid duplicates.
+    Set<String> currentUserBuddyRequestsSet = new HashSet<>(currentUserBuddyRequests);
+    Set<String> otherUserBuddyRequestsSet = new HashSet<>(otherUserBuddyRequests);
  
     if (action.equals(Constants.BUDDY_REQUEST_SEND_PARAM)) {
       // Send a buddy request by adding the current user's ID to the 
-      // other user's list of buddy requests (if it is not already in it).
-      if (!otherUserBuddyRequests.contains(currentUserId)) {
-        otherUserBuddyRequests.add(currentUserId);
-        otherUserEntity.setProperty(Constants.USER_BUDDY_REQUESTS_PARAM, otherUserBuddyRequests);
-        datastore.put(otherUserEntity);
-      }
+      // other user's list of buddy requests.
+      otherUserBuddyRequestsSet.add(currentUserId);
     } else if (action.equals(Constants.BUDDY_REQUEST_UNSEND_PARAM)){
       // Unsend a buddy request by removing the current user's ID from the 
-      // other user's list of buddy requests (if it is in it).
-      if (otherUserBuddyRequests.contains(currentUserId)) {
-        otherUserBuddyRequests.remove(currentUserId);
-        otherUserEntity.setProperty(Constants.USER_BUDDY_REQUESTS_PARAM, otherUserBuddyRequests);
-        datastore.put(otherUserEntity);
-      }
+      // other user's list of buddy requests.
+      otherUserBuddyRequestsSet.remove(currentUserId);
     } else {
       // Remove a buddy request by removing the other user's ID from the 
-      // current user's list of buddy requests (if it is in it).
-      if (currentUserBuddyRequests.contains(otherUserId)) {
-        currentUserBuddyRequests.remove(otherUserId);
-        currentUserEntity.setProperty(Constants.USER_BUDDY_REQUESTS_PARAM, currentUserBuddyRequests);
-        datastore.put(currentUserEntity);
-      }
+      // current user's list of buddy requests.
+      currentUserBuddyRequestsSet.remove(otherUserId);
     }
+
+    List<String> newCurrentUserBuddyRequests = new ArrayList<>(currentUserBuddyRequestsSet);
+    List<String> newOtherUserBuddyRequests = new ArrayList<>(otherUserBuddyRequestsSet);
+    currentUserEntity.setProperty(Constants.USER_BUDDY_REQUESTS_PARAM, newCurrentUserBuddyRequests);
+    otherUserEntity.setProperty(Constants.USER_BUDDY_REQUESTS_PARAM, newOtherUserBuddyRequests);
+    datastore.put(currentUserEntity);
+    datastore.put(otherUserEntity);
   }
 
   /** Returns the User entity with the specified ID, or null if one could not be found. */
