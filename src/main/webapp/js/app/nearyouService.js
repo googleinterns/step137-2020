@@ -17,17 +17,13 @@ nearyouScript.prototype.findNearbyEvents = function(eventObjList, currLocation) 
         this.nearyouEvents.push(eventObjList[i]);
       }
     }
-    // return this.nearyouEvents.length;
     this.nearyouEvents.sort( this.compareDistancetoCurrLocation );
     return this.nearyouEvents;
   }
 };
 
 nearyouScript.prototype.isNearby = function(eventObj, currLocation) {
-  var distanceFromCurrLocation = Math.sqrt(
-    (Math.pow((eventObj.xlocation - currLocation.xlocation), 2)) + 
-    (Math.pow((eventObj.ylocation - currLocation.ylocation), 2)) 
-  );
+  var distanceFromCurrLocation = this.getDistance(eventObj, currLocation);
   if (distanceFromCurrLocation <= 2000) {
     return true;
   }
@@ -35,11 +31,21 @@ nearyouScript.prototype.isNearby = function(eventObj, currLocation) {
 };
 
 nearyouScript.prototype.getDistance = function(eventObj, currLocation) {
-  var distance = Math.sqrt(
-    (Math.pow((eventObj.xlocation - currLocation.xlocation), 2)) + 
-    (Math.pow((eventObj.ylocation - currLocation.ylocation), 2)) 
-  );
-  return distance;
+  // Use the Haversine formula to calculate great-circle distance between two points.
+  const earthRadius = 6371e3; //in metres
+  const latInRad1 = currLocation.lat * Math.PI/180;
+  const latInRad2 = eventObj.lat * Math.PI/180;
+  const changeLat = (eventObj.lat - currLocation.lat) * Math.PI/180;
+  const changeLng = (eventObj.lng - currLocation.lng) * Math.PI/180;
+ // a is the square of half the chord length between two points
+  const a = Math.sin(changeLat/2) * Math.sin(changeLat/2) +
+            Math.cos(latInRad1) * Math.cos(latInRad2) *
+            Math.sin(changeLng/2) * Math.sin(changeLng/2);
+  // c is the angular distance between two points in radians.
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+  const distance = earthRadius * c; // in metres
+  return Math.round(distance/100)*100; // round to nearest hundred
 }
 
 nearyouScript.prototype.compareDistancetoCurrLocation = function (eventObj1, eventObj2) {
