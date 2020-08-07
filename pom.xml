@@ -83,7 +83,7 @@
       <plugin>
         <groupId>com.github.klieber</groupId>
 			  <artifactId>phantomjs-maven-plugin</artifactId>
-			  <version>0.4</version>
+			  <version>0.3</version>
 			  <executions>
 				  <execution>
 					  <goals>
@@ -92,14 +92,14 @@
 				  </execution>
 			  </executions>
 			  <configuration>
-				  <version>1.9.8</version>
+				  <version>1.9.2</version>
           <skip>false</skip>
 			  </configuration>
       </plugin>
       <plugin>
 			  <groupId>com.github.searls</groupId>
 			  <artifactId>jasmine-maven-plugin</artifactId>
-        <version>1.3.1.5</version>
+        <version>1.3.1.4</version>
         <executions>
           <execution>
             <goals>
@@ -109,10 +109,11 @@
         </executions>
         <configuration>
           <skipJasmineTests>false</skipJasmineTests>
-          <jsSrcDir>src/main/webapp</jsSrcDir>
+          <jsSrcDir>src/main/webapp/js/app</jsSrcDir>
           <jsTestSrcDir>src/test/webapp/js/specs</jsTestSrcDir>
           <preloadSources>
-            <source>src/main/webapp/GreetingService.js</source>
+            <source>src/main/webapp/js/app/GreetingService.js</source>
+            <source>src/main/webapp/js/app/nearyouService.js</source>
           </preloadSources>
           <webDriverClassName>org.openqa.selenium.phantomjs.PhantomJSDriver</webDriverClassName>
           <webDriverCapabilities>
